@@ -1,0 +1,14 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "qld-alert-app",
+  "compatibility_date": "2026-05-26",
+  "observability": {
+    "enabled": true
+  },
+  "assets": {
+    "directory": "build/web"
+  },
+  "compatibility_flags": [
+    "nodejs_compat"
+  ]
+}

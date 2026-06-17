@@ -1,0 +1,9 @@
+{
+  "scripts": {
+    "check": "wrangler deploy --dry-run --config wrangler.toml",
+    "deploy": "wrangler deploy --config wrangler.toml"
+  },
+  "devDependencies": {
+    "wrangler": "^4.97.0"
+  }
+}
