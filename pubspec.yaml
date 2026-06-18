@@ -4,7 +4,7 @@ description: QLD Alert Portfolio App
 
 publish_to: 'none'
 
-version: 1.0.13+40
+version: 1.0.14+41
 
 environment:
   sdk: ">=3.3.0 <4.0.0"
@@ -40,3 +40,4 @@ flutter:
   generate: true
   assets:
     - assets/QLD_DIP_ALERT_512.png
+    - assets/qld_widget_icon.png

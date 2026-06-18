@@ -37,7 +37,9 @@
 
         <receiver
             android:name=".QldPriceWidgetProvider"
-            android:exported="true">
+            android:exported="true"
+            android:icon="@drawable/qld_widget_icon"
+            android:label="🙂 QLD 위젯">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>

@@ -14,7 +14,7 @@ const PAID_VOIDED_SCAN_STATE_KEY = 'paid-voided-scan';
 const FINNHUB_API_KEY = '';
 
 const ALLOWED_SYMBOLS = new Set(['QLD', 'TQQQ', '^NDX']);
-const ALLOWED_QUOTE_SYMBOLS = new Set(['QLD', 'TQQQ', 'NQ=F']);
+const ALLOWED_QUOTE_SYMBOLS = new Set(['QLD', 'TQQQ', 'NQ=F', '^VIX', '^TNX']);
 
 // In-memory cache per Worker isolate (per edge PoP).
 // Many users share one Yahoo fetch while the entry is fresh.
@@ -34,11 +34,33 @@ const CLOSE_GUESS_MAX_MESSAGE_LENGTH = 100;
 const INQUIRIES_KEY = 'inquiries';
 const INQUIRY_MAX_ENTRIES = 200;
 const INQUIRY_MAX_CONTENT_LENGTH = 1000;
+const MAJOR_US_SCHEDULES_KEY = 'major-us-schedules';
+const MAJOR_US_SCHEDULE_MAX_ENTRIES = 80;
+const DEFAULT_MAJOR_US_SCHEDULES = [
+  { title: 'FOMC', date: '2026-06-17' },
+  { title: 'NFP', date: '2026-07-02' },
+  { title: 'CPI', date: '2026-07-14' },
+  { title: 'FOMC', date: '2026-07-29' },
+  { title: 'NFP', date: '2026-08-07' },
+  { title: 'CPI', date: '2026-08-12' },
+  { title: 'NFP', date: '2026-09-04' },
+  { title: 'CPI', date: '2026-09-11' },
+  { title: 'FOMC', date: '2026-09-16' },
+  { title: 'NFP', date: '2026-10-02' },
+  { title: 'CPI', date: '2026-10-14' },
+  { title: 'FOMC', date: '2026-10-28' },
+  { title: 'NFP', date: '2026-11-06' },
+  { title: 'CPI', date: '2026-11-10' },
+  { title: 'NFP', date: '2026-12-04' },
+  { title: 'FOMC', date: '2026-12-09' },
+  { title: 'CPI', date: '2026-12-10' },
+];
 const ADMIN_PERMISSIONS = [
   'inquiries:moderate',
   'closeGuess:moderate',
   'games:moderate',
   'content:moderate',
+  'schedules:moderate',
   'notifications:test',
 ];
 const cache = new Map();
@@ -70,6 +92,7 @@ const yahooHeaders = {
 const INTRADAY_QUERY = 'range=1d&interval=1m&includePrePost=true';
 const ALERT_TOPIC = 'qld_alerts';
 const ALERT_STATE_PREFIX = 'alert:';
+const LAST_QUOTE_PREFIX = 'quote:last:';
 const ALERT_LANGUAGES = ['en', 'ko', 'ja', 'es', 'pt', 'ru', 'zh', 'zh_TW', 'fr', 'de'];
 const TEST_ALERT_TYPES = new Set([
   'coreAlert',
@@ -1429,6 +1452,59 @@ async function fetchEquityQuote(symbol, env) {
   };
 }
 
+function lastQuoteKey(symbol) {
+  return `${LAST_QUOTE_PREFIX}${symbol}`;
+}
+
+function staleQuoteBody(body) {
+  if (!body) return null;
+  return {
+    ...body,
+    stale: true,
+    source: body.source ? `${body.source}+stale` : 'stale',
+    timestamp: body.timestamp || Date.now(),
+  };
+}
+
+async function rememberLastQuote(symbol, body, env) {
+  if (!env?.ALERT_STATE || !body?.currentPrice) return;
+
+  try {
+    await env.ALERT_STATE.put(lastQuoteKey(symbol), JSON.stringify(body), {
+      expirationTtl: 3 * 24 * 60 * 60,
+    });
+  } catch (_) {
+    // Last-quote storage is only a resilience layer.
+  }
+}
+
+async function readLastQuote(symbol, env) {
+  const memory = quoteCache.get(symbol)?.body;
+  if (memory?.currentPrice) return staleQuoteBody(memory);
+  if (!env?.ALERT_STATE) return null;
+
+  try {
+    const stored = await env.ALERT_STATE.get(lastQuoteKey(symbol), 'json');
+    return stored?.currentPrice ? staleQuoteBody(stored) : null;
+  } catch (_) {
+    return null;
+  }
+}
+
+async function fetchQuoteResilient(symbol, env, fetcher) {
+  try {
+    const body = await fetcher();
+    quoteCache.set(symbol, {
+      body,
+      expiresAt: Date.now() + QUOTE_CACHE_TTL_MS,
+    });
+    await rememberLastQuote(symbol, body, env);
+    return body;
+  } catch (_) {
+    return readLastQuote(symbol, env);
+  }
+}
+
 async function getQuoteData(symbol, env) {
   const now = Date.now();
   const cached = quoteCache.get(symbol);
@@ -1442,14 +1518,15 @@ async function getQuoteData(symbol, env) {
     return { body, cacheStatus: 'HIT' };
   }
 
-  const fetchPromise = (symbol === 'NQ=F'
+  const fetchPromise = (symbol === 'NQ=F' || symbol === '^VIX' || symbol === '^TNX'
     ? fetchYahooQuote(symbol)
     : fetchEquityQuote(symbol, env))
-    .then((body) => {
+    .then(async (body) => {
       quoteCache.set(symbol, {
         body,
         expiresAt: Date.now() + QUOTE_CACHE_TTL_MS,
       });
+      await rememberLastQuote(symbol, body, env);
       quoteInflight.delete(symbol);
       return body;
     })
@@ -1812,6 +1889,145 @@ function adminStatusResponse(env, uid) {
       isAdmin,
       permissions: isAdmin ? ADMIN_PERMISSIONS : [],
     },
+    200,
+  );
+}
+
+function normalizeMajorUsScheduleItem(item) {
+  const rawTitle = String(item?.title || '')
+    .trim()
+    .replace(/\s+/g, ' ')
+    .slice(0, 80);
+  const title = normalizeMajorUsScheduleTitle(rawTitle);
+  const date = String(item?.date || '').trim();
+  if (!title || !/^\d{4}-\d{2}-\d{2}$/.test(date)) return null;
+
+  const parsed = new Date(`${date}T00:00:00Z`);
+  if (
+    Number.isNaN(parsed.getTime()) ||
+    parsed.toISOString().slice(0, 10) !== date
+  ) {
+    return null;
+  }
+
+  return { title, date };
+}
+
+function normalizeMajorUsScheduleTitle(title) {
+  const upper = String(title || '').trim().toUpperCase();
+  if (!upper) return '';
+  if (upper.includes('FOMC')) return 'FOMC';
+  if (upper.includes('CPI')) return 'CPI';
+  if (
+    upper.includes('NFP') ||
+    title.includes('고용') ||
+    title.includes('雇用') ||
+    upper.includes('EMPLOY')
+  ) {
+    return 'NFP';
+  }
+  return upper.replace(/\s*발표일정\s*/g, '').trim().slice(0, 80);
+}
+
+function sortMajorUsSchedules(items) {
+  return [...items].sort((a, b) => {
+    const dateCompare = String(a.date).localeCompare(String(b.date));
+    return dateCompare || String(a.title).localeCompare(String(b.title));
+  });
+}
+
+async function loadMajorUsSchedules(env) {
+  const stored = await env.ALERT_STATE?.get(MAJOR_US_SCHEDULES_KEY, 'json');
+  const source = Array.isArray(stored?.items)
+    ? stored.items
+    : DEFAULT_MAJOR_US_SCHEDULES;
+  return sortMajorUsSchedules(
+    source
+      .map(normalizeMajorUsScheduleItem)
+      .filter(Boolean)
+      .slice(0, MAJOR_US_SCHEDULE_MAX_ENTRIES),
+  );
+}
+
+function sameMajorUsScheduleItem(left, right) {
+  return left?.title === right?.title && left?.date === right?.date;
+}
+
+async function saveMajorUsSchedules(env, items) {
+  const nextItems = sortMajorUsSchedules(items).slice(
+    0,
+    MAJOR_US_SCHEDULE_MAX_ENTRIES,
+  );
+  await env.ALERT_STATE.put(
+    MAJOR_US_SCHEDULES_KEY,
+    JSON.stringify({
+      items: nextItems,
+      updatedAt: new Date().toISOString(),
+    }),
+  );
+  return nextItems;
+}
+
+async function handleGetMajorUsSchedules(env) {
+  if (!env.ALERT_STATE) {
+    return apiJsonResponse({ error: 'Schedule storage is unavailable' }, 503);
+  }
+
+  return apiJsonResponse({ items: await loadMajorUsSchedules(env) }, 200);
+}
+
+async function handlePostMajorUsSchedules(request, env) {
+  if (!env.ALERT_STATE) {
+    return apiJsonResponse({ error: 'Schedule storage is unavailable' }, 503);
+  }
+
+  const contentLength = Number(request.headers.get('content-length') || 0);
+  if (contentLength > 4096) {
+    return apiJsonResponse({ error: 'Request too large' }, 413);
+  }
+
+  const body = await request.json();
+  const adminUid = normalizeUserUid(body?.adminUid || body?.uid);
+  if (!isAdminUid(env, adminUid)) {
+    return apiJsonResponse({ error: 'Admin only' }, 403);
+  }
+
+  const action = String(body?.action || '').trim();
+  const item = normalizeMajorUsScheduleItem(body?.item);
+  if (!item || !['add', 'update', 'delete'].includes(action)) {
+    return apiJsonResponse({ error: 'Invalid schedule request' }, 400);
+  }
+
+  const items = await loadMajorUsSchedules(env);
+  let nextItems = items;
+
+  if (action === 'add') {
+    nextItems = items
+      .filter((saved) => !sameMajorUsScheduleItem(saved, item))
+      .concat(item);
+  } else {
+    const previousItem = normalizeMajorUsScheduleItem(body?.previousItem);
+    if (!previousItem) {
+      return apiJsonResponse({ error: 'Invalid previous schedule' }, 400);
+    }
+
+    const found = items.some((saved) =>
+      sameMajorUsScheduleItem(saved, previousItem),
+    );
+    if (!found) {
+      return apiJsonResponse({ error: 'Schedule not found' }, 404);
+    }
+
+    nextItems =
+      action === 'delete'
+        ? items.filter((saved) => !sameMajorUsScheduleItem(saved, previousItem))
+        : items.map((saved) =>
+            sameMajorUsScheduleItem(saved, previousItem) ? item : saved,
+          );
+  }
+
+  return apiJsonResponse(
+    { items: await saveMajorUsSchedules(env, nextItems) },
     200,
   );
 }
@@ -3165,9 +3381,13 @@ export class QuoteStreamShard extends DurableObject {
 
   async sendFreshSnapshot(socket) {
     const [qldResult, tqqqResult, futuresResult] = await Promise.allSettled([
-      fetchEquityQuote('QLD', this.env),
-      fetchEquityQuote('TQQQ', this.env),
-      fetchYahooQuote('NQ=F'),
+      fetchQuoteResilient('QLD', this.env, () =>
+        fetchEquityQuote('QLD', this.env),
+      ),
+      fetchQuoteResilient('TQQQ', this.env, () =>
+        fetchEquityQuote('TQQQ', this.env),
+      ),
+      fetchQuoteResilient('NQ=F', this.env, () => fetchYahooQuote('NQ=F')),
     ]);
     const qld = qldResult.status === 'fulfilled' ? qldResult.value : null;
     const tqqq = tqqqResult.status === 'fulfilled' ? tqqqResult.value : null;
@@ -3238,9 +3458,13 @@ export class QuoteStreamSource extends DurableObject {
 
     try {
       const [qldResult, tqqqResult, futuresResult] = await Promise.allSettled([
-        fetchEquityQuote('QLD', this.env),
-        fetchEquityQuote('TQQQ', this.env),
-        fetchYahooQuote('NQ=F'),
+        fetchQuoteResilient('QLD', this.env, () =>
+          fetchEquityQuote('QLD', this.env),
+        ),
+        fetchQuoteResilient('TQQQ', this.env, () =>
+          fetchEquityQuote('TQQQ', this.env),
+        ),
+        fetchQuoteResilient('NQ=F', this.env, () => fetchYahooQuote('NQ=F')),
       ]);
       const qld = qldResult.status === 'fulfilled' ? qldResult.value : null;
       const tqqq = tqqqResult.status === 'fulfilled' ? tqqqResult.value : null;
@@ -3286,6 +3510,7 @@ export default {
       path === '/inquiries/pin' ||
       path === '/inquiries/delete' ||
       path === '/inquiries' ||
+      path === '/major-us-schedules' ||
       path === '/admin-status'
     ) {
       const { success } = await env.API_RATE_LIMITER.limit({ key: clientKey });
@@ -3320,6 +3545,12 @@ export default {
         }
         if (path === '/inquiries/delete' && request.method === 'POST') {
           return handleDeleteInquiry(request, env);
+        }
+        if (path === '/major-us-schedules' && request.method === 'GET') {
+          return handleGetMajorUsSchedules(env);
+        }
+        if (path === '/major-us-schedules' && request.method === 'POST') {
+          return handlePostMajorUsSchedules(request, env);
         }
         if (path === '/admin-status' && request.method === 'GET') {
           return adminStatusResponse(env, url.searchParams.get('uid'));
@@ -3571,7 +3802,7 @@ export default {
 
     if (path === '/app-config') {
       const defaultConfig = {
-        latestVersionCode: 40,
+        latestVersionCode: 41,
         forceUpdate: false,
         updateUrl:
           'https://play.google.com/store/apps/details?id=com.qldalert.app',
@@ -3633,9 +3864,9 @@ export default {
         const { body, cacheStatus } = await getQuoteData(quoteSymbol, env);
         return quoteResponse(body, cacheStatus, 200);
       } catch (error) {
-        const stale = quoteCache.get(quoteSymbol);
-        if (stale?.body) {
-          return quoteResponse(stale.body, 'STALE', 200);
+        const stale = await readLastQuote(quoteSymbol, env);
+        if (stale) {
+          return quoteResponse(stale, 'STALE', 200);
         }
 
         return quoteResponse(

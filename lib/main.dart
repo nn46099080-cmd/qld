@@ -79,7 +79,7 @@ const _ownerAdminUid = 'qld-admin-179204';
 const _ownerAdminPassword = '0610aa!!';
 const _tradingViewInstallUrl =
     'https://play.google.com/store/apps/details?id=com.tradingview.tradingviewapp&utm_source=chatgpt.com';
-const _currentAppVersionCode = 40;
+const _currentAppVersionCode = 41;
 const _androidPackageName = 'com.qldalert.app';
 const _releaseAdMobBottomBannerUnitId =
     'ca-app-pub-8561157852710726/9908440913';
@@ -101,6 +101,9 @@ const _appConfigUrl =
 const _quoteStreamUrl =
     'wss://billowing-band-06cd.nn46099080.workers.dev/stream';
 const _futuresQuoteSymbol = 'NQ=F';
+const _vixQuoteSymbol = '^VIX';
+const _tenYearYieldQuoteSymbol = '^TNX';
+const _priceRefreshIntervalSeconds = 30;
 const _fearGreedProxyUrl =
     'https://billowing-band-06cd.nn46099080.workers.dev/fear-greed';
 const _paidEntitlementRegisterUrl =
@@ -125,6 +128,8 @@ const _inquiriesDeleteUrl =
     'https://billowing-band-06cd.nn46099080.workers.dev/inquiries/delete';
 const _adminStatusUrl =
     'https://billowing-band-06cd.nn46099080.workers.dev/admin-status';
+const _majorUsSchedulesUrl =
+    'https://billowing-band-06cd.nn46099080.workers.dev/major-us-schedules';
 const _lombardStreetTextUrl =
     'https://www.gutenberg.org/cache/epub/4359/pg4359.txt';
 const _numberGuessRankingPrefsKey = 'number_guess_rankings';
@@ -139,6 +144,609 @@ Uri _dailyChartProxyUri(String symbol) => Uri.parse(_yahooProxyBaseUrl).replace(
         'dailyOnly': '1',
       },
     );
+
+class _MajorUsScheduleItem {
+  const _MajorUsScheduleItem({
+    required this.title,
+    required this.date,
+  });
+
+  final String title;
+  final DateTime date;
+}
+
+final List<_MajorUsScheduleItem> _majorUsSchedules = [
+  _MajorUsScheduleItem(
+    title: 'FOMC',
+    date: DateTime(2026, 6, 17),
+  ),
+  _MajorUsScheduleItem(
+    title: 'NFP',
+    date: DateTime(2026, 7, 2),
+  ),
+  _MajorUsScheduleItem(
+    title: 'CPI',
+    date: DateTime(2026, 7, 14),
+  ),
+  _MajorUsScheduleItem(
+    title: 'FOMC',
+    date: DateTime(2026, 7, 29),
+  ),
+  _MajorUsScheduleItem(
+    title: 'NFP',
+    date: DateTime(2026, 8, 7),
+  ),
+  _MajorUsScheduleItem(
+    title: 'CPI',
+    date: DateTime(2026, 8, 12),
+  ),
+  _MajorUsScheduleItem(
+    title: 'NFP',
+    date: DateTime(2026, 9, 4),
+  ),
+  _MajorUsScheduleItem(
+    title: 'CPI',
+    date: DateTime(2026, 9, 11),
+  ),
+  _MajorUsScheduleItem(
+    title: 'FOMC',
+    date: DateTime(2026, 9, 16),
+  ),
+  _MajorUsScheduleItem(
+    title: 'NFP',
+    date: DateTime(2026, 10, 2),
+  ),
+  _MajorUsScheduleItem(
+    title: 'CPI',
+    date: DateTime(2026, 10, 14),
+  ),
+  _MajorUsScheduleItem(
+    title: 'FOMC',
+    date: DateTime(2026, 10, 28),
+  ),
+  _MajorUsScheduleItem(
+    title: 'NFP',
+    date: DateTime(2026, 11, 6),
+  ),
+  _MajorUsScheduleItem(
+    title: 'CPI',
+    date: DateTime(2026, 11, 10),
+  ),
+  _MajorUsScheduleItem(
+    title: 'NFP',
+    date: DateTime(2026, 12, 4),
+  ),
+  _MajorUsScheduleItem(
+    title: 'FOMC',
+    date: DateTime(2026, 12, 9),
+  ),
+  _MajorUsScheduleItem(
+    title: 'CPI',
+    date: DateTime(2026, 12, 10),
+  ),
+];
+
+List<_MajorUsScheduleItem> _activeMajorUsSchedules =
+    List<_MajorUsScheduleItem>.of(_majorUsSchedules);
+
+Future<void> _loadSavedMajorUsSchedules() async {
+  try {
+    final response = await http
+        .get(
+          Uri.parse(_majorUsSchedulesUrl),
+          headers: {'Accept': 'application/json'},
+        )
+        .timeout(const Duration(seconds: 8));
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      throw Exception('Schedule API ${response.statusCode}');
+    }
+    final decoded = jsonDecode(response.body) as Map<String, dynamic>;
+    final data = decoded['items'] as List<dynamic>? ?? const [];
+    final schedules = data
+        .whereType<Map<String, dynamic>>()
+        .map(
+          (item) => _MajorUsScheduleItem(
+            title: '${item['title'] ?? ''}',
+            date: DateTime.parse('${item['date'] ?? ''}'),
+          ),
+        )
+        .where((item) => item.title.trim().isNotEmpty)
+        .toList();
+    if (schedules.isNotEmpty) {
+      _activeMajorUsSchedules = schedules;
+    }
+  } catch (error) {
+    debugPrint('Major US schedules unavailable: $error');
+  }
+}
+
+Future<void> _saveMajorUsScheduleToServer({
+  required String action,
+  required _MajorUsScheduleItem item,
+  _MajorUsScheduleItem? previousItem,
+}) async {
+  final identity = await activateOwnerAdminIdentity();
+  final response = await http
+      .post(
+        Uri.parse(_majorUsSchedulesUrl),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'adminUid': identity.uid,
+          'action': action,
+          'item': {
+            'title': item.title,
+            'date': DateFormat('yyyy-MM-dd').format(item.date),
+          },
+          if (previousItem != null)
+            'previousItem': {
+              'title': previousItem.title,
+              'date': DateFormat('yyyy-MM-dd').format(previousItem.date),
+            },
+        }),
+      )
+      .timeout(const Duration(seconds: 8));
+  if (response.statusCode < 200 || response.statusCode >= 300) {
+    throw Exception('Schedule API ${response.statusCode}');
+  }
+  final decoded = jsonDecode(response.body) as Map<String, dynamic>;
+  final data = decoded['items'] as List<dynamic>? ?? const [];
+  final schedules = data
+      .whereType<Map<String, dynamic>>()
+      .map(
+        (item) => _MajorUsScheduleItem(
+          title: '${item['title'] ?? ''}',
+          date: DateTime.parse('${item['date'] ?? ''}'),
+        ),
+      )
+      .where((item) => item.title.trim().isNotEmpty)
+      .toList();
+  if (schedules.isNotEmpty) {
+    _activeMajorUsSchedules = schedules;
+  }
+}
+
+List<_MajorUsScheduleItem> _upcomingMajorUsSchedules([DateTime? now]) {
+  final current = now ?? DateTime.now();
+  final today = DateTime(current.year, current.month, current.day);
+  final upcoming = _activeMajorUsSchedules
+      .where((item) => !item.date.isBefore(today))
+      .toList()
+    ..sort((a, b) => a.date.compareTo(b.date));
+  return upcoming;
+}
+
+_MajorUsScheduleItem? _nextMajorUsSchedule([DateTime? now]) {
+  final upcoming = _upcomingMajorUsSchedules(now);
+  return upcoming.isEmpty ? null : upcoming.first;
+}
+
+int _daysUntilSchedule(DateTime date, [DateTime? now]) {
+  final current = now ?? DateTime.now();
+  final today = DateTime(current.year, current.month, current.day);
+  return date.difference(today).inDays;
+}
+
+String _scheduleDdayLabel(DateTime date, [DateTime? now]) {
+  final days = _daysUntilSchedule(date, now);
+  return days == 0 ? 'D-DAY' : 'D-$days';
+}
+
+DateTime? _parseMajorUsScheduleDate(String source) {
+  final trimmed = source.trim();
+  if (trimmed.isEmpty) return null;
+
+  final normalized = trimmed.replaceAll('.', '-').replaceAll('/', '-');
+  final parts = normalized.split('-').where((part) => part.isNotEmpty).toList();
+  int? year;
+  int? month;
+  int? day;
+
+  if (parts.length == 3) {
+    year = int.tryParse(parts[0]);
+    month = int.tryParse(parts[1]);
+    day = int.tryParse(parts[2]);
+  } else if (parts.length == 2) {
+    final now = DateTime.now();
+    year = now.year;
+    month = int.tryParse(parts[0]);
+    day = int.tryParse(parts[1]);
+  } else {
+    final digits = trimmed.replaceAll(RegExp(r'[^0-9]'), '');
+    if (digits.length == 8) {
+      year = int.tryParse(digits.substring(0, 4));
+      month = int.tryParse(digits.substring(4, 6));
+      day = int.tryParse(digits.substring(6, 8));
+    } else if (digits.length == 4) {
+      final now = DateTime.now();
+      year = now.year;
+      month = int.tryParse(digits.substring(0, 2));
+      day = int.tryParse(digits.substring(2, 4));
+    }
+  }
+
+  if (year == null || month == null || day == null) return null;
+  var parsed = DateTime(year, month, day);
+  if (parsed.year != year || parsed.month != month || parsed.day != day) {
+    return null;
+  }
+  final today = DateTime.now();
+  final todayOnly = DateTime(today.year, today.month, today.day);
+  if (parts.length == 2 || trimmed.replaceAll(RegExp(r'[^0-9]'), '').length == 4) {
+    if (parsed.isBefore(todayOnly)) {
+      parsed = DateTime(year + 1, month, day);
+    }
+  }
+  return parsed;
+}
+
+Future<void> _showMajorUsScheduleEditDialog(
+  BuildContext context,
+  _MajorUsScheduleItem schedule,
+  VoidCallback onChanged,
+) async {
+  if (!appUserAdminNotifier.value) return;
+
+  final titleController = TextEditingController(text: schedule.title);
+  final dateController = TextEditingController(
+    text: DateFormat('yyyy-MM-dd').format(schedule.date),
+  );
+
+  try {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) {
+        final whiteMode = isWhiteModeEnabled(dialogContext);
+        final primaryText = whiteMode ? _lightText : _darkText;
+        final secondaryText = whiteMode ? _lightMuted : _darkMuted;
+        final dialogBg = whiteMode ? _lightSurface : _darkSurface;
+        return AlertDialog(
+          backgroundColor: dialogBg,
+          title: Text(
+            '\uc77c\uc815 \uc218\uc815',
+            style: TextStyle(
+              color: primaryText,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: titleController,
+                style: TextStyle(color: primaryText),
+                decoration: InputDecoration(
+                  labelText: '\uc77c\uc815\uba85',
+                  labelStyle: TextStyle(color: secondaryText),
+                ),
+              ),
+              const SizedBox(height: 10),
+              TextField(
+                controller: dateController,
+                keyboardType: TextInputType.datetime,
+                style: TextStyle(color: primaryText),
+                decoration: InputDecoration(
+                  labelText: 'YYYY-MM-DD',
+                  labelStyle: TextStyle(color: secondaryText),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext, false),
+              child: const Text('\ucde8\uc18c'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.pop(dialogContext, true),
+              child: const Text('\uc800\uc7a5'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmed != true) return;
+
+    final parsedDate = _parseMajorUsScheduleDate(dateController.text);
+    final title = titleController.text.trim();
+    if (title.isEmpty || parsedDate == null) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            '\uc77c\uc815\uba85\uacfc \ub0a0\uc9dc\ub97c \ud655\uc778\ud574 \uc8fc\uc138\uc694.',
+          ),
+        ),
+      );
+      return;
+    }
+
+    final index = _activeMajorUsSchedules.indexWhere(
+      (item) => item.title == schedule.title && item.date == schedule.date,
+    );
+    if (index < 0) return;
+
+    final nextItem = _MajorUsScheduleItem(
+      title: title,
+      date: parsedDate,
+    );
+    await _saveMajorUsScheduleToServer(
+      action: 'update',
+      item: nextItem,
+      previousItem: schedule,
+    );
+    onChanged();
+  } finally {
+    titleController.dispose();
+    dateController.dispose();
+  }
+}
+
+void _showMajorUsScheduleSheet(
+  BuildContext context, {
+  VoidCallback? onChanged,
+}) {
+  final whiteMode = whiteModeNotifier.value;
+  final sheetBg = whiteMode ? Colors.white : _darkSurface;
+  final primaryText = whiteMode ? _lightText : _darkText;
+  final secondaryText = whiteMode ? _lightMuted : _darkMuted;
+  final lineColor = whiteMode ? _lightLine : _darkLineSoft;
+  final addTitleController = TextEditingController();
+  final addDateController = TextEditingController();
+  final passwordController = TextEditingController();
+
+  showModalBottomSheet<void>(
+    context: context,
+    isScrollControlled: true,
+    backgroundColor: Colors.transparent,
+    builder: (sheetContext) {
+      return StatefulBuilder(
+        builder: (sheetContext, setSheetState) {
+          final schedules = _upcomingMajorUsSchedules();
+          final isAdmin = appUserAdminNotifier.value;
+          InputDecoration addInputDecoration(String label) => InputDecoration(
+                labelText: label,
+                labelStyle: TextStyle(color: secondaryText, fontSize: 11),
+                isDense: true,
+                filled: true,
+                fillColor:
+                    whiteMode ? const Color(0xFFF8FAFC) : _darkSurfaceSoft,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: BorderSide(color: lineColor),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: BorderSide(color: lineColor),
+                ),
+              );
+
+          Future<void> addSchedule() async {
+            if (passwordController.text.trim() != _ownerAdminPassword) {
+              ScaffoldMessenger.of(sheetContext).showSnackBar(
+                const SnackBar(
+                  content: Text(
+                    '\ube44\ubc00\ubc88\ud638\uac00 \ub9de\uc9c0 \uc54a\uc2b5\ub2c8\ub2e4.',
+                  ),
+                ),
+              );
+              return;
+            }
+
+            final title = addTitleController.text.trim();
+            final date = _parseMajorUsScheduleDate(addDateController.text);
+            if (title.isEmpty || date == null) {
+              ScaffoldMessenger.of(sheetContext).showSnackBar(
+                const SnackBar(
+                  content: Text(
+                    '\uc77c\uc815\uba85\uacfc \ub0a0\uc9dc\ub97c \ud655\uc778\ud574 \uc8fc\uc138\uc694.',
+                  ),
+                ),
+              );
+              return;
+            }
+
+            await _saveMajorUsScheduleToServer(
+              action: 'add',
+              item: _MajorUsScheduleItem(title: title, date: date),
+            );
+            addTitleController.clear();
+            addDateController.clear();
+            passwordController.clear();
+            setSheetState(() {});
+            onChanged?.call();
+          }
+
+          return Container(
+            constraints: const BoxConstraints(maxHeight: 520),
+            padding: const EdgeInsets.fromLTRB(18, 12, 18, 18),
+            decoration: BoxDecoration(
+              color: sheetBg,
+              borderRadius:
+                  const BorderRadius.vertical(top: Radius.circular(24)),
+            ),
+            child: SafeArea(
+              top: false,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 36,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: lineColor,
+                      borderRadius: BorderRadius.circular(99),
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          '\ubbf8\uad6d \uc8fc\uc694\uc77c\uc815',
+                          style: TextStyle(
+                            color: primaryText,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                      ),
+                      IconButton(
+                        onPressed: () => Navigator.of(sheetContext).pop(),
+                        icon: const Icon(Icons.close_rounded),
+                        color: secondaryText,
+                        tooltip: 'Close',
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  if (schedules.isEmpty)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 28),
+                      child: Text(
+                        '\ub0a8\uc740 \uc77c\uc815\uc774 \uc5c6\uc2b5\ub2c8\ub2e4.',
+                        style: TextStyle(
+                          color: secondaryText,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    )
+                  else
+                    Flexible(
+                      child: ListView.separated(
+                        shrinkWrap: true,
+                        itemCount: schedules.length,
+                        separatorBuilder: (_, __) => Divider(
+                          height: 1,
+                          color: lineColor,
+                        ),
+                        itemBuilder: (_, index) {
+                          final schedule = schedules[index];
+                          return ListTile(
+                            dense: true,
+                            contentPadding: EdgeInsets.zero,
+                            title: Text(
+                              schedule.title,
+                              style: TextStyle(
+                                color: primaryText,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                            subtitle: Text(
+                              DateFormat('yyyy.MM.dd').format(schedule.date),
+                              style: TextStyle(
+                                color: secondaryText,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  _scheduleDdayLabel(schedule.date),
+                                  style: TextStyle(
+                                    color: _portfolioLossRed,
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w900,
+                                  ),
+                                ),
+                                if (isAdmin) ...[
+                                  const SizedBox(width: 4),
+                                  IconButton(
+                                    visualDensity: VisualDensity.compact,
+                                    tooltip: '\uc77c\uc815 \uc218\uc815',
+                                    onPressed: () async {
+                                      await _showMajorUsScheduleEditDialog(
+                                        sheetContext,
+                                        schedule,
+                                        () {
+                                          setSheetState(() {});
+                                          onChanged?.call();
+                                        },
+                                      );
+                                    },
+                                    icon: const Icon(
+                                      Icons.edit_calendar_rounded,
+                                      size: 18,
+                                    ),
+                                    color: secondaryText,
+                                  ),
+                                ],
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  const SizedBox(height: 12),
+                  Divider(height: 1, color: lineColor),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Expanded(
+                        flex: 3,
+                        child: TextField(
+                          controller: addTitleController,
+                          style: TextStyle(color: primaryText, fontSize: 12),
+                          decoration: addInputDecoration('\uc77c\uc815\uba85'),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        flex: 2,
+                        child: TextField(
+                          controller: addDateController,
+                          keyboardType: TextInputType.datetime,
+                          style: TextStyle(color: primaryText, fontSize: 12),
+                          decoration: addInputDecoration('YYYY-MM-DD'),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: passwordController,
+                          obscureText: true,
+                          style: TextStyle(color: primaryText, fontSize: 12),
+                          decoration: addInputDecoration(
+                            '\uad00\ub9ac\uc790 \ube44\ubc00\ubc88\ud638',
+                          ),
+                          onSubmitted: (_) => addSchedule(),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      SizedBox(
+                        height: 44,
+                        child: FilledButton.icon(
+                          onPressed: addSchedule,
+                          icon: const Icon(Icons.add_rounded, size: 18),
+                          label: const Text(
+                            '\uc77c\uc815 \ucd94\uac00',
+                            style: TextStyle(fontWeight: FontWeight.w800),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      );
+    },
+  ).whenComplete(() {
+    addTitleController.dispose();
+    addDateController.dispose();
+    passwordController.dispose();
+  });
+}
 
 Uri _quoteProxyUri(String symbol) => Uri.parse(_yahooProxyBaseUrl).replace(
       path: '/quote',
@@ -297,6 +905,10 @@ Future<String> userScopedPrefsKey(String baseKey) async {
 Future<bool> refreshAppUserAdminStatus([String? uid]) async {
   final targetUid = uid ?? (await ensureAnonymousUserIdentity()).uid;
   if (targetUid.isEmpty) return false;
+  if (targetUid == _ownerAdminUid) {
+    appUserAdminNotifier.value = true;
+    return true;
+  }
 
   try {
     final response = await http
@@ -1978,7 +2590,7 @@ String localizedPriceRefreshStatusWithCountdown(
 
   if (isRefreshing || isCached) return status;
 
-  final seconds = countdownSeconds.clamp(0, 30);
+  final seconds = countdownSeconds.clamp(0, _priceRefreshIntervalSeconds);
   switch (localeLanguageCode(locale)) {
     case 'ko':
       return '다음 갱신까지(${seconds}s)';
@@ -3390,6 +4002,8 @@ class _HomePageState extends State<HomePage>
   double futuresPreviousClose = 0;
   double futuresBaselinePrice = 0;
   String futuresBaselineDate = '';
+  double vixPrice = 0;
+  double tenYearYield = 0;
   double basePrice = 0;
   double allTimeHigh = 0;
   String lastHighAlertDate = '';
@@ -3433,7 +4047,7 @@ class _HomePageState extends State<HomePage>
   bool isLoading = true;
   bool isRefreshingPrice = false;
   bool isUsingCachedPrice = false;
-  int priceRefreshCountdownSeconds = 30;
+  int priceRefreshCountdownSeconds = _priceRefreshIntervalSeconds;
 
   bool isPreMarket = false;
   bool isRegularMarket = false;
@@ -3790,6 +4404,9 @@ class _HomePageState extends State<HomePage>
     WidgetsBinding.instance.addObserver(this);
     _activeHomeScrollController = homeScrollController;
     _preloadExitDialogBannerAd();
+    _loadSavedMajorUsSchedules().then((_) {
+      if (mounted) setState(() {});
+    });
 
     if (!kIsWeb) {
       FirebaseMessaging.instance.setAutoInitEnabled(true);
@@ -3906,7 +4523,7 @@ class _HomePageState extends State<HomePage>
     evaluateNasdaq200DayAlert();
 
     priceTimer = Timer.periodic(
-      const Duration(seconds: 30),
+      const Duration(seconds: _priceRefreshIntervalSeconds),
       (timer) {
         if (!quoteStreamConnected) {
           fetchCurrentPrices();
@@ -4461,6 +5078,8 @@ class _HomePageState extends State<HomePage>
         prefs.getDouble('lastFuturesBaselinePrice') ?? 0;
     final cachedFuturesBaselineDate =
         prefs.getString('lastFuturesBaselineDate') ?? '';
+    final cachedVixPrice = prefs.getDouble('lastVixPrice') ?? 0;
+    final cachedTenYearYield = prefs.getDouble('lastTenYearYield') ?? 0;
     final cachedIsPriceUp = prefs.getBool('lastIsPriceUp') ?? isPriceUp;
     final cachedDate = prefs.getString('lastPriceDate') ?? '';
     final cachedTimestamp = prefs.getInt('lastPriceUpdatedAt') ?? 0;
@@ -4481,6 +5100,8 @@ class _HomePageState extends State<HomePage>
       if (cachedFuturesBaselineDate.isNotEmpty) {
         futuresBaselineDate = cachedFuturesBaselineDate;
       }
+      if (cachedVixPrice > 0) vixPrice = cachedVixPrice;
+      if (cachedTenYearYield > 0) tenYearYield = cachedTenYearYield;
       lastAppliedQuoteTimestamp = cachedTimestamp;
       isPriceUp = cachedIsPriceUp;
       if (cachedDate.isNotEmpty) latestDate = cachedDate;
@@ -4497,6 +5118,8 @@ class _HomePageState extends State<HomePage>
     required double futuresPrevious,
     required double futuresBaseline,
     required String futuresBaselineDay,
+    required double vix,
+    required double tenYear,
     required bool priceUp,
     required int updatedAt,
   }) async {
@@ -4520,6 +5143,12 @@ class _HomePageState extends State<HomePage>
     }
     if (futuresBaselineDay.isNotEmpty) {
       await prefs.setString('lastFuturesBaselineDate', futuresBaselineDay);
+    }
+    if (vix > 0) {
+      await prefs.setDouble('lastVixPrice', vix);
+    }
+    if (tenYear > 0) {
+      await prefs.setDouble('lastTenYearYield', tenYear);
     }
     await prefs.setBool('lastIsPriceUp', priceUp);
     await prefs.setString('lastPriceDate', nowDate);
@@ -6996,10 +7625,36 @@ class _HomePageState extends State<HomePage>
   }
 
   Future<void> fetchCurrentPrices({bool force = false}) async {
-    if (quoteStreamConnected && !force) return;
-
     final session = _usMarketSessionFromUtc(DateTime.now().toUtc());
     final prefs = await SharedPreferences.getInstance();
+
+    if (quoteStreamConnected && !force) {
+      final results = await Future.wait([
+        fetchQuote(_vixQuoteSymbol),
+        fetchQuote(_tenYearYieldQuoteSymbol),
+      ]);
+      final vixQuote = results[0];
+      final tenYearQuote = results[1];
+      if (!mounted || (vixQuote == null && tenYearQuote == null)) return;
+
+      final nextVixPrice = vixQuote == null
+          ? vixPrice
+          : displayPriceForSession(vixQuote, session);
+      final nextTenYearYield = tenYearQuote == null
+          ? tenYearYield
+          : displayPriceForSession(tenYearQuote, session);
+      setState(() {
+        vixPrice = nextVixPrice;
+        tenYearYield = nextTenYearYield;
+      });
+      if (nextVixPrice > 0) {
+        await prefs.setDouble('lastVixPrice', nextVixPrice);
+      }
+      if (nextTenYearYield > 0) {
+        await prefs.setDouble('lastTenYearYield', nextTenYearYield);
+      }
+      return;
+    }
 
     if (mounted) {
       setState(() {
@@ -7013,12 +7668,24 @@ class _HomePageState extends State<HomePage>
       fetchQuote('QLD'),
       fetchQuote('TQQQ'),
       fetchQuote(_futuresQuoteSymbol),
+      fetchQuote(_vixQuoteSymbol),
+      fetchQuote(_tenYearYieldQuoteSymbol),
     ]);
     final qldQuote = results[0];
     final tqqqQuote = results[1];
     final futuresQuote = results[2];
+    final vixQuote = results[3];
+    final tenYearQuote = results[4];
 
-    await applyCurrentQuotes(qldQuote, tqqqQuote, futuresQuote, session, prefs);
+    await applyCurrentQuotes(
+      qldQuote,
+      tqqqQuote,
+      futuresQuote,
+      vixQuote,
+      tenYearQuote,
+      session,
+      prefs,
+    );
   }
 
   void startQuoteStream() {
@@ -7069,7 +7736,7 @@ class _HomePageState extends State<HomePage>
   }
 
   int currentPriceRefreshCountdownSeconds() {
-    if (lastAppliedQuoteTimestamp <= 0) return 30;
+    if (lastAppliedQuoteTimestamp <= 0) return _priceRefreshIntervalSeconds;
 
     final elapsedSeconds = math.max(
       0,
@@ -7077,7 +7744,7 @@ class _HomePageState extends State<HomePage>
               1000)
           .floor(),
     );
-    return math.max(0, 30 - elapsedSeconds);
+    return math.max(0, _priceRefreshIntervalSeconds - elapsedSeconds);
   }
 
   void updatePriceRefreshCountdown() {
@@ -7138,6 +7805,8 @@ class _HomePageState extends State<HomePage>
         qldQuote,
         tqqqQuote,
         futuresQuote,
+        null,
+        null,
         session,
         prefs,
         quoteTimestamp: quoteTimestamp,
@@ -7153,6 +7822,8 @@ class _HomePageState extends State<HomePage>
     FinnhubQuote? qldQuote,
     FinnhubQuote? tqqqQuote,
     FinnhubQuote? futuresQuote,
+    FinnhubQuote? vixQuote,
+    FinnhubQuote? tenYearQuote,
     _UsMarketSession session,
     SharedPreferences prefs, {
     int? quoteTimestamp,
@@ -7166,6 +7837,8 @@ class _HomePageState extends State<HomePage>
     var nextFuturesPreviousClose = futuresPreviousClose;
     var nextFuturesBaselinePrice = futuresBaselinePrice;
     var nextFuturesBaselineDate = futuresBaselineDate;
+    var nextVixPrice = vixPrice;
+    var nextTenYearYield = tenYearYield;
     var nextIsPriceUp = isPriceUp;
 
     if (qldQuote != null) {
@@ -7215,8 +7888,28 @@ class _HomePageState extends State<HomePage>
           '$_futuresQuoteSymbol Yahoo failed, keeping last futures price: $futuresPrice');
     }
 
+    if (vixQuote != null) {
+      nextVixPrice = displayPriceForSession(vixQuote, session);
+    } else if (!quoteStreamConnected) {
+      debugPrint(
+        '$_vixQuoteSymbol Yahoo failed, keeping last VIX price: $vixPrice',
+      );
+    }
+
+    if (tenYearQuote != null) {
+      nextTenYearYield = displayPriceForSession(tenYearQuote, session);
+    } else if (!quoteStreamConnected) {
+      debugPrint(
+        '$_tenYearYieldQuoteSymbol Yahoo failed, keeping last 10Y yield: $tenYearYield',
+      );
+    }
+
     final hasFreshPrice =
-        qldQuote != null || tqqqQuote != null || futuresQuote != null;
+        qldQuote != null ||
+        tqqqQuote != null ||
+        futuresQuote != null ||
+        vixQuote != null ||
+        tenYearQuote != null;
     final appliedTimestamp = hasFreshPrice
         ? quoteTimestamp ?? DateTime.now().millisecondsSinceEpoch
         : 0;
@@ -7237,6 +7930,8 @@ class _HomePageState extends State<HomePage>
       futuresPreviousClose = nextFuturesPreviousClose;
       futuresBaselinePrice = nextFuturesBaselinePrice;
       futuresBaselineDate = nextFuturesBaselineDate;
+      vixPrice = nextVixPrice;
+      tenYearYield = nextTenYearYield;
       isPreMarket = session == _UsMarketSession.pre;
       isRegularMarket = session == _UsMarketSession.regular;
       isAfterHours = session == _UsMarketSession.afterHours;
@@ -7247,7 +7942,7 @@ class _HomePageState extends State<HomePage>
       isUsingCachedPrice = !hasFreshPrice && (qldPrice > 0 || tqqqPrice > 0);
       if (hasFreshPrice) {
         lastAppliedQuoteTimestamp = appliedTimestamp;
-        priceRefreshCountdownSeconds = 30;
+        priceRefreshCountdownSeconds = _priceRefreshIntervalSeconds;
       }
       if (qldQuote != null) {
         qldMiniCandles = _qldMiniCandlesWithRealtimeClose(
@@ -7264,6 +7959,8 @@ class _HomePageState extends State<HomePage>
       futuresPrevious: futuresPreviousClose,
       futuresBaseline: futuresBaselinePrice,
       futuresBaselineDay: futuresBaselineDate,
+      vix: vixPrice,
+      tenYear: tenYearYield,
       priceUp: isPriceUp,
       updatedAt: lastAppliedQuoteTimestamp,
     );
@@ -7496,6 +8193,32 @@ class _HomePageState extends State<HomePage>
     }
   }
 
+  Future<void> openVixTradingView() async {
+    final Uri uri = tradingViewSymbolOverviewUri('TVC-VIX');
+
+    if (!await launchUrl(
+      uri,
+      mode: LaunchMode.externalApplication,
+    )) {
+      throw Exception(
+        'Could not launch $uri',
+      );
+    }
+  }
+
+  Future<void> openTenYearYieldTradingView() async {
+    final Uri uri = tradingViewSymbolOverviewUri('TVC-TNX');
+
+    if (!await launchUrl(
+      uri,
+      mode: LaunchMode.externalApplication,
+    )) {
+      throw Exception(
+        'Could not launch $uri',
+      );
+    }
+  }
+
   Future<void> openQldTenYearChart() async {
     final Uri uri = tradingViewSymbolOverviewUri(
       'AMEX-QLD',
@@ -7702,12 +8425,14 @@ class _HomePageState extends State<HomePage>
         : previousCloseChange >= 0
             ? _portfolioGainGreen
             : _portfolioLossRed;
+    final nextMajorSchedule = _nextMajorUsSchedule();
     final nowUtc = DateTime.now().toUtc();
     final currentMarketSession = _usMarketSessionFromUtc(nowUtc);
-    final shouldZeroFutures = currentMarketSession == _UsMarketSession.regular ||
-        !_isAfterKstFuturesStart(nowUtc) ||
-        !_isUsMarketOpenDayForFuturesFromUtc(nowUtc) ||
-        !_isUsTechFuturesSessionFromUtc(nowUtc);
+    final shouldZeroFutures =
+        currentMarketSession == _UsMarketSession.regular ||
+            !_isAfterKstFuturesStart(nowUtc) ||
+            !_isUsMarketOpenDayForFuturesFromUtc(nowUtc) ||
+            !_isUsTechFuturesSessionFromUtc(nowUtc);
     final futuresReferencePrice =
         futuresPreviousClose > 0 ? futuresPreviousClose : futuresBaselinePrice;
     final futuresPercent = shouldZeroFutures
@@ -7717,14 +8442,24 @@ class _HomePageState extends State<HomePage>
                 100 *
                 2
             : 0.0;
-    String signedPriceChangeText(double amount, double percent) {
+    String signedPriceChangeAmountText(double amount) {
       if (qldPreviousClose <= 0 || qldPrice <= 0) return '--';
       final sign = amount > 0
           ? '+'
           : amount < 0
               ? '-'
               : '';
-      return '$sign\$${amount.abs().toStringAsFixed(2)} ($sign${percent.abs().toStringAsFixed(2)}%)';
+      return '$sign\$${amount.abs().toStringAsFixed(2)}';
+    }
+
+    String signedPriceChangePercentText(double percent) {
+      if (qldPreviousClose <= 0 || qldPrice <= 0) return '';
+      final sign = percent > 0
+          ? '+'
+          : percent < 0
+              ? '-'
+              : '';
+      return '($sign${percent.abs().toStringAsFixed(2)}%)';
     }
 
     double extendedSessionPercentValue() {
@@ -7784,6 +8519,84 @@ class _HomePageState extends State<HomePage>
         : extendedSessionPercent < 0
             ? _portfolioLossRed
             : tertiaryText;
+    final homeInfoLabelStyle = TextStyle(
+      fontSize: 11.2,
+      color: tertiaryText,
+      fontWeight: FontWeight.w600,
+    );
+    final homeInfoValueStyle = TextStyle(
+      fontSize: 11.2,
+      color: secondaryText,
+      fontWeight: FontWeight.w700,
+    );
+    final homeInfoEmphasisValueStyle = homeInfoValueStyle.copyWith(
+      fontSize: 12.0,
+    );
+    final homeFearGreedScore = homeFearGreedData?.score;
+    final fearGreedValue = homeFearGreedScore?.toStringAsFixed(0) ?? '--';
+    final fearGreedValueColor = homeFearGreedScore == null
+        ? secondaryText
+        : fearGreedColorForScore(homeFearGreedScore);
+    final vixValueColor = vixPrice <= 0
+        ? secondaryText
+        : vixPrice >= 20
+            ? _portfolioLossRed
+            : accentBlue;
+    final vixValue = vixPrice > 0 ? vixPrice.toStringAsFixed(1) : '--';
+    final scheduleLabel = nextMajorSchedule?.title ?? 'CPI';
+    final scheduleValue = nextMajorSchedule == null
+        ? '--'
+        : _scheduleDdayLabel(nextMajorSchedule.date);
+    final scheduleValueColor = nextMajorSchedule == null
+        ? secondaryText
+        : _daysUntilSchedule(nextMajorSchedule.date) <= 7
+            ? _portfolioLossRed
+            : whiteMode
+                ? const Color(0xFFD97706)
+                : Colors.amberAccent;
+    final tenYearYieldValue =
+        tenYearYield > 0 ? '${tenYearYield.toStringAsFixed(2)}%' : '--';
+    final tenYearYieldColor = tenYearYield <= 0
+        ? secondaryText
+        : whiteMode
+            ? const Color(0xFF0F766E)
+            : accentCyan;
+
+    Widget buildInlineInfoSegment({
+      required String label,
+      required String value,
+      required Color valueColor,
+      TextStyle? valueStyle,
+      VoidCallback? onTap,
+    }) {
+      final text = FittedBox(
+        fit: BoxFit.scaleDown,
+        alignment: Alignment.centerLeft,
+        child: RichText(
+          maxLines: 1,
+          text: TextSpan(
+            children: [
+              TextSpan(text: '$label ', style: homeInfoLabelStyle),
+              TextSpan(
+                text: value,
+                style: (valueStyle ?? homeInfoValueStyle).copyWith(
+                  color: valueColor,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+
+      if (onTap == null) return text;
+
+      return GestureDetector(
+        onTap: onTap,
+        behavior: HitTestBehavior.opaque,
+        child: text,
+      );
+    }
+
     final cardShadow = whiteMode
         ? [
             BoxShadow(
@@ -7964,7 +8777,7 @@ class _HomePageState extends State<HomePage>
                                           style: TextStyle(
                                             fontSize: 25,
                                             fontWeight: FontWeight.w800,
-                                            color: accentBlue,
+                                            color: primaryText,
                                           ),
                                         ),
                                       ),
@@ -7977,47 +8790,106 @@ class _HomePageState extends State<HomePage>
                                           fontWeight: FontWeight.w500,
                                         ),
                                       ),
-                                      const SizedBox(height: 11),
-                                      if (homeFearGreedData != null)
-                                        GestureDetector(
-                                          onTap: () =>
-                                              openFearGreedPage(context),
-                                          behavior: HitTestBehavior.opaque,
-                                          child: FittedBox(
-                                            fit: BoxFit.scaleDown,
-                                            child: RichText(
-                                              text: TextSpan(
-                                                children: [
-                                                  TextSpan(
-                                                    text:
-                                                        '${AppLocalizations.of(context)!.fearGreedInlineLabel} ',
-                                                    style: TextStyle(
-                                                      fontSize: 12,
-                                                      color: tertiaryText,
-                                                      fontWeight:
-                                                          FontWeight.w500,
+                                      const SizedBox(height: 5),
+                                      Column(
+                                        children: [
+                                          SizedBox(
+                                            height: 18,
+                                            child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.start,
+                                              children: [
+                                                Flexible(
+                                                  child:
+                                                      buildInlineInfoSegment(
+                                                    label: 'CNN F&G',
+                                                    value: fearGreedValue,
+                                                    valueColor:
+                                                        fearGreedValueColor,
+                                                    valueStyle:
+                                                        homeInfoEmphasisValueStyle,
+                                                    onTap: () =>
+                                                        openFearGreedPage(
+                                                      context,
                                                     ),
                                                   ),
-                                                  TextSpan(
-                                                    text: homeFearGreedData!
-                                                        .score
-                                                        .toStringAsFixed(0),
-                                                    style: TextStyle(
-                                                      fontSize: 12,
-                                                      color:
-                                                          fearGreedColorForScore(
-                                                        homeFearGreedData!
-                                                            .score,
-                                                      ),
-                                                      fontWeight:
-                                                          FontWeight.w600,
-                                                    ),
+                                                ),
+                                                Padding(
+                                                  padding: const EdgeInsets
+                                                      .symmetric(
+                                                    horizontal: 5,
                                                   ),
-                                                ],
-                                              ),
+                                                  child: Text(
+                                                    '|',
+                                                    style: homeInfoLabelStyle,
+                                                  ),
+                                                ),
+                                                Flexible(
+                                                  child:
+                                                      buildInlineInfoSegment(
+                                                    label: 'VIX',
+                                                    value: vixValue,
+                                                    valueColor: vixValueColor,
+                                                    valueStyle:
+                                                        homeInfoEmphasisValueStyle,
+                                                    onTap:
+                                                        openVixTradingView,
+                                                  ),
+                                                ),
+                                              ],
                                             ),
                                           ),
-                                        ),
+                                          const SizedBox(height: 1),
+                                          SizedBox(
+                                            height: 18,
+                                            child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.start,
+                                              children: [
+                                                Flexible(
+                                                  child:
+                                                      buildInlineInfoSegment(
+                                                    label: scheduleLabel,
+                                                    value: scheduleValue,
+                                                    valueColor:
+                                                        scheduleValueColor,
+                                                    onTap: () =>
+                                                        _showMajorUsScheduleSheet(
+                                                      context,
+                                                      onChanged: () {
+                                                        if (mounted) {
+                                                          setState(() {});
+                                                        }
+                                                      },
+                                                    ),
+                                                  ),
+                                                ),
+                                                Padding(
+                                                  padding: const EdgeInsets
+                                                      .symmetric(
+                                                    horizontal: 5,
+                                                  ),
+                                                  child: Text(
+                                                    '|',
+                                                    style: homeInfoLabelStyle,
+                                                  ),
+                                                ),
+                                                Flexible(
+                                                  child:
+                                                      buildInlineInfoSegment(
+                                                    label: '10Y',
+                                                    value: tenYearYieldValue,
+                                                    valueColor:
+                                                        tenYearYieldColor,
+                                                    onTap:
+                                                        openTenYearYieldTradingView,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
                                     ],
                                   ),
                                 ),
@@ -8126,19 +8998,41 @@ class _HomePageState extends State<HomePage>
                                       ),
                                       FittedBox(
                                         fit: BoxFit.scaleDown,
-                                        child: Text(
-                                          signedPriceChangeText(
-                                            previousCloseChange,
-                                            previousClosePercent,
-                                          ),
-                                          style: TextStyle(
-                                            fontSize: 13,
-                                            fontWeight: FontWeight.w600,
-                                            color: previousCloseColor,
+                                        child: RichText(
+                                          text: TextSpan(
+                                            style: const TextStyle(
+                                              fontSize: 13,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                            children: [
+                                              TextSpan(
+                                                text:
+                                                    signedPriceChangeAmountText(
+                                                  previousCloseChange,
+                                                ),
+                                                style: TextStyle(
+                                                  color: primaryText,
+                                                ),
+                                              ),
+                                              if (signedPriceChangePercentText(
+                                                previousClosePercent,
+                                              ).isNotEmpty) ...[
+                                                const TextSpan(text: ' '),
+                                                TextSpan(
+                                                  text:
+                                                      signedPriceChangePercentText(
+                                                    previousClosePercent,
+                                                  ),
+                                                  style: TextStyle(
+                                                    color: previousCloseColor,
+                                                  ),
+                                                ),
+                                              ],
+                                            ],
                                           ),
                                         ),
                                       ),
-                                      const SizedBox(height: 2),
+                                      const SizedBox(height: 5),
                                       FittedBox(
                                         fit: BoxFit.scaleDown,
                                         child: Row(
@@ -9114,9 +10008,9 @@ class _HomePageState extends State<HomePage>
                 ),
               ),
               Icon(
-                Icons.chevron_right_rounded,
+                Icons.arrow_forward_rounded,
                 color: mutedText,
-                size: 26,
+                size: 22,
               ),
             ],
           ),
@@ -9609,17 +10503,6 @@ class _HomePageState extends State<HomePage>
     final cardLine =
         whiteMode ? const Color(0xFFB7D8FF) : _cyan.withValues(alpha: 0.22);
     final accent = whiteMode ? _lightBlue : _cyan;
-    Widget appTile() {
-      return Container(
-        width: 8,
-        height: 8,
-        decoration: BoxDecoration(
-          color: accent,
-          borderRadius: BorderRadius.circular(2),
-        ),
-      );
-    }
-
     return Semantics(
       button: true,
       label: 'Contents',
@@ -9665,34 +10548,28 @@ class _HomePageState extends State<HomePage>
           borderRadius: BorderRadius.circular(10),
           child: Center(
             child: Container(
-              width: 28,
-              height: 28,
-              padding: const EdgeInsets.all(5),
+              width: 32,
+              height: 32,
+              padding: const EdgeInsets.all(2),
               decoration: BoxDecoration(
                 color: accent.withValues(alpha: whiteMode ? 0.10 : 0.14),
-                borderRadius: BorderRadius.circular(7),
+                borderRadius: BorderRadius.circular(8),
                 border: Border.all(
                   color: accent.withValues(alpha: 0.42),
                 ),
               ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      appTile(),
-                      appTile(),
-                    ],
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(6),
+                child: Image.asset(
+                  'assets/qld_widget_icon.png',
+                  fit: BoxFit.contain,
+                  gaplessPlayback: true,
+                  errorBuilder: (_, __, ___) => Icon(
+                    Icons.apps_rounded,
+                    color: accent,
+                    size: 18,
                   ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      appTile(),
-                      appTile(),
-                    ],
-                  ),
-                ],
+                ),
               ),
             ),
           ),
@@ -14119,6 +14996,7 @@ class _InquiryPageState extends State<InquiryPage> {
     try {
       final confirmed = await showDialog<bool>(
         context: context,
+        barrierDismissible: true,
         builder: (dialogContext) {
           final whiteMode = isWhiteModeEnabled(dialogContext);
           final primaryText = whiteMode ? _lightText : _darkText;
