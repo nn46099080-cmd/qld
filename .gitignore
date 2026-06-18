@@ -50,3 +50,12 @@ app.*.map.json
 !.dev.vars.example
 .env*
 !.env.example
+
+.codex-remote-attachments/
+.dart_tool/
+.dart-local/
+.firebase/
+.npm-cache/
+.wrangler/
+.xdg/
+build/
