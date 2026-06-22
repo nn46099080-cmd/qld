@@ -137,6 +137,58 @@ class AppLocalizationsFr extends AppLocalizations {
       '[ Guide de stratégie ]\n\nCette stratégie n\'investit pas tous les actifs dans QLD en une seule fois.\n\nAu départ, seule une partie des actifs est investie, tandis que le reste est conservé en liquidités pour faire face aux fortes baisses du marché.\n\nLa force de conserver des liquidités\n\nLes liquidités ne sont pas conservées pour augmenter le rendement, mais pour garder son calme et sa discipline même pendant une baisse du marché.\n\nPlus important que le rendement maximal est un système d\'investissement capable de maintenir la capitalisation jusqu\'au bout.\n\nExemple :\n- Investir seulement 70 % des actifs initiaux dans QLD\n- Conserver les 30 % restants en liquidités\n\nQLD est un ETF qui suit environ deux fois le mouvement quotidien de l\'indice Nasdaq-100.\n\nAinsi, dans la position initiale :\neffet de levier 2x × investissement de 70 % = exposition globale d\'environ 1,4x.\n\nPar exemple :\n- Nasdaq +1 %\n→ Actifs totaux environ +1,4 %\n\nLorsqu\'une forte baisse survient, les liquidités disponibles sont utilisées progressivement pour effectuer des achats supplémentaires.\n\nExemple :\n- Achat supplémentaire près de la zone de baisse de 40 % de QLD\n\nCela permet d\'accumuler davantage de parts à des prix plus bas et de réduire nettement le prix moyen lorsque le marché se redresse.\n\nCette stratégie peut ainsi produire un rendement supérieur pendant la reprise par rapport à une simple stratégie de conservation.\n\nLe cœur de cette stratégie est de :\n- Réduire la volatilité avec des liquidités pendant les marchés haussiers\n- Utiliser les liquidités pour acheter davantage pendant les fortes baisses et réduire le prix moyen.';
 
   @override
+  String get basePositionIntro =>
+      'Cette stratégie de base n\'investit pas tout en une seule fois. Elle conserve QLD avec du cash, réduit les variations en marché haussier et garde une marge pour acheter davantage lors des fortes baisses.';
+
+  @override
+  String get basePositionQldAllocationLabel => 'Position QLD de base';
+
+  @override
+  String get basePositionCashAllocationLabel => 'Réserve de cash';
+
+  @override
+  String get basePositionCorePrinciple => 'Principes clés';
+
+  @override
+  String get basePositionCashTitle =>
+      'Le cash n\'est pas seulement un frein au rendement';
+
+  @override
+  String get basePositionCashText =>
+      'C\'est une marge de sécurité pour rester discipliné lors des fortes baisses et acheter plus bas.';
+
+  @override
+  String get basePositionInitialLeverageTitle =>
+      'Le mouvement initial est d\'environ 1,4x';
+
+  @override
+  String get basePositionInitialLeverageText =>
+      'QLD suit environ 2 fois le Nasdaq-100. Avec seulement 70 % des actifs dans QLD, le mouvement total du portefeuille descend à environ 1,4x.';
+
+  @override
+  String get basePositionStepLeverageTitle =>
+      'Pendant les baisses, le levier augmente par étapes';
+
+  @override
+  String get basePositionStepLeverageText =>
+      'À partir des zones -20 % à -30 %, ajouter du TQQQ peut porter le mouvement total à environ 1,8x. Dans les zones de baisse les plus profondes, il peut approcher 2,3x.';
+
+  @override
+  String get basePositionLowAverageTitle =>
+      'Plus la peur est forte, plus le prix moyen peut baisser';
+
+  @override
+  String get basePositionLowAverageText =>
+      'L\'app est conçue pour utiliser le cash afin de renforcer progressivement TQQQ quand la baisse s\'approfondit. Accumuler plus de parts en zone basse peut amplifier le rendement lors du rebond suivant.';
+
+  @override
+  String get basePositionSummaryTitle => 'Résumé';
+
+  @override
+  String get basePositionSummaryText =>
+      'Le but n\'est pas de deviner le rendement maximal. Il est de garder un plan pendant les baisses et de laisser la capitalisation agir plus longtemps.';
+
+  @override
   String get buySignalMessage => 'Les signaux d’achat apparaîtront ici.';
 
   @override
@@ -226,7 +278,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get minus20Headline =>
-      'Commencer des achats fractionnés récurrents de TQQQ';
+      'Commencer l’accumulation hebdomadaire de TQQQ avec 1 % du cash';
 
   @override
   String get minus20OverviewTitle => 'Strategy Overview';
@@ -461,6 +513,10 @@ class AppLocalizationsFr extends AppLocalizations {
   String get alertSettingsTitle => 'Paramètres d’alerte';
 
   @override
+  String get alertSettingsCloseBasisNote =>
+      'Les alertes sont envoyées selon le cours de clôture.';
+
+  @override
   String get alertHighTitle => 'Alerte nouveau plus haut';
 
   @override
@@ -517,28 +573,28 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get minus20ActionText =>
-      'Commencez de très petits achats fractionnés de TQQQ. N’investissez pas une grosse somme d’un coup.';
+      'Utilisez seulement 1 % du cash total une fois par semaine pour accumuler des fractions de TQQQ. N’investissez pas une grosse somme d’un coup.';
 
   @override
-  String get minus20BuyRuleTitle => 'Règle d’achat';
+  String get minus20BuyRuleTitle => 'Objectif';
 
   @override
   String get minus20BuyRuleText =>
-      'Utilisez seulement une très petite partie des liquidités. Le but est de lancer le rythme, pas d’entrer fortement.';
+      'Ce réglage commence en zone -20 % afin que, si le marché évolue latéralement, de petits achats réguliers abaissent progressivement le prix moyen de TQQQ. L’objectif n’est pas de viser un gain immédiat, mais de construire un coût moyen plus bas.';
 
   @override
   String get minus20CashTitle => 'Gestion des liquidités';
 
   @override
   String get minus20CashText =>
-      'La majorité des liquidités doit rester disponible pour les zones -30 %, -40 % et -50 %.';
+      'La majorité des liquidités doit rester disponible pour les zones -30 %, -40 % et -50 %. Même après l’utilisation du cash prévu à -50 %, le nouveau cash peut continuer à abaisser le prix moyen par accumulation hebdomadaire.';
 
   @override
-  String get minus20AvoidTitle => 'À éviter';
+  String get minus20AvoidTitle => 'Plan de sortie';
 
   @override
   String get minus20AvoidText =>
-      'N’achetez pas TQQQ de façon agressive. La zone -20 % reste une phase initiale.';
+      'Ne vendez pas ces parts de TQQQ à chaque petit rebond. Traitez-les comme une position à clôturer plus tard, quand un nouveau plus haut est atteint et que TQQQ est allégé.';
 
   @override
   String get minus30ActionTitle => 'Action immédiate';
@@ -899,4 +955,99 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get investmentCurrencyRussiaRub => 'Russie RUB';
+
+  @override
+  String get contentTitle => 'Contenus';
+
+  @override
+  String get contentInquiry => 'Demandes';
+
+  @override
+  String get contentCloseGuess => 'Deviner la cloture';
+
+  @override
+  String get contentStockQuote => 'Citations boursieres';
+
+  @override
+  String get contentNumberGuess => 'Deviner le nombre';
+
+  @override
+  String get contentBookReader => 'Lecteur de livres';
+
+  @override
+  String get contentStockMeme => 'Meme boursier';
+
+  @override
+  String get contentLottoNumbers => 'Numeros de loto';
+
+  @override
+  String get contentJumpDodge => 'Jeu de saut et esquive';
+
+  @override
+  String get stockQuoteTitle => 'Citations boursieres';
+
+  @override
+  String get stockQuoteTapHint => 'Touchez pour voir une autre citation.';
+
+  @override
+  String get stockQuoteShuffle => 'Voir une autre citation';
+
+  @override
+  String get usageGuideTitle => 'Mode d’emploi de l’app';
+
+  @override
+  String get usageGuideSubtitle =>
+      'Règles pour une stratégie Nasdaq 2x de long terme';
+
+  @override
+  String get usageGuideCardTitle => 'Mode d’emploi de l’app';
+
+  @override
+  String get usageGuideCardSubtitle =>
+      'Position de base, zones de baisse, suivi, indicateurs';
+
+  @override
+  String get usageGuideWhatAppTitle => 'À quoi sert cette app ?';
+
+  @override
+  String get usageGuideWhatAppBody =>
+      'Cette app est un guide de règles pour les investisseurs utilisant le Nasdaq 2x dans une approche de long terme.\n\nElle calcule automatiquement la baisse actuelle par rapport au plus haut historique afin de situer le marché, puis propose une stratégie pour chaque zone.\n\nElle aide à suivre des principes d’investissement planifiés sans se laisser emporter par la peur ou l’avidité du marché.';
+
+  @override
+  String get usageGuideNoBuyTitle =>
+      '1. Lire d’abord la position de base et la stratégie';
+
+  @override
+  String get usageGuideNoBuyBody =>
+      'Touchez la carte Position de base sur l’écran principal et lisez comment vous préparer. Consultez aussi l’onglet Stratégie en bas à droite.';
+
+  @override
+  String get usageGuideStrategyTitle =>
+      '2. Vérifier la stratégie automatique par zone';
+
+  @override
+  String get usageGuideStrategyBody =>
+      'La troisième carte calcule automatiquement la baisse de QLD par rapport à son plus haut historique. La stratégie adaptée s’affiche et des alertes arrivent si les conditions sont remplies.';
+
+  @override
+  String get usageGuideIndicatorsTitle => 'Quatre indicateurs d’aide';
+
+  @override
+  String get usageGuideIndicatorsBody =>
+      'CNN F&G montre si le sentiment du marché est plutôt peur ou avidité.\n\nLe VIX montre la volatilité du marché. Plus il est élevé, plus l’inquiétude est forte.\n\nLes grands événements US incluent NFP, CPI et FOMC. NFP suit l’emploi, CPI l’inflation et FOMC la direction des taux. Ils peuvent fortement faire bouger Nasdaq et QLD.\n\nLe rendement à 10 ans est le taux de l’obligation américaine à 10 ans. Une hausse rapide peut peser sur les valeurs de croissance, Nasdaq et QLD.';
+
+  @override
+  String get usageGuideQldTitle =>
+      '3. Acheter puis enregistrer le portefeuille';
+
+  @override
+  String get usageGuideQldBody =>
+      'Utilisez la stratégie et le montant comme repère, achetez avec votre courtier, puis enregistrez quantité, prix moyen et cash dans le portefeuille de l’app.';
+
+  @override
+  String get usageGuideDisclaimer =>
+      'Cette app est uniquement une référence d’investissement et ne garantit aucun profit.';
+
+  @override
+  String get usageGuideConfirm => 'OK';
 }

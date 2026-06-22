@@ -24,6 +24,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
+import 'adsense/adsense_platform_view_stub.dart'
+    if (dart.library.html) 'adsense/adsense_platform_view_web.dart';
 import 'strategy/strategy_progress_store.dart';
 
 part 'strategy/strategy_pages.dart';
@@ -79,11 +81,19 @@ const _ownerAdminUid = 'qld-admin-179204';
 const _ownerAdminPassword = '0610aa!!';
 const _tradingViewInstallUrl =
     'https://play.google.com/store/apps/details?id=com.tradingview.tradingviewapp&utm_source=chatgpt.com';
-const _currentAppVersionCode = 41;
+const _currentAppVersionCode = 50;
 const _androidPackageName = 'com.qldalert.app';
 const _releaseAdMobBottomBannerUnitId =
     'ca-app-pub-8561157852710726/9908440913';
 const _releaseAdMobExitUnitId = 'ca-app-pub-8561157852710726/8106285955';
+const _adsenseClientId = 'ca-pub-8561157852710726';
+const _adsenseBottomBannerSlotId = String.fromEnvironment(
+  'ADSENSE_BOTTOM_SLOT',
+  defaultValue: '2225309867',
+);
+const _adsenseBottomBannerViewType = 'qld-adsense-bottom-banner';
+const _bottomBannerAdHeight = 50.0;
+const _bottomBannerAdWidth = 320.0;
 
 String get _adMobBottomBannerUnitId => _releaseAdMobBottomBannerUnitId;
 
@@ -93,6 +103,14 @@ bool get canRequestAds =>
     !kIsWeb &&
     (defaultTargetPlatform == TargetPlatform.android ||
         defaultTargetPlatform == TargetPlatform.iOS);
+
+bool get canRequestAdsense =>
+    kIsWeb &&
+    supportsAdsensePlatformView &&
+    _adsenseBottomBannerSlotId.trim().isNotEmpty;
+
+double get bottomBannerAdHeight =>
+    kIsWeb && !canRequestAdsense ? 0 : _bottomBannerAdHeight;
 
 const _yahooProxyBaseUrl =
     'https://billowing-band-06cd.nn46099080.workers.dev/';
@@ -130,8 +148,6 @@ const _adminStatusUrl =
     'https://billowing-band-06cd.nn46099080.workers.dev/admin-status';
 const _majorUsSchedulesUrl =
     'https://billowing-band-06cd.nn46099080.workers.dev/major-us-schedules';
-const _lombardStreetTextUrl =
-    'https://www.gutenberg.org/cache/epub/4359/pg4359.txt';
 const _numberGuessRankingPrefsKey = 'number_guess_rankings';
 
 Uri _chartProxyUri(String symbol) => Uri.parse(_yahooProxyBaseUrl).replace(
@@ -231,12 +247,10 @@ List<_MajorUsScheduleItem> _activeMajorUsSchedules =
 
 Future<void> _loadSavedMajorUsSchedules() async {
   try {
-    final response = await http
-        .get(
-          Uri.parse(_majorUsSchedulesUrl),
-          headers: {'Accept': 'application/json'},
-        )
-        .timeout(const Duration(seconds: 8));
+    final response = await http.get(
+      Uri.parse(_majorUsSchedulesUrl),
+      headers: {'Accept': 'application/json'},
+    ).timeout(const Duration(seconds: 8));
     if (response.statusCode < 200 || response.statusCode >= 300) {
       throw Exception('Schedule API ${response.statusCode}');
     }
@@ -371,7 +385,8 @@ DateTime? _parseMajorUsScheduleDate(String source) {
   }
   final today = DateTime.now();
   final todayOnly = DateTime(today.year, today.month, today.day);
-  if (parts.length == 2 || trimmed.replaceAll(RegExp(r'[^0-9]'), '').length == 4) {
+  if (parts.length == 2 ||
+      trimmed.replaceAll(RegExp(r'[^0-9]'), '').length == 4) {
     if (parsed.isBefore(todayOnly)) {
       parsed = DateTime(year + 1, month, day);
     }
@@ -1026,12 +1041,14 @@ class CloseGuessRankingState {
     required this.date,
     required this.dates,
     required this.entries,
+    required this.referenceClose,
     this.winnerMessage,
   });
 
   final String date;
   final List<String> dates;
   final List<CloseGuessEntry> entries;
+  final double referenceClose;
   final CloseGuessWinnerMessage? winnerMessage;
 
   static CloseGuessRankingState? fromMap(Map<String, dynamic> data) {
@@ -1043,6 +1060,7 @@ class CloseGuessRankingState {
     return CloseGuessRankingState(
       date: date,
       dates: rawDates.map((value) => value.toString()).toList(),
+      referenceClose: _numberToDouble(data['referenceClose']),
       entries: rawEntries
           .whereType<Map>()
           .map(
@@ -1976,6 +1994,68 @@ String localizedCloseGuessDifference(Locale locale, double difference) {
   }
 }
 
+String localizedCloseGuessPreviousResultTitle(Locale locale) {
+  switch (localeLanguageCode(locale)) {
+    case 'ko':
+      return '\uC5B4\uC81C \uACB0\uACFC';
+    case 'ja':
+      return '\u524D\u56DE\u306E\u7D50\u679C';
+    case 'es':
+      return 'Resultado anterior';
+    case 'pt':
+      return 'Resultado anterior';
+    case 'fr':
+      return 'Resultat precedent';
+    case 'de':
+      return 'Letztes Ergebnis';
+    default:
+      return 'Previous result';
+  }
+}
+
+String localizedCloseGuessPreviousClose(Locale locale, double close) {
+  final value = '\$${close.toStringAsFixed(2)}';
+  switch (localeLanguageCode(locale)) {
+    case 'ko':
+      return '\uC5B4\uC81C\uB294 $value\uC5D0 \uB9C8\uAC10';
+    case 'ja':
+      return '\u524D\u56DE\u306E\u7D42\u5024 $value';
+    case 'es':
+      return 'Cerro en $value';
+    case 'pt':
+      return 'Fechou em $value';
+    case 'fr':
+      return 'Cloture a $value';
+    case 'de':
+      return 'Schlusskurs $value';
+    default:
+      return 'Closed at $value';
+  }
+}
+
+String localizedCloseGuessWinnerSummary(
+  Locale locale,
+  CloseGuessEntry? winner,
+) {
+  final name = winner?.id.trim() ?? '';
+  switch (localeLanguageCode(locale)) {
+    case 'ko':
+      return name.isEmpty ? '1\uB4F1 \uC5C6\uC74C' : '1\uB4F1 $name';
+    case 'ja':
+      return name.isEmpty ? '1\u4F4D\u306A\u3057' : '1\u4F4D $name';
+    case 'es':
+      return name.isEmpty ? 'Sin ganador' : 'Ganador $name';
+    case 'pt':
+      return name.isEmpty ? 'Sem vencedor' : '1o lugar $name';
+    case 'fr':
+      return name.isEmpty ? 'Aucun gagnant' : '1er $name';
+    case 'de':
+      return name.isEmpty ? 'Kein Gewinner' : 'Platz 1 $name';
+    default:
+      return name.isEmpty ? 'No winner' : 'Winner $name';
+  }
+}
+
 bool _isCloseGuessNewYorkDst(DateTime utcNow) {
   final year = utcNow.year;
   final dstStartDay = _closeGuessNthWeekdayOfMonthUtc(
@@ -2227,61 +2307,70 @@ String _closeGuessSubmissionDate([DateTime? now]) {
 String localizedCoreAlertTitle(Locale locale) {
   switch (localeLanguageCode(locale)) {
     case 'ko':
-      return '타이밍 코멘트';
+      return '커피 한 잔으로 개발 응원';
     default:
-      return 'Timing Comment';
+      return 'Support development with a coffee';
   }
 }
 
 String localizedCoreAlertSubtitle(Locale locale) {
   switch (localeLanguageCode(locale)) {
     case 'ko':
-      return '以묒슂???쒖옣 ?쒖젏??吏곸젒 ?묒꽦???먮떒 ?꾩? 湲???뚮┝?쇰줈 諛쏆쓣 ???덉뼱??';
+      return '투자에 도움 되는 앱으로 계속 개선하겠습니다.';
     default:
-      return 'Human-written timing comments for important market moments';
+      return 'Help keep improving the app for investment decisions.';
   }
 }
 
 String localizedCoreAlertLockedText(Locale locale) {
   switch (localeLanguageCode(locale)) {
     case 'ko':
-      return '결제자 전용';
+      return '개발 응원';
     default:
-      return 'Paid';
+      return 'Support';
+  }
+}
+
+String localizedCoreAlertSupportedText(Locale locale) {
+  switch (localeLanguageCode(locale)) {
+    case 'ko':
+      return '응원 완료';
+    default:
+      return 'Supported';
   }
 }
 
 String localizedCoreAlertPurchaseButton(Locale locale) {
   switch (localeLanguageCode(locale)) {
     case 'ko':
-      return '寃곗젣?섍린';
+      return '커피 한 잔으로 응원하기';
     default:
-      return 'Unlock';
+      return 'Support with a coffee';
   }
 }
 
 String localizedCoreAlertLifetimeNote(Locale locale) {
   switch (localeLanguageCode(locale)) {
     case 'ko':
-      return '吏湲?援щℓ媛 媛???좊━?⑸땲?? 珥덇린 援щℓ?먮뒗 ?됱깮 ?댁슜???좎??⑸땲??';
+      return '커피 한 잔 정도의 응원은 투자에 도움 되는 기능을 꾸준히 개발하는 데 사용됩니다.';
     default:
-      return 'Early buyers keep lifetime access.';
+      return 'A coffee-sized support helps fund steady development of investment-focused features.';
   }
 }
 
 String localizedCoreAlertPaywallBody(Locale locale) {
   switch (localeLanguageCode(locale)) {
     case 'ko':
-      return '而ㅽ뵾 ?쒖옍 媛믪쑝濡???대컢 肄붾찘?몃? ?됱깮 ?댁슜?????덈뒗 珥덇린 援щℓ ?쒗깮?낅땲?? ?섏쨷?먮뒗 ??援щ룆猷뚭? ?곸슜?????덉?留? 吏湲?援щℓ??遺꾩? 怨꾩냽 ?됱깮 ?댁슜?먮줈 ?⑥뒿?덈떎.';
+      return 'QLD DIP ALERT는 가격 변동, 알림, 참고 지표를 더 보기 쉽고 안정적으로 제공해 투자 판단을 정리하는 데 도움이 되도록 개발하고 있습니다. 커피 한 잔 정도의 응원은 서버 운영, 기능 개선, 더 안정적인 알림과 화면 개선에 사용됩니다.';
     default:
-      return 'For about the price of a coffee, early buyers can get lifetime access to Timing Comment. It may later move to a monthly subscription, but people who buy now will keep lifetime access.';
+      return 'QLD DIP ALERT is built to make price moves, alerts, and reference indicators clearer and more reliable for investment decisions. A coffee-sized support helps fund server costs, feature improvements, more reliable alerts, and a clearer app experience.';
   }
 }
 
 String localizedCoreAlertPurchaseUnavailable(Locale locale) {
   switch (localeLanguageCode(locale)) {
     case 'ko':
-      return '寃곗젣 ?곹뭹 ?곌껐 ???ъ슜?????덉뒿?덈떎.';
+      return '스토어 상품이 연결된 뒤 이용할 수 있습니다.';
     default:
       return 'Available after the store product is connected.';
   }
@@ -2290,34 +2379,34 @@ String localizedCoreAlertPurchaseUnavailable(Locale locale) {
 String localizedCoreAlertPurchasePending(Locale locale) {
   switch (localeLanguageCode(locale)) {
     case 'ko':
-      return '寃곗젣 吏꾪뻾 以묒엯?덈떎.';
+      return '응원 결제를 진행하고 있습니다.';
     default:
-      return 'Purchase is in progress.';
+      return 'Support payment is in progress.';
   }
 }
 
 String localizedCoreAlertPurchaseComplete(Locale locale) {
   switch (localeLanguageCode(locale)) {
     case 'ko':
-      return '??대컢 肄붾찘?멸? ?쒖꽦?붾릺?덉뒿?덈떎.';
+      return '응원해주셔서 감사합니다. 투자에 도움 되는 기능을 꾸준히 개발하겠습니다.';
     default:
-      return 'Core Alert is now active.';
+      return 'Thank you for the support. I will keep improving investment-focused features.';
   }
 }
 
 String localizedCoreAlertPurchaseFailed(Locale locale) {
   switch (localeLanguageCode(locale)) {
     case 'ko':
-      return '寃곗젣瑜??꾨즺?섏? 紐삵뻽?듬땲??';
+      return '응원 결제를 완료하지 못했습니다.';
     default:
-      return 'Purchase could not be completed.';
+      return 'Support payment could not be completed.';
   }
 }
 
 String localizedCoreAlertPurchaseLaunchFailed(Locale locale) {
   switch (localeLanguageCode(locale)) {
     case 'ko':
-      return '寃곗젣李쎌쓣 ?????놁뒿?덈떎. Google Play 怨꾩젙怨?寃곗젣 ?곹뭹 ?ㅼ젙???뺤씤??二쇱꽭??';
+      return '결제창을 열 수 없습니다. Google Play 계정과 결제 상품 설정을 확인해 주세요.';
     default:
       return 'The purchase screen could not be opened. Check the Google Play account and product setup.';
   }
@@ -2326,43 +2415,43 @@ String localizedCoreAlertPurchaseLaunchFailed(Locale locale) {
 String localizedCoreAlertPurchaseCanceled(Locale locale) {
   switch (localeLanguageCode(locale)) {
     case 'ko':
-      return '寃곗젣媛 痍⑥냼?섏뿀?듬땲??';
+      return '응원 결제가 취소되었습니다.';
     default:
-      return 'Purchase was canceled.';
+      return 'Support payment was canceled.';
   }
 }
 
 String localizedCoreAlertPurchaseVerificationFailed(Locale locale) {
   switch (localeLanguageCode(locale)) {
     case 'ko':
-      return '寃곗젣???뺤씤 以묒씠吏留??뚮┝ 沅뚰븳 ?깅줉???ㅽ뙣?덉뒿?덈떎. ?좎떆 ??援щℓ 蹂듭썝???뚮윭二쇱꽭??';
+      return '응원 결제 확인 중 문제가 생겼습니다. 잠시 후 다시 시도해 주세요.';
     default:
-      return 'The purchase is being verified, but alert access could not be registered. Try Restore purchase shortly.';
+      return 'There was a problem verifying the support payment. Please try again shortly.';
   }
 }
 
 String localizedCoreAlertRestoreFailed(Locale locale) {
   switch (localeLanguageCode(locale)) {
     case 'ko':
-      return '援щℓ 蹂듭썝???ㅽ뙣?덉뒿?덈떎. Google Play 怨꾩젙???뺤씤?????ㅼ떆 ?쒕룄??二쇱꽭??';
+      return '결제 내역 복원에 실패했습니다. Google Play 계정을 확인한 뒤 다시 시도해 주세요.';
     default:
-      return 'Restore failed. Check your Google Play account and try again.';
+      return 'Purchase restore failed. Check your Google Play account and try again.';
   }
 }
 
 String localizedCoreAlertRestorePending(Locale locale) {
   switch (localeLanguageCode(locale)) {
     case 'ko':
-      return '\uAD6C\uB9E4 \uBCF5\uC6D0 \uC911\uC785\uB2C8\uB2E4.';
+      return '결제 내역을 확인하고 있습니다.';
     default:
-      return 'Restoring purchase...';
+      return 'Checking purchase history...';
   }
 }
 
 String localizedCoreAlertRestoreNotFound(Locale locale) {
   switch (localeLanguageCode(locale)) {
     case 'ko':
-      return '\uBCF5\uC6D0\uD560 \uAD6C\uB9E4 \uB0B4\uC5ED\uC744 \uCC3E\uC9C0 \uBABB\uD588\uC2B5\uB2C8\uB2E4. Google Play \uACC4\uC815\uC744 \uD655\uC778\uD574 \uC8FC\uC138\uC694.';
+      return '복원할 결제 내역을 찾지 못했습니다. Google Play 계정을 확인해 주세요.';
     default:
       return 'No purchase history was found to restore. Check your Google Play account.';
   }
@@ -2371,7 +2460,7 @@ String localizedCoreAlertRestoreNotFound(Locale locale) {
 String localizedCoreAlertRestoreButton(Locale locale) {
   switch (localeLanguageCode(locale)) {
     case 'ko':
-      return '援щℓ 蹂듭썝';
+      return '결제 내역 복원';
     default:
       return 'Restore purchase';
   }
@@ -2380,7 +2469,7 @@ String localizedCoreAlertRestoreButton(Locale locale) {
 String localizedQldMoveAlertTitle(Locale locale) {
   switch (localeLanguageCode(locale)) {
     case 'ko':
-      return 'QLD 4%/7%/10% ?④퀎 ?곸듅/?섎씫';
+      return 'QLD 4% / 7% / 10% 급등/급락 알림';
     default:
       return 'QLD 4% / 7% / 10% move alerts';
   }
@@ -2389,7 +2478,7 @@ String localizedQldMoveAlertTitle(Locale locale) {
 String localizedQldMoveAlertSubtitle(Locale locale) {
   switch (localeLanguageCode(locale)) {
     case 'ko':
-      return '?꾩씪 醫낃? ?鍮?4%, 7%, 10% 援ш컙???꾨떖?섎㈃ ?④퀎蹂꾨줈 ?뚮젮以띾땲??';
+      return '전일 종가 대비 4%, 7%, 10% 구간에 도달하면 단계별로 알려줍니다.';
     default:
       return 'Alerts step by step when QLD reaches 4%, 7%, and 10% moves from the previous close.';
   }
@@ -2399,7 +2488,7 @@ String localizedQldMoveUpAlert(Locale locale, double percent) {
   final value = percent.abs().toStringAsFixed(1);
   switch (localeLanguageCode(locale)) {
     case 'ko':
-      return 'QLD $value% ???곸듅';
+      return 'QLD $value% 급등';
     default:
       return 'QLD up $value%';
   }
@@ -2409,7 +2498,7 @@ String localizedQldMoveDownAlert(Locale locale, double percent) {
   final value = percent.abs().toStringAsFixed(1);
   switch (localeLanguageCode(locale)) {
     case 'ko':
-      return 'QLD $value% ???섎씫';
+      return 'QLD $value% 급락';
     default:
       return 'QLD down $value%';
   }
@@ -2418,7 +2507,7 @@ String localizedQldMoveDownAlert(Locale locale, double percent) {
 String localizedQldMoveAlertDetail(Locale locale) {
   switch (localeLanguageCode(locale)) {
     case 'ko':
-      return 'QLD媛 ?꾩씪 醫낃? ?鍮?4%, 7%, 10% 援ш컙???꾨떖?덉뒿?덈떎. ??蹂?숈? ?④린 ?먮쫫 ?꾪솚?대굹 ?섍툒 蹂?붾? ?섎??????덉뼱 ?뺤씤???꾩슂?⑸땲??';
+      return 'QLD가 전일 종가 대비 4%, 7%, 10% 구간에 도달했습니다. 큰 변동은 단기 흐름 전환이나 수급 변화를 의미할 수 있어 확인이 필요합니다.';
     default:
       return 'QLD reached a 4%, 7%, or 10% move zone from the previous close. A large move can sometimes signal a short-term shift in market flow.';
   }
@@ -2427,7 +2516,7 @@ String localizedQldMoveAlertDetail(Locale locale) {
 String localizedSimpleQldMoveAlertTitle(Locale locale) {
   switch (localeLanguageCode(locale)) {
     case 'ko':
-      return 'QLD \uD070 \uC0C1\uC2B9/\uD070 \uD558\uB77D';
+      return 'QLD 큰 상승/큰 하락';
     default:
       return 'QLD big move alerts';
   }
@@ -2436,7 +2525,7 @@ String localizedSimpleQldMoveAlertTitle(Locale locale) {
 String localizedSimpleQldMoveAlertSubtitle(Locale locale) {
   switch (localeLanguageCode(locale)) {
     case 'ko':
-      return '\uC804\uC77C \uC885\uAC00 \uB300\uBE44 4% \uC774\uC0C1 \uD070 \uC0C1\uC2B9\uC774\uB098 \uD070 \uD558\uB77D\uC774 \uC788\uC744 \uB54C \uD55C \uBC88\uB9CC \uC54C\uB824\uC90D\uB2C8\uB2E4.';
+      return '전일 종가 대비 4% 이상 큰 상승이나 큰 하락이 있을 때 한 번만 알려줍니다.';
     default:
       return 'Alerts once when QLD moves 4% or more up or down from the previous close.';
   }
@@ -2445,7 +2534,7 @@ String localizedSimpleQldMoveAlertSubtitle(Locale locale) {
 String localizedSimpleQldMoveAlertDetail(Locale locale) {
   switch (localeLanguageCode(locale)) {
     case 'ko':
-      return 'QLD\uAC00 \uC804\uC77C \uC885\uAC00 \uB300\uBE44 4% \uC774\uC0C1 \uD06C\uAC8C \uC6C0\uC9C1\uC600\uC2B5\uB2C8\uB2E4. \uC54C\uB9BC\uC5D0 \uC2E4\uC81C \uBCC0\uB3D9\uB960\uC774 \uD568\uAED8 \uD45C\uC2DC\uB418\uB2C8 \uACC4\uD68D\uC5D0 \uC601\uD5A5\uC774 \uC788\uB294\uC9C0 \uD655\uC778\uD558\uC138\uC694.';
+      return 'QLD가 전일 종가 대비 4% 이상 크게 움직였습니다. 알림에 실제 변동률이 함께 표시되니 계획에 영향이 있는지 확인하세요.';
     default:
       return 'QLD moved 4% or more from the previous close. The alert includes the actual move percentage so you can check whether it affects your plan.';
   }
@@ -2454,7 +2543,7 @@ String localizedSimpleQldMoveAlertDetail(Locale locale) {
 String localizedProfitTargetSettingTitle(Locale locale) {
   switch (localeLanguageCode(locale)) {
     case 'ko':
-      return '?섏씡瑜??ъ꽦 ?뚮┝';
+      return '수익률 목표 알림';
     default:
       return 'Profit Target Alert';
   }
@@ -2463,7 +2552,7 @@ String localizedProfitTargetSettingTitle(Locale locale) {
 String localizedProfitTargetSettingSubtitle(Locale locale) {
   switch (localeLanguageCode(locale)) {
     case 'ko':
-      return '?됯퇏?④? ?鍮?50%, 100%, 200%, 300% ?ъ꽦 ???뚮┝';
+      return '평단가 대비 50%, 100%, 200%, 300% 도달 시 알림';
     default:
       return 'Notify at 50%, 100%, 200%, and 300% above your average price';
   }
@@ -2476,7 +2565,7 @@ String localizedProfitTargetMessage(
 ) {
   switch (localeLanguageCode(locale)) {
     case 'ko':
-      return '$symbol ?섏씡瑜?$target% ?ъ꽦';
+      return '$symbol 수익률 $target% 도달';
     default:
       return '$symbol profit reached $target%';
   }
@@ -2489,7 +2578,7 @@ String localizedProfitTargetDetail(
 ) {
   switch (localeLanguageCode(locale)) {
     case 'ko':
-      return '$symbol媛 ?낅젰???됯퇏?④? ?鍮?$target% ?섏씡瑜좎쓣 ?ъ꽦?덉뒿?덈떎. 湲됲븯寃??꾨웾 留ㅻ룄?섍린蹂대떎 紐⑺몴 鍮꾩쨷怨??꾧툑 鍮꾩쨷???④퍡 ?뺤씤?섏꽭??';
+      return '$symbol가 입력한 평균단가 대비 $target% 수익률을 달성했습니다. 급하게 전량 매도하기보다 목표 비중과 현금 비중을 함께 확인하세요.';
     default:
       return '$symbol reached a $target% gain from your average price. Check your target allocation and cash level before making a rushed sell decision.';
   }
@@ -3943,15 +4032,15 @@ Widget buildLanguageMenuButton(
       ),
       PopupMenuItem(
         value: 'es',
-        child: Text('Espa챰ol'),
+        child: Text('Español'),
       ),
       PopupMenuItem(
         value: 'pt',
-        child: Text('Portugu챗s'),
+        child: Text('Português'),
       ),
       PopupMenuItem(
         value: 'ru',
-        child: Text('????克龜橘'),
+        child: Text('Русский'),
       ),
       PopupMenuItem(
         value: 'zh',
@@ -3959,11 +4048,11 @@ Widget buildLanguageMenuButton(
       ),
       PopupMenuItem(
         value: 'zh_TW',
-        child: Text('濚곲쳱訝?뻼'),
+        child: Text('繁體中文'),
       ),
       PopupMenuItem(
         value: 'fr',
-        child: Text('Fran챌ais'),
+        child: Text('Français'),
       ),
       PopupMenuItem(
         value: 'de',
@@ -4397,12 +4486,15 @@ class _HomePageState extends State<HomePage>
   bool quoteStreamConnected = false;
   bool isApplyingStreamQuote = false;
   int lastAppliedQuoteTimestamp = 0;
+  bool showContentWidgetButton = false;
+  Timer? contentWidgetHideTimer;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _activeHomeScrollController = homeScrollController;
+    homeScrollController.addListener(showContentWidgetButtonTemporarily);
     _preloadExitDialogBannerAd();
     _loadSavedMajorUsSchedules().then((_) {
       if (mounted) setState(() {});
@@ -4750,6 +4842,14 @@ class _HomePageState extends State<HomePage>
     return _closeGuessSubmissionDate();
   }
 
+  double closeGuessReferenceClose() {
+    final session = _usMarketSessionFromUtc(DateTime.now().toUtc());
+    if (session == _UsMarketSession.regular) {
+      return qldPreviousClose > 0 ? qldPreviousClose : qldPrice;
+    }
+    return qldPrice > 0 ? qldPrice : qldPreviousClose;
+  }
+
   List<CloseGuessEntry> sortedCloseGuessEntries() {
     final date = closeGuessSelectedDate.isEmpty
         ? closeGuessRankingDate()
@@ -4881,6 +4981,7 @@ class _HomePageState extends State<HomePage>
             ? ranking.dates
             : [ranking.date, ...ranking.dates],
         entries: mergedEntries,
+        referenceClose: ranking.referenceClose,
         winnerMessage: ranking.winnerMessage,
       ),
     );
@@ -4897,7 +4998,7 @@ class _HomePageState extends State<HomePage>
     final priceText = closeGuessPriceController.text.trim().replaceAll(',', '');
     final rawPrice = double.tryParse(priceText) ?? 0;
     final price = double.parse(rawPrice.toStringAsFixed(2));
-    final close = qldPreviousClose;
+    final close = closeGuessReferenceClose();
 
     if (price <= 0 || close <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -6529,8 +6630,10 @@ class _HomePageState extends State<HomePage>
     required VoidCallback onPurchase,
   }) {
     const premiumColor = _commentGreen;
-    final enabled = purchased && value;
     final whiteMode = isWhiteModeEnabled(context);
+    final premiumTextColor =
+        whiteMode ? const Color(0xFF047857) : const Color(0xFF34D399);
+    final enabled = purchased && value;
     final baseSurface =
         whiteMode ? _lightSurface : Colors.white.withValues(alpha: 0.04);
     final primaryText = whiteMode ? _lightText : Colors.white;
@@ -6562,10 +6665,8 @@ class _HomePageState extends State<HomePage>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Icon(
-                  purchased ? icon : Icons.lock_rounded,
-                  color: purchased
-                      ? premiumColor
-                      : premiumColor.withValues(alpha: 0.72),
+                  purchased ? icon : Icons.trending_up_rounded,
+                  color: premiumTextColor,
                   size: 20,
                 ),
                 const SizedBox(width: 10),
@@ -6593,12 +6694,16 @@ class _HomePageState extends State<HomePage>
                     borderRadius: BorderRadius.circular(6),
                   ),
                   child: Text(
-                    purchased ? 'Premium' : lockedText,
+                    purchased
+                        ? localizedCoreAlertSupportedText(
+                            Localizations.localeOf(context),
+                          )
+                        : lockedText,
                     maxLines: 2,
                     overflow: TextOverflow.visible,
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      color: premiumColor.withValues(alpha: 0.92),
+                      color: premiumTextColor,
                       fontSize: 8.5,
                       fontWeight: FontWeight.w600,
                     ),
@@ -6632,11 +6737,11 @@ class _HomePageState extends State<HomePage>
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           backgroundColor: premiumColor.withValues(alpha: 0.10),
-                          foregroundColor: premiumColor,
+                          foregroundColor: premiumTextColor,
                           padding: const EdgeInsets.symmetric(horizontal: 8),
                           shape: RoundedRectangleBorder(
                             side: BorderSide(
-                              color: premiumColor.withValues(alpha: 0.42),
+                              color: premiumTextColor.withValues(alpha: 0.52),
                             ),
                             borderRadius: BorderRadius.circular(8),
                           ),
@@ -6664,6 +6769,8 @@ class _HomePageState extends State<HomePage>
     final locale = Localizations.localeOf(context);
     const premiumColor = _commentGreen;
     final whiteMode = isWhiteModeEnabled(context);
+    final premiumTextColor =
+        whiteMode ? const Color(0xFF047857) : const Color(0xFF34D399);
     final sheetBg = whiteMode ? _lightSurface : const Color(0xFF0D1724);
     final primaryText = whiteMode ? _lightText : Colors.white;
     final secondaryText = whiteMode ? _lightMuted : Colors.white70;
@@ -6698,9 +6805,9 @@ class _HomePageState extends State<HomePage>
                         color: premiumColor.withValues(alpha: 0.14),
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      child: const Icon(
-                        Icons.lock_rounded,
-                        color: premiumColor,
+                      child: Icon(
+                        Icons.trending_up_rounded,
+                        color: premiumTextColor,
                         size: 20,
                       ),
                     ),
@@ -6730,7 +6837,7 @@ class _HomePageState extends State<HomePage>
                 Text(
                   localizedCoreAlertLifetimeNote(locale),
                   style: TextStyle(
-                    color: premiumColor.withValues(alpha: 0.92),
+                    color: premiumTextColor,
                     fontSize: 11,
                     height: 1.3,
                     fontWeight: FontWeight.w600,
@@ -6743,10 +6850,10 @@ class _HomePageState extends State<HomePage>
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       backgroundColor: premiumColor.withValues(alpha: 0.10),
-                      foregroundColor: premiumColor,
+                      foregroundColor: premiumTextColor,
                       shape: RoundedRectangleBorder(
                         side: BorderSide(
-                          color: premiumColor.withValues(alpha: 0.42),
+                          color: premiumTextColor.withValues(alpha: 0.52),
                         ),
                         borderRadius: BorderRadius.circular(8),
                       ),
@@ -6767,27 +6874,6 @@ class _HomePageState extends State<HomePage>
                     ),
                   ),
                 ),
-                const SizedBox(height: 8),
-                SizedBox(
-                  width: double.infinity,
-                  child: TextButton(
-                    onPressed: coreAlertPurchasePending
-                        ? null
-                        : () {
-                            Navigator.pop(paywallContext);
-                            restoreCoreAlertPurchase();
-                          },
-                    child: Text(
-                      localizedCoreAlertRestoreButton(locale),
-                      style: TextStyle(
-                        color: whiteMode
-                            ? premiumColor
-                            : Colors.white.withValues(alpha: 0.78),
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ),
               ],
             ),
           ),
@@ -6800,6 +6886,7 @@ class _HomePageState extends State<HomePage>
     final whiteMode = isWhiteModeEnabled(context);
     final sheetBg = whiteMode ? _lightAppBg : const Color(0xFF0D1724);
     final primaryText = whiteMode ? _lightText : Colors.white;
+    final secondaryText = whiteMode ? _lightMuted : Colors.white60;
 
     showModalBottomSheet(
       context: context,
@@ -6861,13 +6948,28 @@ class _HomePageState extends State<HomePage>
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          l10n.alertSettingsTitle,
-                          style: TextStyle(
-                            color: primaryText,
-                            fontSize: 17,
-                            fontWeight: FontWeight.w600,
-                          ),
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 4,
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          children: [
+                            Text(
+                              l10n.alertSettingsTitle,
+                              style: TextStyle(
+                                color: primaryText,
+                                fontSize: 17,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            Text(
+                              l10n.alertSettingsCloseBasisNote,
+                              style: TextStyle(
+                                color: secondaryText,
+                                fontSize: 11,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
                         ),
                         const SizedBox(height: 12),
                         buildAlertSettingTile(
@@ -7014,7 +7116,7 @@ class _HomePageState extends State<HomePage>
                           valueListenable: coreAlertPurchaseRevision,
                           builder: (context, _, __) {
                             return buildPremiumAlertSettingTile(
-                              icon: Icons.auto_awesome_rounded,
+                              icon: Icons.trending_up_rounded,
                               title: localizedCoreAlertTitle(
                                 Localizations.localeOf(context),
                               ),
@@ -7539,6 +7641,8 @@ class _HomePageState extends State<HomePage>
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    contentWidgetHideTimer?.cancel();
+    homeScrollController.removeListener(showContentWidgetButtonTemporarily);
     _blinkController.dispose();
     priceTimer?.cancel();
     priceRefreshCountdownTimer?.cancel();
@@ -7622,6 +7726,24 @@ class _HomePageState extends State<HomePage>
     _exitDialogBannerAdLoaded = false;
     _preloadExitDialogBannerAd();
     return bannerAd;
+  }
+
+  void showContentWidgetButtonTemporarily() {
+    if (!mounted || isLoading) return;
+
+    contentWidgetHideTimer?.cancel();
+    if (!showContentWidgetButton) {
+      setState(() {
+        showContentWidgetButton = true;
+      });
+    }
+
+    contentWidgetHideTimer = Timer(const Duration(seconds: 5), () {
+      if (!mounted) return;
+      setState(() {
+        showContentWidgetButton = false;
+      });
+    });
   }
 
   Future<void> fetchCurrentPrices({bool force = false}) async {
@@ -7904,8 +8026,7 @@ class _HomePageState extends State<HomePage>
       );
     }
 
-    final hasFreshPrice =
-        qldQuote != null ||
+    final hasFreshPrice = qldQuote != null ||
         tqqqQuote != null ||
         futuresQuote != null ||
         vixQuote != null ||
@@ -8243,6 +8364,97 @@ class _HomePageState extends State<HomePage>
     final primaryText = whiteMode ? _lightText : Colors.white;
     final secondaryText = whiteMode ? _lightMuted : Colors.white70;
     final accent = whiteMode ? _lightCyan : _cyan;
+    final cardBg = whiteMode ? const Color(0xFFF8FAFC) : _darkSurfaceSoft;
+    final cardLine = whiteMode ? _lightLine : _darkLineSoft;
+
+    Widget allocationChip(String label, String value, Color color) {
+      return Expanded(
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+          decoration: BoxDecoration(
+            color: color.withValues(alpha: whiteMode ? 0.10 : 0.14),
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: color.withValues(alpha: 0.26)),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: secondaryText,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              const SizedBox(height: 5),
+              Text(
+                value,
+                style: TextStyle(
+                  color: primaryText,
+                  fontSize: 20,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    Widget principleTile(IconData icon, String title, String body) {
+      return Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: cardBg,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: cardLine),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: 34,
+              height: 34,
+              decoration: BoxDecoration(
+                color: accent.withValues(alpha: whiteMode ? 0.10 : 0.14),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(icon, color: accent, size: 19),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      color: primaryText,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    body,
+                    style: TextStyle(
+                      color: secondaryText,
+                      fontSize: 13,
+                      height: 1.45,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+    }
 
     showModalBottomSheet(
       context: context,
@@ -8315,11 +8527,99 @@ class _HomePageState extends State<HomePage>
                       ),
                       const SizedBox(height: 18),
                       Text(
-                        l10n.basePositionDescription,
+                        l10n.basePositionIntro,
                         style: TextStyle(
                           fontSize: 15,
                           height: 1.55,
                           color: secondaryText,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Row(
+                        children: [
+                          allocationChip(
+                            l10n.basePositionQldAllocationLabel,
+                            '70%',
+                            accent,
+                          ),
+                          const SizedBox(width: 10),
+                          allocationChip(
+                            l10n.basePositionCashAllocationLabel,
+                            '30%',
+                            whiteMode
+                                ? const Color(0xFFD97706)
+                                : Colors.amberAccent,
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 18),
+                      Text(
+                        l10n.basePositionCorePrinciple,
+                        style: TextStyle(
+                          color: primaryText,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      principleTile(
+                        Icons.savings_outlined,
+                        l10n.basePositionCashTitle,
+                        l10n.basePositionCashText,
+                      ),
+                      const SizedBox(height: 10),
+                      principleTile(
+                        Icons.speed_rounded,
+                        l10n.basePositionInitialLeverageTitle,
+                        l10n.basePositionInitialLeverageText,
+                      ),
+                      const SizedBox(height: 10),
+                      principleTile(
+                        Icons.stacked_line_chart_rounded,
+                        l10n.basePositionStepLeverageTitle,
+                        l10n.basePositionStepLeverageText,
+                      ),
+                      const SizedBox(height: 10),
+                      principleTile(
+                        Icons.trending_down_rounded,
+                        l10n.basePositionLowAverageTitle,
+                        l10n.basePositionLowAverageText,
+                      ),
+                      const SizedBox(height: 14),
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(14),
+                        decoration: BoxDecoration(
+                          color:
+                              accent.withValues(alpha: whiteMode ? 0.08 : 0.12),
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(
+                            color: accent.withValues(
+                                alpha: whiteMode ? 0.20 : 0.28),
+                          ),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              l10n.basePositionSummaryTitle,
+                              style: TextStyle(
+                                color: primaryText,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w900,
+                              ),
+                            ),
+                            const SizedBox(height: 6),
+                            Text(
+                              l10n.basePositionSummaryText,
+                              style: TextStyle(
+                                color: secondaryText,
+                                fontSize: 13,
+                                height: 1.45,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                       const SizedBox(height: 18),
@@ -8340,6 +8640,17 @@ class _HomePageState extends State<HomePage>
           },
         );
       },
+    );
+  }
+
+  void showUsageGuideInfo() {
+    final l10n = AppLocalizations.of(context)!;
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => UsageGuidePage(l10n: l10n),
+      ),
     );
   }
 
@@ -8723,10 +9034,18 @@ class _HomePageState extends State<HomePage>
         bottomNavigationBar: buildFixedAdBottomBar(
           _buildBottomNav(dropPercent),
         ),
-        floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+        floatingActionButtonLocation: FloatingActionButtonLocation.startFloat,
         floatingActionButton: Padding(
-          padding: const EdgeInsets.only(right: 16, bottom: 36),
-          child: buildCloseGuessRankingCard(),
+          padding: const EdgeInsets.only(left: 16, bottom: 4),
+          child: IgnorePointer(
+            ignoring: !showContentWidgetButton,
+            child: AnimatedOpacity(
+              opacity: showContentWidgetButton ? 1 : 0,
+              duration: const Duration(milliseconds: 650),
+              curve: Curves.easeInOutCubic,
+              child: buildCloseGuessRankingCard(),
+            ),
+          ),
         ),
         body: Container(
           decoration: BoxDecoration(
@@ -8800,8 +9119,7 @@ class _HomePageState extends State<HomePage>
                                                   MainAxisAlignment.start,
                                               children: [
                                                 Flexible(
-                                                  child:
-                                                      buildInlineInfoSegment(
+                                                  child: buildInlineInfoSegment(
                                                     label: 'CNN F&G',
                                                     value: fearGreedValue,
                                                     valueColor:
@@ -8825,15 +9143,13 @@ class _HomePageState extends State<HomePage>
                                                   ),
                                                 ),
                                                 Flexible(
-                                                  child:
-                                                      buildInlineInfoSegment(
+                                                  child: buildInlineInfoSegment(
                                                     label: 'VIX',
                                                     value: vixValue,
                                                     valueColor: vixValueColor,
                                                     valueStyle:
                                                         homeInfoEmphasisValueStyle,
-                                                    onTap:
-                                                        openVixTradingView,
+                                                    onTap: openVixTradingView,
                                                   ),
                                                 ),
                                               ],
@@ -8847,8 +9163,7 @@ class _HomePageState extends State<HomePage>
                                                   MainAxisAlignment.start,
                                               children: [
                                                 Flexible(
-                                                  child:
-                                                      buildInlineInfoSegment(
+                                                  child: buildInlineInfoSegment(
                                                     label: scheduleLabel,
                                                     value: scheduleValue,
                                                     valueColor:
@@ -8875,8 +9190,7 @@ class _HomePageState extends State<HomePage>
                                                   ),
                                                 ),
                                                 Flexible(
-                                                  child:
-                                                      buildInlineInfoSegment(
+                                                  child: buildInlineInfoSegment(
                                                     label: '10Y',
                                                     value: tenYearYieldValue,
                                                     valueColor:
@@ -9105,7 +9419,33 @@ class _HomePageState extends State<HomePage>
                           ],
                         ),
                       ),
-                      const SizedBox(height: 14),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8, right: 2),
+                        child: Align(
+                          alignment: Alignment.centerRight,
+                          child: InkWell(
+                            onTap: showUsageGuideInfo,
+                            borderRadius: BorderRadius.circular(8),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 4,
+                                vertical: 3,
+                              ),
+                              child: Text(
+                                '${AppLocalizations.of(context)!.usageGuideCardTitle} >',
+                                style: TextStyle(
+                                  color: accentCyan,
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w900,
+                                  decoration: TextDecoration.underline,
+                                  decorationColor: accentCyan,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 10),
                       GestureDetector(
                           onTap: showBasePositionInfo,
                           child: Container(
@@ -9185,6 +9525,8 @@ class _HomePageState extends State<HomePage>
                                           Text(
                                             AppLocalizations.of(context)!
                                                 .basePosition,
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
                                             style: TextStyle(
                                               fontSize: 12,
                                               fontWeight: FontWeight.w600,
@@ -10543,7 +10885,7 @@ class _HomePageState extends State<HomePage>
         ),
         child: InkWell(
           onTap: () {
-            openContentListPageFromContext(context, qldPreviousClose);
+            openContentListPageFromContext(context, closeGuessReferenceClose());
           },
           borderRadius: BorderRadius.circular(10),
           child: Center(
@@ -11269,12 +11611,12 @@ class _HomePageState extends State<HomePage>
       ),
       _InvestmentCurrencyOption(
         code: 'JPY',
-        symbol: '짜',
+        symbol: 'JPY',
         label: l10n.investmentCurrencyJapanJpy,
       ),
       _InvestmentCurrencyOption(
         code: 'CNY',
-        symbol: '짜',
+        symbol: 'CNY',
         label: l10n.investmentCurrencyChinaCny,
       ),
       _InvestmentCurrencyOption(
@@ -11970,6 +12312,102 @@ void goHomeAndScrollTop(BuildContext context) {
   });
 }
 
+class UsageGuidePage extends StatelessWidget {
+  const UsageGuidePage({super.key, required this.l10n});
+
+  final AppLocalizations l10n;
+
+  @override
+  Widget build(BuildContext context) {
+    final whiteMode = isWhiteModeEnabled(context);
+    final pageBg = whiteMode ? _lightAppBg : _appBg;
+    final primaryText = whiteMode ? _lightText : _darkText;
+    final bodyText = whiteMode ? _lightMuted : _darkMuted;
+    final line = whiteMode ? _lightLine : _darkLineSoft;
+
+    Widget section(String title, String body) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: TextStyle(
+              color: primaryText,
+              fontSize: 15,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+          const SizedBox(height: 10),
+          Text(
+            body,
+            style: TextStyle(
+              color: bodyText,
+              fontSize: 14,
+              height: 1.62,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      );
+    }
+
+    Widget divider() => Padding(
+          padding: const EdgeInsets.symmetric(vertical: 18),
+          child: Divider(height: 1, color: line),
+        );
+
+    return Scaffold(
+      backgroundColor: pageBg,
+      bottomNavigationBar: buildAdOnlyBottomBar(),
+      appBar: AppBar(
+        title: Text(l10n.usageGuideTitle),
+        foregroundColor: primaryText,
+        backgroundColor: pageBg,
+        elevation: 0,
+      ),
+      body: SafeArea(
+        child: ListView(
+          padding: const EdgeInsets.fromLTRB(18, 4, 18, 32),
+          children: [
+            Text(
+              l10n.usageGuideSubtitle,
+              style: TextStyle(
+                color: bodyText,
+                fontSize: 13,
+                height: 1.5,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            divider(),
+            section(l10n.usageGuideWhatAppTitle, l10n.usageGuideWhatAppBody),
+            divider(),
+            section(l10n.usageGuideNoBuyTitle, l10n.usageGuideNoBuyBody),
+            divider(),
+            section(l10n.usageGuideStrategyTitle, l10n.usageGuideStrategyBody),
+            divider(),
+            section(l10n.usageGuideQldTitle, l10n.usageGuideQldBody),
+            divider(),
+            section(
+              l10n.usageGuideIndicatorsTitle,
+              l10n.usageGuideIndicatorsBody,
+            ),
+            const SizedBox(height: 18),
+            Text(
+              l10n.usageGuideDisclaimer,
+              style: TextStyle(
+                color: bodyText,
+                fontSize: 12,
+                height: 1.45,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class NicknameSettingsCard extends StatefulWidget {
   const NicknameSettingsCard({super.key});
 
@@ -12176,58 +12614,127 @@ class ContentListPage extends StatelessWidget {
     final pageBg = whiteMode ? _lightAppBg : _appBg;
     final primaryText = whiteMode ? _lightText : _darkText;
     final secondaryText = whiteMode ? _lightMuted : _darkMuted;
-    final accent = whiteMode ? _lightBlue : _cyan;
 
     Widget item({
       required int number,
       required IconData icon,
       required String title,
+      required String subtitle,
+      required Color color,
       required VoidCallback onTap,
+      String badge = '',
     }) {
       return Material(
         color: whiteMode ? Colors.white : const Color(0xFF111827),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
         child: InkWell(
           onTap: onTap,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(16),
           child: Container(
-            height: 54,
-            padding: const EdgeInsets.symmetric(horizontal: 14),
+            constraints: const BoxConstraints(minHeight: 86),
+            padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(16),
               border: Border.all(
                 color: whiteMode ? _lightLine : _darkLineSoft,
               ),
+              boxShadow: whiteMode
+                  ? [
+                      BoxShadow(
+                        color: color.withValues(alpha: 0.08),
+                        blurRadius: 12,
+                        offset: const Offset(0, 6),
+                      ),
+                    ]
+                  : null,
             ),
             child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SizedBox(
-                  width: 48,
-                  child: Row(
+                Container(
+                  width: 42,
+                  height: 42,
+                  decoration: BoxDecoration(
+                    color: color.withValues(alpha: whiteMode ? 0.11 : 0.16),
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(
+                      color: color.withValues(alpha: whiteMode ? 0.18 : 0.24),
+                    ),
+                  ),
+                  child: Icon(icon, color: color, size: 21),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 6,
+                              vertical: 2,
+                            ),
+                            decoration: BoxDecoration(
+                              color: color.withValues(
+                                alpha: whiteMode ? 0.08 : 0.13,
+                              ),
+                              borderRadius: BorderRadius.circular(999),
+                            ),
+                            child: Text(
+                              number.toString().padLeft(2, '0'),
+                              style: TextStyle(
+                                color: color,
+                                fontSize: 10,
+                                fontWeight: FontWeight.w900,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 7),
+                          Expanded(
+                            child: Text(
+                              title,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                color: primaryText,
+                                fontSize: 14.5,
+                                fontWeight: FontWeight.w900,
+                              ),
+                            ),
+                          ),
+                          if (badge.isNotEmpty) ...[
+                            const SizedBox(width: 6),
+                            Text(
+                              badge,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                color: color,
+                                fontSize: 10.5,
+                                fontWeight: FontWeight.w900,
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                      const SizedBox(height: 7),
                       Text(
-                        '$number',
+                        subtitle,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                         style: TextStyle(
-                          color: accent,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w900,
+                          color: secondaryText,
+                          fontSize: 12,
+                          height: 1.28,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
-                      const SizedBox(width: 8),
-                      Icon(icon, color: accent, size: 19),
                     ],
                   ),
                 ),
-                Expanded(
-                  child: Text(
-                    title,
-                    style: TextStyle(
-                      color: primaryText,
-                      fontSize: 15,
-                      fontWeight: FontWeight.w900,
-                    ),
-                  ),
-                ),
+                const SizedBox(width: 8),
                 Icon(
                   Icons.chevron_right_rounded,
                   color: secondaryText,
@@ -12264,6 +12771,9 @@ class ContentListPage extends StatelessWidget {
                 number: 1,
                 icon: Icons.help_outline_rounded,
                 title: '문의사항',
+                subtitle: '익명 문의를 남기고 답변을 확인합니다.',
+                color: const Color(0xFF2563EB),
+                badge: 'Q&A',
                 onTap: () {
                   Navigator.push(
                     context,
@@ -12278,6 +12788,9 @@ class ContentListPage extends StatelessWidget {
                 number: 2,
                 icon: Icons.emoji_events_rounded,
                 title: '종가맞추기',
+                subtitle: 'QLD 기준 종가를 예측하고 랭킹을 겨룹니다.',
+                color: const Color(0xFFD97706),
+                badge: '랭킹',
                 onTap: () {
                   Navigator.push(
                     context,
@@ -12294,6 +12807,9 @@ class ContentListPage extends StatelessWidget {
                 number: 3,
                 icon: Icons.format_quote_rounded,
                 title: '오늘의 주식 명언',
+                subtitle: '투자 감각을 다듬는 짧은 문장을 확인합니다.',
+                color: const Color(0xFF059669),
+                badge: '매일',
                 onTap: () {
                   Navigator.push(
                     context,
@@ -12308,6 +12824,9 @@ class ContentListPage extends StatelessWidget {
                 number: 4,
                 icon: Icons.casino_rounded,
                 title: '숫자 맞추기',
+                subtitle: '가볍게 즐기는 확률형 미니게임입니다.',
+                color: const Color(0xFF7C3AED),
+                badge: '게임',
                 onTap: () {
                   Navigator.push(
                     context,
@@ -12322,11 +12841,14 @@ class ContentListPage extends StatelessWidget {
                 number: 5,
                 icon: Icons.menu_book_rounded,
                 title: '책 읽기',
+                subtitle: '차분히 읽을 수 있는 공개 도메인 텍스트입니다.',
+                color: const Color(0xFF0F766E),
+                badge: '읽기',
                 onTap: () {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (_) => const PublicDomainBookReaderPage(),
+                      builder: (_) => const LongFormBookReaderPage(),
                     ),
                   );
                 },
@@ -12336,6 +12858,9 @@ class ContentListPage extends StatelessWidget {
                 number: 6,
                 icon: Icons.theater_comedy_rounded,
                 title: '주식 짤',
+                subtitle: '투자자가 공감할 만한 짧은 유머 모음입니다.',
+                color: const Color(0xFFE11D48),
+                badge: '유머',
                 onTap: () {
                   Navigator.push(
                     context,
@@ -12350,6 +12875,9 @@ class ContentListPage extends StatelessWidget {
                 number: 7,
                 icon: Icons.confirmation_number_rounded,
                 title: '로또번호 추천',
+                subtitle: '부담 없이 뽑아보는 랜덤 번호 추천입니다.',
+                color: const Color(0xFF0891B2),
+                badge: '랜덤',
                 onTap: () {
                   Navigator.push(
                     context,
@@ -12364,6 +12892,9 @@ class ContentListPage extends StatelessWidget {
                 number: 8,
                 icon: Icons.directions_run_rounded,
                 title: '점프 장애물 피하기',
+                subtitle: '짧게 집중해서 즐기는 점프 미니게임입니다.',
+                color: const Color(0xFFEA580C),
+                badge: '액션',
                 onTap: () {
                   Navigator.push(
                     context,
@@ -13533,177 +14064,571 @@ class _StockMemeCard extends StatelessWidget {
   }
 }
 
-class PublicDomainBookReaderPage extends StatefulWidget {
-  const PublicDomainBookReaderPage({super.key});
+class LongFormBookReaderPage extends StatefulWidget {
+  const LongFormBookReaderPage({super.key});
 
   @override
-  State<PublicDomainBookReaderPage> createState() =>
-      _PublicDomainBookReaderPageState();
+  State<LongFormBookReaderPage> createState() => _LongFormBookReaderPageState();
 }
 
-class _PublicDomainBookReaderPageState
-    extends State<PublicDomainBookReaderPage> {
-  final chapters = <_BookChapter>[];
-  bool loading = true;
-  String errorMessage = '';
-  int selectedChapter = 0;
-  bool koreanMode = true;
+class _LongFormBookReaderPageState extends State<LongFormBookReaderPage> {
+  static const _bookReaderPagePrefsKey = 'long_form_book_reader_page';
+  static const _bookReaderLanguagePrefsKey = 'long_form_book_reader_language';
+
+  final pageController = PageController();
+  int currentPage = 0;
+  bool showEnglish = false;
+
+  static const koreanPages = <_BookChapter>[
+    _BookChapter(
+      title: '원서 소개',
+      body: '''
+Reminiscences of a Stock Operator
+Edwin Lefevre
+
+이 독서판은 영어 원서의 흐름을 따라 한국어로 읽기 쉽게 옮긴 번역형 본문입니다. 원문을 한 문장씩 그대로 옮긴 완역본은 아니지만, 책의 이야기 전개와 핵심 장면을 따라가며 긴 글로 읽을 수 있도록 구성했습니다.
+
+이 책의 주인공은 어린 시절 증권 중개 사무실에서 시세판을 기록하던 소년으로 시작합니다. 그는 숫자가 움직이는 방식에 매혹되고, 사람들이 왜 사고파는지보다 가격이 어떻게 움직이는지에 먼저 관심을 갖습니다. 누군가는 그를 투기꾼이라 부르고, 누군가는 천재적인 시세 읽기의 소유자라 말합니다. 그러나 이 책이 보여주는 것은 화려한 성공담만이 아닙니다.
+
+그는 여러 번 큰돈을 벌고, 여러 번 거의 모든 것을 잃습니다. 시장을 맞힌 순간에도 사람은 무너질 수 있고, 틀렸다는 사실을 빨리 인정하지 못하면 작은 실수는 순식간에 인생을 흔드는 손실이 됩니다. 그래서 이 책은 돈을 버는 법보다, 시장 앞에서 사람이 어떻게 흔들리는지를 더 오래 보여줍니다.
+''',
+    ),
+    _BookChapter(
+      title: '1. 시세판 앞의 소년',
+      body: '''
+나는 아주 어릴 때부터 숫자가 움직이는 모습을 지켜보았다. 사무실 한쪽에는 시세가 적힌 판이 있었고, 사람들은 그 숫자 하나하나에 얼굴빛이 달라졌다. 어떤 사람은 가격이 조금만 올라가도 세상을 얻은 듯 웃었고, 어떤 사람은 몇 포인트 빠졌다는 말에 금세 말수가 줄었다.
+
+처음에는 그저 일을 빨리 처리하는 소년일 뿐이었다. 누가 무슨 종목을 불러주면 받아 적고, 전신으로 들어오는 가격을 판에 옮겼다. 하지만 같은 일을 매일 반복하다 보니 이상한 것이 보이기 시작했다. 가격은 아무렇게나 움직이는 듯했지만, 어떤 때에는 오르려는 힘이 분명했고, 어떤 때에는 아무리 버티려 해도 아래로 밀리는 힘이 느껴졌다.
+
+나는 사람들이 떠드는 이유보다 숫자의 움직임을 더 믿게 되었다. 사무실 안의 어른들은 늘 이유를 말했다. 회사가 좋다, 소문이 있다, 누군가가 산다, 곧 오른다. 그러나 가격은 그들의 말과 다르게 움직일 때가 많았다. 그때부터 나는 생각했다. 시장에서 중요한 것은 말이 아니라 실제 거래되는 가격이라고.
+
+그 깨달음은 어린 나에게는 놀이처럼 시작되었다. 그러나 시간이 지나면서 그것은 내 인생을 바꾸는 기술이 되었다. 나는 가격이 올라갈 것인지 내려갈 것인지 맞히는 것보다, 가격이 움직이기 시작하는 순간을 알아차리는 일에 빠져들었다.
+''',
+    ),
+    _BookChapter(
+      title: '2. 처음 배운 승리',
+      body: '''
+처음 돈을 걸었을 때 나는 내가 특별한 사람이라고 생각하지 않았다. 다만 시세판을 오래 보았기 때문에 남들보다 조금 더 빨리 알아차릴 수 있다고 믿었다. 가격이 어떤 식으로 움직이는지, 사람들이 흥분할 때 숫자가 어떻게 반응하는지, 조용한 종목이 갑자기 살아날 때 어떤 모습이 나타나는지 눈에 익었다.
+
+초기의 승리는 위험했다. 돈을 벌면 사람은 자신의 판단이 옳았다는 증거를 얻었다고 느낀다. 나 역시 그랬다. 몇 번의 성공은 나에게 자신감을 주었고, 그 자신감은 곧 더 크게 베팅하고 싶은 마음으로 바뀌었다. 시장은 처음에는 친절한 선생처럼 보였다. 내가 맞히면 돈을 주었고, 나는 그 돈이 내 실력의 대가라고 생각했다.
+
+그러나 시장은 사람을 가르칠 때 늘 부드럽게 가르치지 않는다. 처음에 쉽게 번 돈은 사람을 조심스럽게 만들지 않는다. 오히려 더 대담하게 만든다. 대담함은 때로 필요하지만, 준비되지 않은 대담함은 손실을 부르는 지름길이다.
+
+나는 이 사실을 나중에 여러 번 배웠다. 이상하게도 시장에서 가장 비싼 수업료는 항상 같은 교훈을 다시 배우는 데 쓰인다. 사람은 이미 알고 있다고 생각하는 것을 실제로 지키지 못할 때 가장 크게 다친다.
+''',
+    ),
+    _BookChapter(
+      title: '3. 시장은 설명을 기다려주지 않는다',
+      body: '''
+사람들은 가격이 움직인 뒤에 이유를 찾는 것을 좋아한다. 주가가 오르면 좋은 소식 때문이라고 하고, 빠지면 나쁜 소문 때문이라고 말한다. 하지만 내가 시세판 앞에서 배운 것은 달랐다. 가격은 종종 뉴스보다 먼저 움직이고, 설명은 나중에 붙는다.
+
+나는 이유를 모른 채 매수하거나 매도하는 일이 불안하지 않았다. 불안한 것은 오히려 가격이 분명히 말하고 있는데도, 내 생각과 다르다는 이유로 듣지 않는 일이었다. 시장은 친절하게 설명하지 않는다. 다만 움직일 뿐이다. 그 움직임을 인정할 것인지, 아니면 내 의견을 붙잡을 것인지는 투자자의 선택이다.
+
+초보자는 흔히 의견을 거래한다. 좋은 회사니까 오른다, 많이 빠졌으니까 오른다, 누구나 좋다고 하니까 오른다. 그러나 시장은 의견에 보상하지 않는다. 시장이 보상하는 것은 옳은 시점에 옳은 방향으로 서 있는 사람이다. 그리고 틀렸을 때 빨리 물러나는 사람이다.
+
+나는 점점 더 말을 줄이고 가격을 보게 되었다. 누가 무엇을 말했는지보다, 실제로 돈이 어느 방향으로 움직이고 있는지가 중요했다. 시장에서 말은 많고 돈은 조용하다. 그러나 결국 가격을 움직이는 것은 말이 아니라 돈이다.
+''',
+    ),
+    _BookChapter(
+      title: '4. 빨리 맞히는 것과 크게 버는 것은 다르다',
+      body: '''
+나는 어린 시절부터 단기 움직임을 잘 맞히는 편이었다. 가격이 몇 포인트 움직일 방향을 잡아내는 일은 나에게 자연스럽게 느껴졌다. 그러나 시장에서 오래 살아보니, 빨리 맞히는 능력과 크게 버는 능력은 전혀 다른 문제였다.
+
+작은 움직임을 자주 맞히면 사람은 바빠진다. 계속 사고팔고, 작은 이익을 챙기고, 다시 들어간다. 겉보기에는 매우 능숙해 보인다. 하지만 큰 추세가 시작될 때도 같은 방식으로 행동하면, 정작 가장 큰 돈이 걸린 구간을 놓치게 된다.
+
+큰돈은 자주 움직이는 손에서 나오지 않았다. 큰돈은 옳은 자리에 앉은 뒤, 시장이 충분히 움직일 때까지 버티는 데서 나왔다. 이것은 말로는 쉽지만 실제로는 어렵다. 가격은 절대 한 방향으로만 가지 않는다. 좋은 포지션도 중간에 흔들리고, 흔들림은 사람의 마음을 시험한다.
+
+나는 여러 번 너무 일찍 팔았다. 맞혔지만 크게 벌지 못했다. 그때마다 깨달았다. 시장에서 중요한 것은 단지 방향을 맞히는 것이 아니라, 맞았을 때 충분히 얻을 수 있는 마음과 규칙을 갖는 것이다.
+''',
+    ),
+    _BookChapter(
+      title: '5. 틀렸을 때 작아지는 기술',
+      body: '''
+시장에서는 누구나 틀린다. 문제는 틀렸다는 사실 자체가 아니라, 틀렸을 때 어떻게 행동하느냐다. 작은 손실은 투자자에게 보내는 시장의 짧은 경고다. 그 경고를 무시하면 시장은 더 큰 목소리로 말한다. 그때는 이미 손실이 커져 있다.
+
+나는 여러 번 손실을 키웠다. 처음에는 조금만 기다리면 돌아올 것 같았다. 그 다음에는 여기서 팔면 너무 억울하다고 생각했다. 더 지나면 손실이 너무 커져서 판단이 흐려졌다. 그 순간부터 투자자는 시장을 보는 것이 아니라 자신의 손실만 보게 된다.
+
+손실을 작게 자르는 일은 차가운 기술처럼 보이지만, 사실은 가장 감정적인 훈련이다. 자존심을 내려놓아야 하고, 내가 틀렸다는 사실을 인정해야 하며, 방금 전까지 믿었던 생각을 버릴 수 있어야 한다. 많은 사람이 이것을 하지 못해 시장에서 사라진다.
+
+나는 결국 배웠다. 손실은 투자자의 적이 아니라 관리해야 할 비용이다. 작은 손실은 다음 기회를 살려두는 비용이다. 큰 손실은 다음 기회에 참여할 능력 자체를 빼앗아간다.
+''',
+    ),
+    _BookChapter(
+      title: '6. 소문은 사람을 움직이고 가격은 돈을 움직인다',
+      body: '''
+월스트리트에는 늘 소문이 있었다. 어떤 회사가 좋아진다, 누군가 대량으로 산다, 곧 발표가 있다, 큰손이 움직인다. 사람들은 이런 말을 좋아한다. 소문은 이야기가 있고, 이야기는 사람의 마음을 쉽게 붙잡는다.
+
+그러나 소문으로 산 주식은 마음을 약하게 만든다. 내가 왜 샀는지 내 안에 분명한 이유가 없기 때문이다. 남의 말을 믿고 들어간 포지션은 문제가 생겼을 때 다시 그 사람의 말을 기다리게 한다. 시장은 이미 틀렸다고 말하는데, 투자자는 아직 누군가의 안심시키는 말을 기다린다.
+
+나는 정보가 나쁘다고 말하는 것이 아니다. 시장에는 정보가 필요하다. 하지만 정보는 판단의 재료일 뿐, 판단 그 자체가 되어서는 안 된다. 누군가의 확신이 내 확신을 대신하면 안 된다.
+
+시장에서 자기 생각이 없는 사람은 운 좋게 돈을 벌 수는 있다. 하지만 오래 지키기는 어렵다. 왜냐하면 돈을 벌게 해준 이유를 모르기 때문에, 돈을 잃기 시작했을 때 빠져나올 이유도 모르기 때문이다.
+''',
+    ),
+    _BookChapter(
+      title: '7. 추세가 시작될 때의 고요함',
+      body: '''
+큰 움직임은 항상 큰 소리와 함께 시작되지 않는다. 때로는 조용히 시작된다. 사람들은 아직 의심하고, 뉴스는 뚜렷하지 않고, 가격은 천천히 그러나 꾸준히 한쪽으로 기울어진다. 그때 시장은 이미 준비하고 있는 경우가 많다.
+
+나는 시세판을 볼 때 가격 자체보다 가격의 태도를 보려 했다. 오르다가 밀려도 다시 살아나는지, 빠질 듯하다가도 매수가 들어오는지, 사람들이 무관심한 사이에 거래가 쌓이는지. 이런 것들은 말보다 먼저 나타나는 신호였다.
+
+추세를 타는 일은 용기가 필요하다. 그러나 그 용기는 무작정 뛰어드는 용기가 아니다. 시장이 보여주는 증거를 기다리고, 그 증거가 충분할 때 행동하는 용기다. 너무 빨리 들어가면 흔들림에 지치고, 너무 늦게 들어가면 위험이 커진다.
+
+결국 추세 매매는 시장을 앞서가려는 일이 아니라, 시장이 이미 가고 있는 길에 올라타는 일이다. 이 차이를 이해하지 못하면 사람은 늘 예측에 취하고, 예측이 빗나갈 때 크게 다친다.
+''',
+    ),
+    _BookChapter(
+      title: '8. 너무 많이 아는 사람의 함정',
+      body: '''
+시장에는 똑똑한 사람이 많다. 회사의 재무를 잘 아는 사람, 경제를 잘 아는 사람, 정치와 금리를 읽는 사람, 산업을 깊게 파는 사람이 있다. 그러나 많이 안다는 것이 항상 돈을 벌게 해주지는 않는다.
+
+문제는 지식이 많아질수록 자기 생각을 버리기 어려워진다는 데 있다. 어떤 사람이 한 회사에 대해 너무 많이 알면, 가격이 반대로 움직여도 자신이 모르는 무언가가 있다고 생각하기보다 시장이 틀렸다고 믿기 쉽다. 그는 사실을 보고 있다고 생각하지만, 실제로는 자신의 결론을 지키고 있을 수 있다.
+
+나는 시장에서 겸손이 필요하다는 것을 늦게 배웠다. 겸손은 아무것도 모른다고 말하는 태도가 아니다. 겸손은 내가 많이 알고 있어도 틀릴 수 있다는 사실을 인정하는 태도다. 이것이 없으면 지식은 무기가 아니라 짐이 된다.
+
+가격이 내 생각과 다르게 움직일 때는 화를 낼 일이 아니다. 그때는 질문해야 한다. 내가 무엇을 놓쳤는가. 그리고 더 중요한 질문을 해야 한다. 이 포지션을 계속 유지할 이유가 아직 남아 있는가.
+''',
+    ),
+    _BookChapter(
+      title: '9. 돈을 벌고 나서 더 위험해지는 이유',
+      body: '''
+손실 뒤에는 조심스러워지는 사람이 많다. 그러나 큰 수익 뒤에는 오히려 더 위험해지는 사람이 많다. 돈을 벌면 사람은 자신의 판단이 특별하다고 느낀다. 시장이 나를 인정했다고 착각한다.
+
+나 역시 큰 수익을 얻은 뒤에는 마음이 커졌다. 같은 금액을 걸어도 작아 보였고, 전보다 더 큰 포지션을 잡아도 괜찮을 것 같았다. 이전의 성공이 다음 거래의 안전을 보장해주는 것처럼 느껴졌다. 그러나 시장은 과거의 수익을 보고 다음 손실을 줄여주지 않는다.
+
+수익 뒤의 가장 큰 위험은 규칙이 느슨해지는 것이다. 원래는 기다렸을 자리에서 서두르고, 원래는 줄였을 손실을 버티고, 원래는 확인했을 신호를 대충 넘긴다. 자신감이 판단을 대신하기 시작하면 위험은 조용히 커진다.
+
+시장에서 돈을 벌었을 때 가장 먼저 해야 할 일은 축하가 아니라 다시 작아지는 것이다. 마음을 작게 만들고, 규칙을 다시 확인하고, 이번 수익이 다음 거래를 망치지 않도록 해야 한다.
+''',
+    ),
+    _BookChapter(
+      title: '10. 쉬는 것도 포지션이다',
+      body: '''
+사람들은 시장에 참여하지 않는 시간을 낭비라고 생각한다. 그러나 나는 시간이 지나면서 쉬는 것도 하나의 포지션이라는 사실을 알게 되었다. 현금을 들고 기다리는 사람은 아무것도 하지 않는 사람이 아니다. 그는 다음 기회를 살 수 있는 권리를 들고 있는 사람이다.
+
+매일 매매하려는 욕구는 강하다. 시세판은 계속 움직이고, 움직임은 사람을 유혹한다. 그러나 모든 움직임이 기회는 아니다. 어떤 움직임은 그저 소음이고, 어떤 움직임은 사람의 인내심을 빼앗기 위해 존재하는 것처럼 보인다.
+
+좋은 투기자는 늘 행동하는 사람이 아니다. 좋은 투기자는 행동해야 할 때와 하지 말아야 할 때를 구분하는 사람이다. 이 구분이 없으면 에너지는 작은 거래에 흩어지고, 큰 기회가 왔을 때 이미 마음과 돈이 지쳐 있다.
+
+나는 여러 번 쉬지 못해서 손해를 보았다. 시장이 나를 부르는 것 같았지만, 실제로는 내가 시장을 붙잡고 있었을 뿐이었다. 쉬는 법을 배우는 것은 매수와 매도만큼이나 중요한 기술이다.
+''',
+    ),
+    _BookChapter(
+      title: '11. 물타기가 위험해지는 순간',
+      body: '''
+가격이 내려갈수록 더 사면 평균 매입 단가는 낮아진다. 이 계산은 너무 단순해서 사람을 안심시킨다. 그러나 시장에서 단순한 계산이 항상 좋은 판단은 아니다. 가격이 내려가는 데에는 이유가 있을 수 있고, 그 이유를 모른 채 더 사는 것은 손실을 키우는 행동이 될 수 있다.
+
+나는 손실이 난 포지션을 더 키우는 일이 얼마나 위험한지 배웠다. 처음에는 좋은 가격이라고 생각한다. 조금 더 빠지면 더 좋은 가격이라고 생각한다. 하지만 어느 순간부터 그것은 좋은 가격이 아니라 잘못된 판단을 인정하지 않으려는 행동이 된다.
+
+물타기가 항상 나쁜 것은 아니다. 그러나 계획 없는 물타기는 대개 위험하다. 처음부터 어느 구간에서 얼마를 더 살지, 어디까지 틀리면 멈출지 정해두지 않았다면, 추가 매수는 전략이 아니라 감정의 방어가 된다.
+
+시장은 투자자가 억울해하는지 관심이 없다. 평균 단가가 낮아졌다는 사실도 시장에는 중요하지 않다. 중요한 것은 지금 포지션이 여전히 좋은 판단인지, 아니면 손실을 숨기기 위한 변명인지다.
+''',
+    ),
+    _BookChapter(
+      title: '12. 군중은 늘 늦게 확신한다',
+      body: '''
+시장에는 군중의 감정이 있다. 처음에는 아무도 믿지 않는다. 조금 오르면 의심하고, 더 오르면 관심을 갖고, 크게 오르면 확신한다. 그리고 가장 늦게 확신한 사람들이 가장 비싼 가격을 지불하는 경우가 많다.
+
+하락도 비슷하다. 처음에는 일시적인 조정이라고 말한다. 더 빠지면 좋은 매수 기회라고 말한다. 훨씬 더 빠지면 두려움이 퍼지고, 마지막에는 더 이상 견디지 못한 사람들이 팔기 시작한다. 그때가 지나고 나서야 시장은 바닥을 만들기도 한다.
+
+군중을 비웃기는 쉽다. 그러나 누구나 군중의 일부가 될 수 있다. 나 역시 그랬다. 사람은 혼자 있을 때보다 함께 흥분할 때 더 쉽게 판단을 잃는다. 모두가 같은 말을 할 때, 그 말은 더 그럴듯하게 들린다.
+
+그래서 투자자는 시장의 분위기를 보되, 분위기에 휩쓸리지 않아야 한다. 다수가 틀렸다는 뜻이 아니다. 다만 다수의 확신이 너무 뜨거워질 때, 위험도 함께 뜨거워질 수 있다는 사실을 기억해야 한다.
+''',
+    ),
+    _BookChapter(
+      title: '13. 레버리지는 마음을 확대한다',
+      body: '''
+레버리지는 수익과 손실만 키우는 것이 아니다. 사람의 마음도 키운다. 작은 상승은 큰 기쁨이 되고, 작은 하락은 큰 두려움이 된다. 같은 가격 움직임이라도 레버리지를 쓰면 전혀 다른 감정으로 다가온다.
+
+나는 큰 포지션을 들고 있을 때 사람이 얼마나 쉽게 변하는지 보았다. 평소라면 차분히 볼 수 있는 흔들림도 견디기 어려워진다. 잠깐의 반등에 안도하고, 잠깐의 하락에 불안해진다. 결국 투자자는 시장이 아니라 자신의 감정과 싸우게 된다.
+
+레버리지를 쓰는 사람에게 가장 필요한 것은 대담함보다 규율이다. 언제 줄일지, 언제 멈출지, 어느 정도 손실을 감당할지 미리 정하지 않으면 레버리지는 사람을 빠르게 몰아붙인다.
+
+큰돈을 벌고 싶은 마음은 이해할 수 있다. 그러나 시장은 욕심이 큰 사람에게 더 친절하지 않다. 오히려 욕심이 큰 사람일수록 작은 흔들림에도 더 크게 흔들리도록 만든다.
+''',
+    ),
+    _BookChapter(
+      title: '14. 기다림은 고통스럽다',
+      body: '''
+좋은 기회를 기다리는 일은 생각보다 고통스럽다. 사람은 눈앞에서 가격이 움직이면 무언가 해야 할 것 같은 압박을 느낀다. 아무것도 하지 않는 시간은 뒤처지는 시간처럼 느껴지고, 다른 사람이 돈을 벌고 있다는 이야기는 마음을 더욱 조급하게 만든다.
+
+그러나 시장에서 기다림은 빈 시간이 아니다. 기다림은 판단을 아끼는 시간이고, 돈을 지키는 시간이며, 다음 행동의 질을 높이는 시간이다. 아무 때나 들어가는 사람은 늘 빠져나올 이유를 찾게 된다. 기다린 사람은 들어가기 전부터 이유가 분명하다.
+
+나는 좋은 기회를 기다리지 못해 여러 번 손해를 보았다. 대충 괜찮아 보이는 자리에서 들어가면, 시장은 대개 나를 시험했다. 확신이 약한 포지션은 작은 흔들림에도 마음이 흔들린다. 결국 좋은 매매는 좋은 기다림에서 시작된다.
+
+기다림이 어려운 이유는 결과가 즉시 보이지 않기 때문이다. 하지만 시장에서 보이지 않는 준비가 보이는 수익을 만든다. 기다릴 줄 아는 사람은 모든 날을 자신의 날로 만들려 하지 않는다.
+''',
+    ),
+    _BookChapter(
+      title: '15. 시장은 복수를 허락하지 않는다',
+      body: '''
+손실을 본 뒤 바로 되찾고 싶은 마음은 강하다. 사람은 잃은 돈을 숫자로만 보지 않는다. 자존심, 억울함, 분노가 함께 붙는다. 그래서 손실 뒤의 거래는 위험하다. 그 거래는 시장을 보려는 거래가 아니라 마음을 회복하려는 거래가 되기 쉽다.
+
+나는 복수 거래의 위험을 잘 안다. 방금 잃었기 때문에 더 크게 걸고 싶어진다. 이번에는 맞혀야 한다고 생각한다. 그러나 시장은 내가 방금 손실을 보았는지 알지 못하고, 알고 있다 해도 신경 쓰지 않는다.
+
+손실 뒤에는 쉬어야 한다. 적어도 마음이 다시 시장을 볼 수 있을 때까지는 기다려야 한다. 손실을 되찾는 가장 좋은 방법은 곧바로 더 큰 거래를 하는 것이 아니라, 다음에 더 좋은 판단을 하는 것이다.
+
+복수심은 시장에서 가장 비싼 감정 중 하나다. 분노는 방향을 보지 못하게 하고, 조급함은 규모를 키우게 하며, 억울함은 손절을 늦춘다. 시장은 이런 감정을 가진 사람에게서 천천히 돈을 가져간다.
+''',
+    ),
+    _BookChapter(
+      title: '16. 좋은 판단은 기록에서 나온다',
+      body: '''
+기억은 투자자에게 믿을 만한 도구가 아니다. 사람은 자신이 맞힌 거래를 더 선명하게 기억하고, 틀린 거래는 그럴 만한 이유가 있었다고 포장한다. 시간이 지나면 실수는 흐려지고 성공은 커진다.
+
+그래서 기록이 필요하다. 내가 왜 샀는지, 어떤 신호를 보았는지, 어디서 틀렸다고 인정할 것인지, 실제로 어떻게 행동했는지 적어두면 자기 자신을 속이기 어려워진다. 시장에서 가장 어려운 상대는 때로 시장이 아니라 자기 합리화다.
+
+기록은 단순한 일지가 아니다. 기록은 반복되는 실수를 보여준다. 어떤 사람은 늘 너무 빨리 산다. 어떤 사람은 늘 너무 늦게 판다. 어떤 사람은 손실 뒤에 무리한다. 기록이 없으면 이런 습관은 성격처럼 느껴지고, 고치기 어렵다.
+
+나는 시장을 배우는 일이 결국 자신을 배우는 일이라는 사실을 알게 되었다. 숫자는 밖에 있지만, 실수의 뿌리는 안에 있다. 기록은 그 뿌리를 보게 해준다.
+''',
+    ),
+    _BookChapter(
+      title: '17. 큰 흐름과 작은 소음',
+      body: '''
+시장은 매일 흔들린다. 그 흔들림을 모두 의미 있는 신호로 받아들이면 투자자는 금세 지친다. 어떤 움직임은 중요한 변화의 시작이지만, 어떤 움직임은 그저 하루의 소음일 뿐이다.
+
+큰 흐름을 보는 사람은 작은 흔들림에 덜 휘둘린다. 그러나 큰 흐름을 핑계로 명백한 위험 신호를 무시하면 안 된다. 이것이 어렵다. 투자자는 버텨야 할 조정과 피해야 할 전환을 구분해야 한다.
+
+이 구분은 한 번에 배워지지 않는다. 차트를 오래 본다고 자동으로 생기는 것도 아니다. 중요한 것은 미리 기준을 세우는 것이다. 어떤 조건이 유지되면 버틸 것인지, 어떤 조건이 깨지면 나올 것인지 정해두어야 한다.
+
+기준이 없는 사람은 매일 흔들린다. 가격이 오르면 희망을 키우고, 가격이 빠지면 공포에 빠진다. 기준이 있는 사람도 흔들리지만, 돌아갈 자리가 있다. 그 차이가 오래 버티는 힘이 된다.
+''',
+    ),
+    _BookChapter(
+      title: '18. 성공한 거래도 다시 검토해야 한다',
+      body: '''
+사람들은 손실 거래만 복기하려 한다. 그러나 성공한 거래도 다시 보아야 한다. 돈을 벌었다고 해서 판단이 모두 옳았던 것은 아니다. 운이 좋았을 수도 있고, 위험을 과하게 감수했는데 결과만 좋았을 수도 있다.
+
+성공한 거래를 검토하지 않으면 위험한 습관이 강화된다. 무리하게 들어갔는데 돈을 벌면, 다음에도 그렇게 해도 된다고 생각한다. 손절 기준 없이 버텼는데 살아나면, 다음에도 버티면 된다고 믿는다. 시장은 가끔 잘못된 행동에도 보상을 주는데, 그것이 더 큰 위험을 만든다.
+
+좋은 투자자는 결과와 과정을 함께 본다. 돈을 벌었는가도 중요하지만, 그 돈을 버는 과정이 반복 가능한가가 더 중요하다. 반복할 수 없는 수익은 실력이 아니라 사건에 가깝다.
+
+나는 시장에서 오래 살아남으려면 자신에게 엄격해야 한다고 배웠다. 손실 앞에서만 엄격한 것이 아니라, 수익 앞에서도 엄격해야 한다. 그래야 수익이 자만으로 바뀌지 않는다.
+''',
+    ),
+    _BookChapter(
+      title: '19. 시장에서 살아남는 사람',
+      body: '''
+시장에는 한때 크게 번 사람이 많다. 그러나 오래 살아남은 사람은 훨씬 적다. 큰 수익은 사람들의 눈에 잘 보이지만, 오래 버티는 능력은 조용해서 잘 보이지 않는다. 하지만 결국 시장에서 가장 중요한 것은 생존이다.
+
+살아남는 사람은 자신이 언제 약해지는지 안다. 어떤 상황에서 조급해지는지, 어떤 손실을 견디지 못하는지, 어떤 소문에 흔들리는지 알고 있다. 그는 시장만 연구하지 않고 자기 자신도 연구한다.
+
+또한 살아남는 사람은 기회가 없을 때 억지로 기회를 만들지 않는다. 시장이 분명하지 않으면 기다리고, 손실이 커지면 줄이고, 크게 맞았을 때도 다시 규칙으로 돌아온다. 그는 한 번의 거래로 인생을 바꾸려 하지 않는다.
+
+이 책이 오래 읽히는 이유는 시장의 기술보다 인간의 약점을 더 정확하게 보여주기 때문이다. 시대가 바뀌고 도구가 바뀌어도, 탐욕과 공포와 자존심은 크게 달라지지 않는다.
+''',
+    ),
+    _BookChapter(
+      title: '20. 마지막 장',
+      body: '''
+나는 시장에서 수많은 것을 배웠다. 가격은 말보다 정직하고, 손실은 빨리 인정할수록 작아지며, 큰돈은 조급한 손보다 기다릴 줄 아는 마음에 더 자주 온다. 그러나 이 모든 교훈은 알고 있는 것만으로는 부족하다. 실제 돈이 걸렸을 때 지킬 수 있어야 한다.
+
+투자자는 늘 두 가지 싸움을 한다. 하나는 시장과의 싸움이고, 다른 하나는 자기 자신과의 싸움이다. 시장과의 싸움에서는 이길 수도 있고 질 수도 있다. 그러나 자기 자신과의 싸움에서 계속 지면, 시장에서 오래 버틸 수 없다.
+
+좋은 판단은 화려하지 않다. 좋은 판단은 때로 지루하고, 때로 답답하고, 때로 아무것도 하지 않는 모습으로 나타난다. 하지만 그런 판단이 계좌를 지키고, 다음 기회를 가능하게 한다.
+
+시장은 내일도 열린다. 이 단순한 사실을 잊지 않는 사람은 오늘 모든 것을 걸지 않는다. 오늘 살아남아야 내일의 기회를 볼 수 있다. 그것이 이 오래된 책이 지금도 투자자에게 남기는 가장 중요한 문장이다.
+''',
+    ),
+  ];
+
+  static const englishPages = <_BookChapter>[
+    _BookChapter(
+      title: 'About This Edition',
+      body: '''
+Reminiscences of a Stock Operator
+Edwin Lefevre
+
+This reader follows the flow of the English classic and presents it in a readable app format. It is arranged as a long-form reading edition rather than a short summary, so the reader can move through the story and its lessons page by page.
+
+The story begins with a boy who works near a quotation board and becomes fascinated by the movement of prices. He watches grown men change their faces over a few points of movement. Before he understands the language of finance, he understands that prices speak in their own way.
+
+The book is not only about making money. It is about judgment, discipline, fear, greed, and the strange habit people have of ignoring the market when it disagrees with them. The operator wins, loses, rises again, and learns that the market is a severe teacher.
+''',
+    ),
+    _BookChapter(
+      title: '1. The Boy at the Quotation Board',
+      body: '''
+I was young when I first began watching prices. The office had a board where quotations were written, and men came in with hopes, fears, and opinions. A small change in price could brighten one face and darken another. I did not know much about companies then, but I knew that numbers could command men.
+
+At first I was only a boy doing a job. I wrote down prices as they came in and copied them where others could see them. But after doing the same thing day after day, I began to notice that prices had habits. They did not move exactly as men said they should. Sometimes they rose before the reason was known, and sometimes they fell while everyone still had explanations for why they ought to rise.
+
+I became less interested in what people said and more interested in what prices did. Talk was easy. Buying and selling with real money was different. The tape, as traders called it, seemed to tell a story before the crowd understood the plot.
+
+What began as a boy's curiosity slowly became the center of my life. I wanted to know when a price was ready to move, when a move was false, and when the crowd was late. The market became my classroom, and the cost of tuition would later prove very high.
+''',
+    ),
+    _BookChapter(
+      title: '2. The First Taste of Winning',
+      body: '''
+When I first risked money, I did not think of myself as a great trader. I simply believed I had watched the board long enough to see things that others missed. I knew how prices behaved when interest appeared and how they acted when a move had no strength behind it.
+
+Early success is dangerous. When a man makes money, he is tempted to believe that the money is proof of wisdom. I was no different. A few correct trades gave me confidence, and confidence soon became the desire to trade larger.
+
+At first the market seemed generous. I was right often enough to believe that the game was simple. But the market does not remain gentle with a man who grows careless. It lets him win just enough to become bold, and then it charges him for confusing boldness with skill.
+
+I learned later that the most expensive lessons are often the ones we thought we had already learned. Knowing a rule is easy. Obeying it while money is at risk is the real test.
+''',
+    ),
+    _BookChapter(
+      title: '3. The Market Does Not Wait for Explanations',
+      body: '''
+People enjoy explaining price movements after they happen. If a stock rises, they find a favorable reason. If it falls, they discover a bad rumor. But prices often move before the explanation arrives.
+
+I was not afraid of trading without a perfect explanation. I was more afraid of ignoring a clear movement because it disagreed with my opinion. The market does not explain itself politely. It moves, and the trader must decide whether to listen.
+
+Beginners often trade opinions. They buy because a company is good, because a stock has fallen a great deal, or because someone important is said to be buying. But the market does not pay a man for having an opinion. It pays him for being right in position and right in time.
+
+So I learned to listen less to talk and more to action. Words could be loud, but money was quieter and more decisive. In the end, the price was the record of what money had actually done.
+''',
+    ),
+    _BookChapter(
+      title: '4. Being Right Quickly Is Not the Same as Making Big Money',
+      body: '''
+I was good at catching small movements. A few points up or down often seemed clear to me before others saw it. But catching small movements and making large profits are not the same thing.
+
+A man who trades every small turn becomes busy. He buys, sells, takes a profit, and begins again. He may look skillful, but if he treats a great trend like a small fluctuation, he will leave the largest money on the table.
+
+The big money was not made by constant action. It was made by sitting with a correct position while the market carried it far enough. This sounds simple, but it is difficult because no good position moves in a straight line.
+
+I was right many times and still failed to make what I should have made. I sold too soon. I feared losing a profit more than I respected the trend. In time I learned that being right is only the beginning. Holding correctly is the harder art.
+''',
+    ),
+    _BookChapter(
+      title: '5. The Art of Becoming Small When Wrong',
+      body: '''
+Every trader is wrong. The difference between survival and ruin is what he does after he becomes wrong. A small loss is the market's quiet warning. If ignored, the warning becomes louder and more expensive.
+
+I enlarged losses many times. At first I told myself the price would return. Then I told myself it would be foolish to sell after such a decline. Finally the loss became so large that I no longer watched the market clearly. I watched only my own wound.
+
+Cutting a loss looks like a cold technique, but it is really emotional discipline. A man must give up pride, admit error, and abandon an idea that only a short time earlier felt certain.
+
+A small loss is the price of staying in the game. A large loss can take away the ability to play the next hand. That is why the first loss is usually the best loss.
+''',
+    ),
+    _BookChapter(
+      title: '6. Rumors Move People, Prices Move Money',
+      body: '''
+Wall Street has always been full of rumors. A company is improving, a pool is buying, an announcement is coming, an important man knows something. People love such stories because stories make uncertainty feel manageable.
+
+But a position entered on another man's word is weak. If trouble comes, the trader waits for another man's reassurance instead of reading the market. The price may already be saying that the trade is wrong, but the trader waits for the rumor to save him.
+
+Information has value, but it must not replace judgment. A rumor may be a reason to investigate, but it is not a reason to surrender responsibility. The money at risk belongs to the trader, so the final decision must also belong to him.
+
+A man may make money by accident on another man's tip. Keeping that money is another matter. If he does not know why he entered, he will not know when to leave.
+''',
+    ),
+    _BookChapter(
+      title: '7. The Quiet Beginning of a Trend',
+      body: '''
+Great movements do not always begin with noise. Often they begin quietly. The crowd is uncertain, the news is incomplete, and the price begins to lean in one direction with increasing persistence.
+
+I watched not only the price but the behavior of the price. Did it recover after a decline? Did buying appear when weakness should have continued? Did volume gather before the public became interested? Such signs often appeared before explanations.
+
+Following a trend requires courage, but not blind courage. It requires the patience to wait for evidence and the courage to act when the evidence is sufficient. Enter too early and the ordinary shaking of the market may wear you out. Enter too late and the risk may be too large.
+
+Trend trading is not the art of predicting the future. It is the art of recognizing where the market has already begun to go.
+''',
+    ),
+    _BookChapter(
+      title: '8. The Trap of Knowing Too Much',
+      body: '''
+There are many intelligent people in the market. Some understand balance sheets, some understand economics, some understand politics and interest rates, and some know an industry deeply. But knowledge alone does not guarantee profits.
+
+The danger is that knowledge can make a man stubborn. If he knows too much about a company, he may explain away a falling price because he believes the market has failed to appreciate what he knows. He thinks he is defending facts, but often he is defending his conclusion.
+
+Humility is not ignorance. Humility is the ability to say, even after careful study, that the market may be showing something I have missed. Without that humility, knowledge becomes a burden.
+
+When price moves against an idea, the question is not whether the market has insulted me. The question is whether the reason for the position still exists.
+''',
+    ),
+    _BookChapter(
+      title: '9. Why Profit Can Make a Man More Dangerous',
+      body: '''
+After a loss, many men become careful. After a large profit, many become dangerous. Profit can make a man believe that the market has confirmed his superiority.
+
+I knew that feeling. After making money, the same position size seemed too small. A larger trade seemed natural. Past success appeared to promise future safety, though the market makes no such promise.
+
+The greatest danger after profit is the loosening of rules. A man enters sooner than he should, holds a loss longer than he planned, and ignores signals he would have respected before. Confidence begins to replace discipline.
+
+After a large win, the trader must become small again in his own mind. He must return to rules before profit becomes pride.
+''',
+    ),
+    _BookChapter(
+      title: '10. Rest Is Also a Position',
+      body: '''
+Many traders think that staying out of the market is wasted time. It is not. Cash is a position. It gives a man the right to act when a real opportunity appears.
+
+The market moves every day, and movement tempts men to participate. But not every movement is an opportunity. Some movement is only noise. Some exists only to exhaust attention and capital.
+
+The good speculator is not the man who is always busy. He is the man who knows when action is required and when inaction is wiser. Without that distinction, energy is scattered across mediocre trades.
+
+I lost money many times because I could not rest. I thought the market was calling me, but often I was the one clinging to the market.
+''',
+    ),
+    _BookChapter(
+      title: '11. The Danger of Averaging Down',
+      body: '''
+When a price falls, buying more lowers the average cost. The arithmetic is simple, and that simplicity comforts people. But simple arithmetic is not always good judgment.
+
+A falling price may be falling for a reason. If a man buys more without understanding whether the original judgment remains valid, he may be increasing a mistake rather than improving a position.
+
+Averaging down is not always wrong, but unplanned averaging down is dangerous. If the trader did not decide in advance where to add, how much to add, and where to stop, the additional purchase is often emotional defense.
+
+The market does not care that a man's average cost has improved. It cares only about supply, demand, fear, greed, and money.
+''',
+    ),
+    _BookChapter(
+      title: '12. The Crowd Becomes Certain Too Late',
+      body: '''
+At first the crowd doubts a move. Then it notices. Then it believes. Finally it becomes certain, and often the last certainty comes at the highest price.
+
+Declines work the same way. At first the decline is called temporary. Then it is called an opportunity. Later it becomes frightening. At the end, those who can no longer bear the fear sell in despair.
+
+It is easy to laugh at the crowd, but every trader can become part of it. A man thinks more poorly when he is excited with others. Agreement makes an idea feel safer than it really is.
+
+The trader must observe the mood of the crowd without becoming its servant. The crowd is not always wrong, but when certainty becomes too hot, risk often becomes hot with it.
+''',
+    ),
+    _BookChapter(
+      title: '13. Leverage Enlarges the Mind as Well as the Account',
+      body: '''
+Leverage does not only enlarge profits and losses. It enlarges emotion. A small rise becomes great joy. A small decline becomes great fear.
+
+With a large position, ordinary fluctuation becomes difficult to endure. A movement that would have been harmless at normal size becomes a threat. The trader stops reading the market and begins reading his own anxiety.
+
+The leveraged trader needs discipline more than courage. He must know when to reduce, when to stop, and how much pain he can afford before the trade begins.
+
+The desire to make large money is understandable. But the market is not kinder to large desire. It often uses that desire to make a man overstay, overtrade, and overrisk.
+''',
+    ),
+    _BookChapter(
+      title: '14. Waiting Is Painful',
+      body: '''
+Waiting for a good opportunity is painful. When prices move, a man feels he ought to be doing something. Doing nothing can feel like falling behind.
+
+But waiting is not empty time. It preserves judgment, capital, and emotional strength. A man who enters casually must search for reasons later. A man who waits enters with reasons already formed.
+
+I lost money because I did not wait. A position that is only almost right can become very uncomfortable. Weak conviction cannot survive ordinary market noise.
+
+Good trading begins before the trade. It begins in the waiting.
+''',
+    ),
+    _BookChapter(
+      title: '15. The Market Does Not Allow Revenge',
+      body: '''
+After a loss, the desire to recover quickly is strong. The lost money carries pride, anger, and humiliation with it. That makes the next trade dangerous.
+
+Revenge trading is not really trading the market. It is trading one's own injury. The man increases size because he wants relief, not because the opportunity is better.
+
+The market does not know that a trader has just lost money, and if it knew, it would not care. It gives no special terms to a wounded man.
+
+After a loss, the best first action is often rest. The money will not be recovered by anger. It will be recovered, if at all, by better judgment later.
+''',
+    ),
+    _BookChapter(
+      title: '16. Judgment Comes From Records',
+      body: '''
+Memory is not reliable in speculation. A man remembers his successes clearly and explains away his mistakes. With time, errors become reasonable and wins become larger in the imagination.
+
+Records make self-deception harder. Why did I enter? What did I see? Where was I supposed to admit error? What did I actually do? Written answers reveal patterns that memory hides.
+
+One man always buys too early. Another sells too late. Another becomes reckless after a loss. Without records these habits feel like personality. With records they become visible.
+
+Learning the market is also learning oneself. The numbers are outside, but many mistakes begin inside.
+''',
+    ),
+    _BookChapter(
+      title: '17. The Main Movement and the Noise',
+      body: '''
+The market shakes every day. If every shake is treated as a major signal, the trader soon becomes exhausted. Some movements matter. Others are only noise.
+
+The trader must distinguish a normal reaction from a change in character. This is difficult. Hold too stubbornly and a real reversal becomes ruin. React too quickly and every small shake throws you out.
+
+The answer is not emotion but preparation. Before the market tests him, the trader must decide what conditions keep him in and what conditions take him out.
+
+A man without standards is moved by every price. A man with standards may still feel fear, but he has a place to return.
+''',
+    ),
+    _BookChapter(
+      title: '18. Profitable Trades Must Also Be Reviewed',
+      body: '''
+Many traders review only their losses. But winning trades must also be examined. A profit does not prove that the process was sound.
+
+Sometimes a man makes money after taking foolish risk. If he does not review the trade, the profit teaches him the wrong lesson. The market occasionally rewards bad behavior, and that reward can be dangerous.
+
+The question is not only whether money was made. The question is whether the decision can be repeated without depending on luck.
+
+A trader must be strict with profits as well as losses. Otherwise profit becomes the seed of future carelessness.
+''',
+    ),
+    _BookChapter(
+      title: '19. The Man Who Survives',
+      body: '''
+There are many people who once made large money in the market. There are fewer who survived for a long time. Large profits are visible. Survival is quieter.
+
+The survivor knows his weaknesses. He knows when he becomes impatient, what kind of loss disturbs him, and which stories tempt him. He studies himself as much as he studies prices.
+
+He does not force opportunity when none exists. He waits when the market is unclear, reduces when the trade is wrong, and returns to rules after both wins and losses.
+
+This is why the book remains alive. It is not only about old markets. It is about human nature in markets, and human nature has not changed much.
+''',
+    ),
+    _BookChapter(
+      title: '20. Final Page',
+      body: '''
+The market taught me many things. Price is more honest than talk. Losses are best when they are small. Large profits come less often from restless hands than from patient judgment.
+
+But knowing these things is not enough. They must be obeyed when money is at risk. That is where most men fail.
+
+The trader fights two battles. One is with the market. The other is with himself. He may lose to the market and recover. If he continually loses to himself, he will not last.
+
+The market will open again tomorrow. The man who remembers this does not need to risk everything today. To survive today is to keep the right to meet tomorrow's opportunity.
+''',
+    ),
+  ];
 
   @override
   void initState() {
     super.initState();
-    showKoreanBook();
+    loadSavedBookPosition();
   }
 
-  void showKoreanBook() {
+  Future<void> loadSavedBookPosition() async {
+    final prefs = await SharedPreferences.getInstance();
+    final pageKey = await userScopedPrefsKey(_bookReaderPagePrefsKey);
+    final languageKey = await userScopedPrefsKey(_bookReaderLanguagePrefsKey);
+    final savedEnglish = prefs.getBool(languageKey) ?? false;
+    final pageCount = savedEnglish ? englishPages.length : koreanPages.length;
+    final savedPage = (prefs.getInt(pageKey) ?? 0).clamp(0, pageCount - 1);
+    if (!mounted) return;
     setState(() {
-      chapters
-        ..clear()
-        ..addAll(koreanBookChapters);
-      selectedChapter = 0;
-      koreanMode = true;
-      loading = false;
-      errorMessage = '';
+      showEnglish = savedEnglish;
+      currentPage = savedPage;
+    });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && pageController.hasClients) {
+        pageController.jumpToPage(currentPage);
+      }
     });
   }
 
-  Future<void> loadBook() async {
-    setState(() {
-      loading = true;
-      errorMessage = '';
-    });
-
-    try {
-      final response = await http
-          .get(Uri.parse(_lombardStreetTextUrl))
-          .timeout(const Duration(seconds: 10));
-      if (response.statusCode < 200 || response.statusCode >= 300) {
-        throw Exception('Book API ${response.statusCode}');
-      }
-      final nextChapters = parseBook(response.body);
-      if (nextChapters.isEmpty) throw Exception('Book text parse failed');
-      if (!mounted) return;
-      setState(() {
-        chapters
-          ..clear()
-          ..addAll(nextChapters);
-        selectedChapter = 0;
-        koreanMode = false;
-      });
-    } catch (_) {
-      if (!mounted) return;
-      setState(() {
-        errorMessage = '책을 불러오지 못했습니다. 네트워크를 확인해 주세요.';
-      });
-    } finally {
-      if (mounted) {
-        setState(() {
-          loading = false;
-        });
-      }
-    }
+  Future<void> saveBookPosition() async {
+    final prefs = await SharedPreferences.getInstance();
+    final pageKey = await userScopedPrefsKey(_bookReaderPagePrefsKey);
+    final languageKey = await userScopedPrefsKey(_bookReaderLanguagePrefsKey);
+    await prefs.setInt(pageKey, currentPage);
+    await prefs.setBool(languageKey, showEnglish);
   }
 
-  List<_BookChapter> parseBook(String source) {
-    var text = source.replaceAll('\r\n', '\n');
-    final start = text.indexOf('LOMBARD STREET');
-    if (start >= 0) {
-      text = text.substring(start);
-    }
-
-    final end = text.indexOf('*** END OF THE PROJECT GUTENBERG EBOOK');
-    if (end > 0) {
-      text = text.substring(0, end);
-    }
-
-    final matches = RegExp(
-      r'CHAPTER\s+[IVXLC]+\.\s*[^\n]*',
-      multiLine: true,
-    ).allMatches(text).toList();
-
-    if (matches.isEmpty) {
-      return [
-        _BookChapter(
-          title: 'Lombard Street',
-          body: normalizeBookText(text),
-        ),
-      ];
-    }
-
-    final next = <_BookChapter>[
-      _BookChapter(
-        title: '책 소개',
-        body:
-            'Lombard Street: A Description of the Money Market\n\nWalter Bagehot, 1873\n\n금리, 신용, 은행, 유동성 위기와 시장 심리를 이해하는 고전입니다. 주식시장을 직접 다루는 책은 아니지만, 인플레이션과 주식 가격을 움직이는 돈의 흐름을 이해하는 데 도움이 됩니다.',
-      ),
-    ];
-
-    for (var i = 0; i < matches.length; i += 1) {
-      final match = matches[i];
-      final chapterEnd =
-          i + 1 < matches.length ? matches[i + 1].start : text.length;
-      final chapterText = text.substring(match.start, chapterEnd).trim();
-      final lines = chapterText.split('\n');
-      next.add(
-        _BookChapter(
-          title: lines.first.trim(),
-          body: normalizeBookText(chapterText),
-        ),
-      );
-    }
-
-    return next;
+  @override
+  void dispose() {
+    pageController.dispose();
+    super.dispose();
   }
-
-  String normalizeBookText(String text) {
-    return text
-        .replaceAll(RegExp(r'[ \t]+\n'), '\n')
-        .replaceAll(RegExp(r'\n{3,}'), '\n\n')
-        .trim();
-  }
-
-  static const koreanBookChapters = <_BookChapter>[
-    _BookChapter(
-      title: '책 소개',
-      body:
-          'Lombard Street는 1873년 Walter Bagehot이 쓴 금융시장 고전입니다.\n\n이 책은 주식 종목을 고르는 책이라기보다, 금리, 신용, 은행, 유동성 위기가 자산시장 전체를 어떻게 움직이는지 설명합니다. 인플레이션과 주식시장을 이해하려면 결국 돈의 가격인 금리와 신용 흐름을 알아야 하므로, 투자자에게 지금도 읽을 가치가 있습니다.',
-    ),
-    _BookChapter(
-      title: '1장 돈의 시장은 추상적인 것이 아니다',
-      body:
-          'Bagehot은 돈의 시장을 막연한 이론이 아니라 실제로 움직이는 시스템으로 봅니다.\n\n시장은 은행, 예금, 대출, 어음, 신용으로 구성됩니다. 주식시장이 오르고 내리는 배경에도 이 자금 흐름이 있습니다. 돈이 쉽게 빌려지는 시기에는 위험자산 가격이 올라가기 쉽고, 돈이 막히면 좋은 자산도 급하게 팔릴 수 있습니다.',
-    ),
-    _BookChapter(
-      title: '2장 유동성은 시장의 산소다',
-      body:
-          '런던 금융시장의 힘은 돈이 한곳에 모이고, 필요한 곳으로 빠르게 이동할 수 있다는 점에서 나옵니다.\n\n주식시장에서도 유동성은 핵심입니다. 현금과 신용이 풍부하면 투자자는 더 큰 위험을 감수하고, 기업은 자금을 쉽게 조달합니다. 반대로 유동성이 줄면 가격은 실적보다 먼저 압박을 받을 수 있습니다.',
-    ),
-    _BookChapter(
-      title: '3장 신용은 성장을 키우지만 위험도 키운다',
-      body:
-          '빌린 돈은 사업과 투자를 빠르게 키웁니다. 하지만 모두가 빌린 돈에 의존하면 작은 충격도 큰 불안으로 번질 수 있습니다.\n\n레버리지 ETF나 성장주는 이 원리를 더 민감하게 반영합니다. 금리가 낮고 신용이 넓을 때는 강하게 오를 수 있지만, 신용이 줄어드는 국면에서는 하락도 빨라질 수 있습니다.',
-    ),
-    _BookChapter(
-      title: '4장 중앙은행의 역할',
-      body:
-          'Bagehot의 유명한 생각은 위기 때 중앙은행이 유동성을 공급해야 한다는 것입니다. 다만 아무에게나 싸게 빌려주는 것이 아니라, 좋은 담보를 가진 곳에 충분히 빌려주되 높은 금리를 받아야 한다고 봤습니다.\n\n이 원리는 지금도 금융위기, 금리 정책, 시장 안정화 논의의 기초로 자주 언급됩니다.',
-    ),
-    _BookChapter(
-      title: '5장 공포는 현금 수요를 폭발시킨다',
-      body:
-          '평상시에는 투자자들이 수익률을 찾지만, 위기가 오면 가장 먼저 현금을 찾습니다. 이때 자산 가격은 가치보다 유동성 때문에 흔들립니다.\n\n주식 투자자는 이 점을 기억해야 합니다. 시장 급락은 항상 기업 가치만의 문제가 아니라, 현금 확보 경쟁의 결과일 수 있습니다.',
-    ),
-    _BookChapter(
-      title: '6장 금리와 인플레이션을 보는 법',
-      body:
-          '책의 시대는 지금과 다르지만 핵심은 같습니다. 돈을 빌리는 비용이 오르면 투자와 소비가 둔화되고, 위험자산의 할인율도 올라갑니다.\n\n인플레이션이 높아져 금리가 오르면 주식, 특히 성장주와 레버리지 상품은 더 큰 압박을 받을 수 있습니다. 반대로 금리 부담이 완화되면 시장은 빠르게 회복 기대를 반영하기도 합니다.',
-    ),
-    _BookChapter(
-      title: '7장 투자자에게 남는 교훈',
-      body:
-          '시장은 가격 차트만으로 움직이지 않습니다. 그 뒤에는 현금, 신용, 금리, 은행 시스템, 투자자의 공포가 있습니다.\n\n그래서 장기 투자자는 가격뿐 아니라 유동성 환경을 함께 봐야 합니다. 현금 비중을 유지하고, 과도한 레버리지를 피하고, 시장이 공포에 빠졌을 때 왜 그런 일이 생기는지 이해하는 것이 중요합니다.',
-    ),
-  ];
 
   @override
   Widget build(BuildContext context) {
@@ -13714,13 +14639,62 @@ class _PublicDomainBookReaderPageState
     final primaryText = whiteMode ? _lightText : _darkText;
     final secondaryText = whiteMode ? _lightMuted : _darkMuted;
     final accent = whiteMode ? _lightBlue : _cyan;
-    final chapter = chapters.isEmpty ? null : chapters[selectedChapter];
+    final pages = showEnglish ? englishPages : koreanPages;
+    final progress = '${currentPage + 1}/${pages.length}';
+    final screenTitle = showEnglish ? 'Book Reader' : '책 읽기';
+    final bookTitle =
+        showEnglish ? 'Reminiscences of a Stock Operator' : '어느 주식투자자의 회상';
+
+    void changeBookLanguage(bool next) {
+      if (showEnglish == next) return;
+      setState(() {
+        showEnglish = next;
+        currentPage = 0;
+      });
+      if (pageController.hasClients) {
+        pageController.jumpToPage(0);
+      }
+      saveBookPosition();
+    }
+
+    Widget languageButton(String label, bool value) {
+      final selected = showEnglish == value;
+      return Expanded(
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: () => changeBookLanguage(value),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 140),
+            height: 28,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: selected ? accent : Colors.transparent,
+              borderRadius: BorderRadius.circular(9),
+            ),
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                label,
+                maxLines: 1,
+                style: TextStyle(
+                  color: selected
+                      ? (whiteMode ? Colors.white : _appBg)
+                      : secondaryText,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+    }
 
     return Scaffold(
       backgroundColor: pageBg,
       bottomNavigationBar: buildAdOnlyBottomBar(),
       appBar: AppBar(
-        title: const Text('책 읽기'),
+        title: Text(screenTitle),
         foregroundColor: primaryText,
         backgroundColor: pageBg,
         elevation: 0,
@@ -13729,160 +14703,184 @@ class _PublicDomainBookReaderPageState
         ],
       ),
       body: SafeArea(
-        child: loading
-            ? Center(child: CircularProgressIndicator(color: accent))
-            : errorMessage.isNotEmpty
-                ? Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(18),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            errorMessage,
-                            textAlign: TextAlign.center,
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 6, 16, 6),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  bookTitle,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: primaryText,
+                    fontSize: 19,
+                    height: 1.22,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
+                decoration: BoxDecoration(
+                  color: cardBg,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: cardLine),
+                ),
+                child: Row(
+                  children: [
+                    SizedBox(
+                      width: 88,
+                      child: Container(
+                        padding: const EdgeInsets.all(3),
+                        decoration: BoxDecoration(
+                          color: accent.withValues(
+                            alpha: whiteMode ? 0.08 : 0.12,
+                          ),
+                          borderRadius: BorderRadius.circular(11),
+                          border: Border.all(
+                            color: accent.withValues(alpha: 0.18),
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            languageButton('한글', false),
+                            const SizedBox(width: 3),
+                            languageButton('EN', true),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const Spacer(),
+                    SizedBox(
+                      width: 62,
+                      height: 30,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 5,
+                        ),
+                        decoration: BoxDecoration(
+                          color:
+                              accent.withValues(alpha: whiteMode ? 0.08 : 0.12),
+                          borderRadius: BorderRadius.circular(999),
+                          border: Border.all(
+                            color: accent.withValues(alpha: 0.22),
+                          ),
+                        ),
+                        alignment: Alignment.center,
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text(
+                            progress,
+                            maxLines: 1,
                             style: TextStyle(
-                              color: primaryText,
-                              fontSize: 14,
-                              fontWeight: FontWeight.w700,
+                              color: accent,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w900,
                             ),
                           ),
-                          const SizedBox(height: 12),
-                          FilledButton.icon(
-                            onPressed: loadBook,
-                            icon: const Icon(Icons.refresh_rounded),
-                            label: const Text('다시 불러오기'),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            Expanded(
+              child: PageView.builder(
+                controller: pageController,
+                itemCount: pages.length,
+                onPageChanged: (index) {
+                  setState(() {
+                    currentPage = index;
+                  });
+                  saveBookPosition();
+                },
+                itemBuilder: (context, index) {
+                  final page = pages[index];
+                  return Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
+                    child: Container(
+                      padding: const EdgeInsets.all(18),
+                      decoration: BoxDecoration(
+                        color: cardBg,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: cardLine),
+                      ),
+                      child: ListView(
+                        padding: EdgeInsets.zero,
+                        children: [
+                          Text(
+                            '${index + 1} 페이지',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              color: accent,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w900,
+                              letterSpacing: 0,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            page.title,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              color: primaryText,
+                              fontSize: 20,
+                              height: 1.25,
+                              fontWeight: FontWeight.w900,
+                            ),
+                          ),
+                          const SizedBox(height: 14),
+                          SelectableText(
+                            page.body,
+                            style: TextStyle(
+                              color: primaryText,
+                              fontSize: 15,
+                              height: 1.62,
+                              fontWeight: FontWeight.w500,
+                            ),
                           ),
                         ],
                       ),
                     ),
-                  )
-                : ListView(
-                    padding: const EdgeInsets.fromLTRB(16, 10, 16, 88),
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: cardBg,
-                          borderRadius: BorderRadius.circular(18),
-                          border: Border.all(color: cardLine),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Lombard Street',
-                              style: TextStyle(
-                                color: primaryText,
-                                fontSize: 20,
-                                fontWeight: FontWeight.w900,
-                              ),
-                            ),
-                            const SizedBox(height: 6),
-                            Text(
-                              koreanMode
-                                  ? '한국어 해설판 · 원문: Project Gutenberg 공개 도서'
-                                  : 'Walter Bagehot · Project Gutenberg 공개 도서',
-                              style: TextStyle(
-                                color: secondaryText,
-                                fontSize: 12,
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
-                            const SizedBox(height: 12),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: FilledButton.tonal(
-                                    onPressed:
-                                        koreanMode ? null : showKoreanBook,
-                                    child: const Text(
-                                      '한국어판',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.w900,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(width: 8),
-                                Expanded(
-                                  child: FilledButton.tonal(
-                                    onPressed: loading ? null : loadBook,
-                                    child: const Text(
-                                      '영어 원문',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.w900,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 12),
-                            DropdownButtonFormField<int>(
-                              initialValue: selectedChapter,
-                              isExpanded: true,
-                              decoration: InputDecoration(
-                                labelText: '챕터',
-                                labelStyle: TextStyle(color: secondaryText),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(14),
-                                  borderSide: BorderSide(color: cardLine),
-                                ),
-                                enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(14),
-                                  borderSide: BorderSide(color: cardLine),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(14),
-                                  borderSide: BorderSide(color: accent),
-                                ),
-                              ),
-                              dropdownColor: cardBg,
-                              items: chapters
-                                  .asMap()
-                                  .entries
-                                  .map(
-                                    (entry) => DropdownMenuItem<int>(
-                                      value: entry.key,
-                                      child: Text(
-                                        entry.value.title,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                    ),
-                                  )
-                                  .toList(),
-                              onChanged: (value) {
-                                if (value == null) return;
-                                setState(() {
-                                  selectedChapter = value;
-                                });
-                              },
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      if (chapter != null)
-                        Container(
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: cardBg,
-                            borderRadius: BorderRadius.circular(18),
-                            border: Border.all(color: cardLine),
-                          ),
-                          child: SelectableText(
-                            chapter.body,
-                            style: TextStyle(
-                              color: primaryText,
-                              fontSize: 14,
-                              height: 1.55,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ),
-                    ],
-                  ),
+                  );
+                },
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: List.generate(pages.length, (index) {
+                  final selected = index == currentPage;
+                  return AnimatedContainer(
+                    duration: const Duration(milliseconds: 180),
+                    width: selected ? 18 : 6,
+                    height: 6,
+                    margin: const EdgeInsets.symmetric(horizontal: 3),
+                    decoration: BoxDecoration(
+                      color: selected
+                          ? accent
+                          : secondaryText.withValues(alpha: 0.28),
+                      borderRadius: BorderRadius.circular(999),
+                    ),
+                  );
+                }),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -14647,6 +15645,8 @@ class InquiryPage extends StatefulWidget {
 }
 
 class _InquiryPageState extends State<InquiryPage> {
+  static const int _inquiriesPerPage = 8;
+
   final contentController = TextEditingController();
   final replyControllers = <String, TextEditingController>{};
   final inquiries = <Map<String, String>>[];
@@ -14655,6 +15655,7 @@ class _InquiryPageState extends State<InquiryPage> {
   final deletingInquiryIds = <String>{};
   bool loading = false;
   bool submitting = false;
+  int inquiryPage = 0;
 
   @override
   void initState() {
@@ -14718,7 +15719,7 @@ class _InquiryPageState extends State<InquiryPage> {
             'pinnedAt': formatInquiryDate((item['pinnedAt'] ?? '').toString()),
           },
         )
-        .where((item) => item['id']!.isNotEmpty && item['content']!.isNotEmpty)
+        .where((item) => item['content']!.isNotEmpty)
         .toList();
 
     if (!mounted) return;
@@ -14726,6 +15727,10 @@ class _InquiryPageState extends State<InquiryPage> {
       inquiries
         ..clear()
         ..addAll(nextItems);
+      final maxPage = inquiries.isEmpty
+          ? 0
+          : ((inquiries.length - 1) / _inquiriesPerPage).floor();
+      inquiryPage = inquiryPage.clamp(0, maxPage).toInt();
     });
   }
 
@@ -15065,6 +16070,15 @@ class _InquiryPageState extends State<InquiryPage> {
     final primaryText = whiteMode ? _lightText : _darkText;
     final secondaryText = whiteMode ? _lightMuted : _darkMuted;
     final accent = whiteMode ? _lightBlue : _cyan;
+    final totalInquiryPages = inquiries.isEmpty
+        ? 1
+        : ((inquiries.length - 1) / _inquiriesPerPage).floor() + 1;
+    final normalizedInquiryPage =
+        inquiryPage.clamp(0, totalInquiryPages - 1).toInt();
+    final pagedInquiries = inquiries
+        .skip(normalizedInquiryPage * _inquiriesPerPage)
+        .take(_inquiriesPerPage)
+        .toList();
 
     InputDecoration inputDecoration(String label) => InputDecoration(
           labelText: label,
@@ -15103,222 +16117,235 @@ class _InquiryPageState extends State<InquiryPage> {
         isScrollControlled: true,
         backgroundColor: Colors.transparent,
         builder: (detailContext) {
-          return FractionallySizedBox(
-            heightFactor: 0.86,
-            child: Container(
-              decoration: BoxDecoration(
-                color: pageBg,
-                borderRadius: const BorderRadius.vertical(
-                  top: Radius.circular(22),
+          final keyboardBottom = MediaQuery.viewInsetsOf(detailContext).bottom;
+          return AnimatedPadding(
+            duration: const Duration(milliseconds: 180),
+            curve: Curves.easeOutCubic,
+            padding: EdgeInsets.only(bottom: keyboardBottom),
+            child: FractionallySizedBox(
+              heightFactor: keyboardBottom > 0 ? 0.96 : 0.86,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: pageBg,
+                  borderRadius: const BorderRadius.vertical(
+                    top: Radius.circular(22),
+                  ),
                 ),
-              ),
-              child: SafeArea(
-                top: false,
-                child: ListView(
-                  padding: const EdgeInsets.fromLTRB(16, 14, 16, 22),
-                  children: [
-                    Center(
-                      child: Container(
-                        width: 36,
-                        height: 4,
-                        decoration: BoxDecoration(
-                          color: secondaryText.withValues(alpha: 0.35),
-                          borderRadius: BorderRadius.circular(99),
-                        ),
-                      ),
+                child: SafeArea(
+                  top: false,
+                  child: ListView(
+                    keyboardDismissBehavior:
+                        ScrollViewKeyboardDismissBehavior.onDrag,
+                    padding: EdgeInsets.fromLTRB(
+                      16,
+                      14,
+                      16,
+                      keyboardBottom > 0 ? 120 : 22,
                     ),
-                    const SizedBox(height: 14),
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.person_outline_rounded,
-                          color: accent,
-                          size: 18,
-                        ),
-                        const SizedBox(width: 7),
-                        Expanded(
-                          child: Text(
-                            item['id'] ?? '',
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              color: primaryText,
-                              fontSize: 15,
-                              fontWeight: FontWeight.w900,
-                            ),
+                    children: [
+                      Center(
+                        child: Container(
+                          width: 36,
+                          height: 4,
+                          decoration: BoxDecoration(
+                            color: secondaryText.withValues(alpha: 0.35),
+                            borderRadius: BorderRadius.circular(99),
                           ),
-                        ),
-                        if (pinned)
-                          Icon(
-                            Icons.push_pin_rounded,
-                            color: accent,
-                            size: 16,
-                          ),
-                        const SizedBox(width: 8),
-                        Text(
-                          item['createdAt'] ?? '',
-                          style: TextStyle(
-                            color: secondaryText,
-                            fontSize: 11,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 14),
-                    Container(
-                      padding: const EdgeInsets.all(14),
-                      decoration: BoxDecoration(
-                        color: cardBg,
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: cardLine),
-                      ),
-                      child: Text(
-                        item['content'] ?? '',
-                        style: TextStyle(
-                          color: primaryText,
-                          fontSize: 14,
-                          height: 1.5,
-                          fontWeight: FontWeight.w700,
                         ),
                       ),
-                    ),
-                    if (answer.isNotEmpty) ...[
-                      const SizedBox(height: 12),
-                      Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: accent.withValues(
-                            alpha: whiteMode ? 0.08 : 0.12,
-                          ),
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color: accent.withValues(alpha: 0.28),
-                          ),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Icon(
-                                  Icons.admin_panel_settings_rounded,
-                                  color: accent,
-                                  size: 16,
-                                ),
-                                const SizedBox(width: 6),
-                                Expanded(
-                                  child: Text(
-                                    '관리자 답변',
-                                    style: TextStyle(
-                                      color: accent,
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w900,
-                                    ),
-                                  ),
-                                ),
-                                if (answeredAt.isNotEmpty)
-                                  Text(
-                                    answeredAt,
-                                    style: TextStyle(
-                                      color: secondaryText,
-                                      fontSize: 10,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                              ],
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              answer,
-                              style: TextStyle(
-                                color: primaryText,
-                                fontSize: 13,
-                                height: 1.45,
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                    if (canManageInquiry) ...[
                       const SizedBox(height: 14),
-                      TextField(
-                        controller: replyController,
-                        minLines: 3,
-                        maxLines: 7,
-                        textInputAction: TextInputAction.newline,
-                        style: TextStyle(color: primaryText, fontSize: 13),
-                        decoration: inputDecoration(
-                          answer.isEmpty ? '관리자 답변' : '답변 수정',
-                        ),
-                      ),
-                      const SizedBox(height: 10),
                       Row(
                         children: [
+                          Icon(
+                            Icons.help_outline_rounded,
+                            color: accent,
+                            size: 18,
+                          ),
+                          const SizedBox(width: 7),
                           Expanded(
-                            child: FilledButton.icon(
-                              style: FilledButton.styleFrom(
-                                backgroundColor: accent,
-                                foregroundColor:
-                                    whiteMode ? Colors.white : _appBg,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                              ),
-                              onPressed: replying
-                                  ? null
-                                  : () => submitInquiryReply(item),
-                              icon: replying
-                                  ? SizedBox(
-                                      width: 14,
-                                      height: 14,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                        color:
-                                            whiteMode ? Colors.white : _appBg,
-                                      ),
-                                    )
-                                  : const Icon(Icons.reply_rounded, size: 17),
-                              label: Text(
-                                replying ? '저장 중' : '답변 등록',
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.w900,
-                                ),
+                            child: Text(
+                              '문의 내용',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                color: primaryText,
+                                fontSize: 15,
+                                fontWeight: FontWeight.w900,
                               ),
                             ),
                           ),
+                          if (pinned)
+                            Icon(
+                              Icons.push_pin_rounded,
+                              color: accent,
+                              size: 16,
+                            ),
                           const SizedBox(width: 8),
-                          SizedBox(
-                            height: 40,
-                            width: 46,
-                            child: IconButton.filledTonal(
-                              tooltip: '문의 삭제',
-                              onPressed: deleting
-                                  ? null
-                                  : () async {
-                                      await deleteInquiry(item);
-                                      if (detailContext.mounted) {
-                                        Navigator.pop(detailContext);
-                                      }
-                                    },
-                              icon: deleting
-                                  ? const SizedBox(
-                                      width: 14,
-                                      height: 14,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                      ),
-                                    )
-                                  : const Icon(Icons.delete_outline_rounded),
+                          Text(
+                            item['createdAt'] ?? '',
+                            style: TextStyle(
+                              color: secondaryText,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
                             ),
                           ),
                         ],
                       ),
+                      const SizedBox(height: 14),
+                      Container(
+                        padding: const EdgeInsets.all(14),
+                        decoration: BoxDecoration(
+                          color: cardBg,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: cardLine),
+                        ),
+                        child: Text(
+                          item['content'] ?? '',
+                          style: TextStyle(
+                            color: primaryText,
+                            fontSize: 14,
+                            height: 1.5,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                      if (answer.isNotEmpty) ...[
+                        const SizedBox(height: 12),
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: accent.withValues(
+                              alpha: whiteMode ? 0.08 : 0.12,
+                            ),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: accent.withValues(alpha: 0.28),
+                            ),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Icon(
+                                    Icons.admin_panel_settings_rounded,
+                                    color: accent,
+                                    size: 16,
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Expanded(
+                                    child: Text(
+                                      '관리자 답변',
+                                      style: TextStyle(
+                                        color: accent,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w900,
+                                      ),
+                                    ),
+                                  ),
+                                  if (answeredAt.isNotEmpty)
+                                    Text(
+                                      answeredAt,
+                                      style: TextStyle(
+                                        color: secondaryText,
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                ],
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                answer,
+                                style: TextStyle(
+                                  color: primaryText,
+                                  fontSize: 13,
+                                  height: 1.45,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                      if (canManageInquiry) ...[
+                        const SizedBox(height: 14),
+                        TextField(
+                          controller: replyController,
+                          minLines: 3,
+                          maxLines: 7,
+                          textInputAction: TextInputAction.newline,
+                          style: TextStyle(color: primaryText, fontSize: 13),
+                          decoration: inputDecoration(
+                            answer.isEmpty ? '관리자 답변' : '답변 수정',
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: FilledButton.icon(
+                                style: FilledButton.styleFrom(
+                                  backgroundColor: accent,
+                                  foregroundColor:
+                                      whiteMode ? Colors.white : _appBg,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                                onPressed: replying
+                                    ? null
+                                    : () => submitInquiryReply(item),
+                                icon: replying
+                                    ? SizedBox(
+                                        width: 14,
+                                        height: 14,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                          color:
+                                              whiteMode ? Colors.white : _appBg,
+                                        ),
+                                      )
+                                    : const Icon(Icons.reply_rounded, size: 17),
+                                label: Text(
+                                  replying ? '저장 중' : '답변 등록',
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.w900,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            SizedBox(
+                              height: 40,
+                              width: 46,
+                              child: IconButton.filledTonal(
+                                tooltip: '문의 삭제',
+                                onPressed: deleting
+                                    ? null
+                                    : () async {
+                                        await deleteInquiry(item);
+                                        if (detailContext.mounted) {
+                                          Navigator.pop(detailContext);
+                                        }
+                                      },
+                                icon: deleting
+                                    ? const SizedBox(
+                                        width: 14,
+                                        height: 14,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                        ),
+                                      )
+                                    : const Icon(Icons.delete_outline_rounded),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ],
-                  ],
+                  ),
                 ),
               ),
             ),
@@ -15338,65 +16365,47 @@ class _InquiryPageState extends State<InquiryPage> {
 
       return Material(
         color: cardBg,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(10),
         child: InkWell(
           onTap: () => openInquiryDetail(item),
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(10),
           child: Container(
-            padding: const EdgeInsets.all(14),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(10),
               border: Border.all(color: cardLine),
             ),
             child: Row(
               children: [
                 Icon(
-                  pinned
-                      ? Icons.push_pin_rounded
-                      : Icons.person_outline_rounded,
+                  pinned ? Icons.push_pin_rounded : Icons.help_outline_rounded,
                   color: pinned ? Colors.amber : accent,
-                  size: 18,
+                  size: 16,
                 ),
                 const SizedBox(width: 8),
                 Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  child: Row(
                     children: [
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              item['id'] ?? '',
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                color: primaryText,
-                                fontSize: 13,
-                                fontWeight: FontWeight.w900,
-                              ),
-                            ),
+                      Expanded(
+                        child: Text(
+                          preview,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: primaryText,
+                            fontSize: 12.5,
+                            fontWeight: FontWeight.w700,
                           ),
-                          if (answer.isNotEmpty) ...[
-                            const SizedBox(width: 6),
-                            Icon(
-                              Icons.mark_chat_read_rounded,
-                              color: accent,
-                              size: 14,
-                            ),
-                          ],
-                        ],
-                      ),
-                      const SizedBox(height: 5),
-                      Text(
-                        preview,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          color: secondaryText,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
                         ),
                       ),
+                      if (answer.isNotEmpty) ...[
+                        const SizedBox(width: 6),
+                        Icon(
+                          Icons.mark_chat_read_rounded,
+                          color: accent,
+                          size: 14,
+                        ),
+                      ],
                     ],
                   ),
                 ),
@@ -15405,7 +16414,7 @@ class _InquiryPageState extends State<InquiryPage> {
                   item['createdAt'] ?? '',
                   style: TextStyle(
                     color: secondaryText,
-                    fontSize: 10,
+                    fontSize: 9.5,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -15441,6 +16450,59 @@ class _InquiryPageState extends State<InquiryPage> {
               ],
             ),
           ),
+        ),
+      );
+    }
+
+    Widget inquiryPager() {
+      if (inquiries.length <= _inquiriesPerPage) {
+        return const SizedBox.shrink();
+      }
+
+      return Padding(
+        padding: const EdgeInsets.only(top: 2, bottom: 14),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            IconButton(
+              tooltip: '이전 페이지',
+              onPressed: normalizedInquiryPage <= 0
+                  ? null
+                  : () {
+                      setState(() {
+                        inquiryPage = normalizedInquiryPage - 1;
+                      });
+                    },
+              icon: const Icon(Icons.chevron_left_rounded),
+            ),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: cardBg,
+                borderRadius: BorderRadius.circular(999),
+                border: Border.all(color: cardLine),
+              ),
+              child: Text(
+                '${normalizedInquiryPage + 1}페이지 / $totalInquiryPages페이지',
+                style: TextStyle(
+                  color: primaryText,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+            ),
+            IconButton(
+              tooltip: '다음 페이지',
+              onPressed: normalizedInquiryPage >= totalInquiryPages - 1
+                  ? null
+                  : () {
+                      setState(() {
+                        inquiryPage = normalizedInquiryPage + 1;
+                      });
+                    },
+              icon: const Icon(Icons.chevron_right_rounded),
+            ),
+          ],
         ),
       );
     }
@@ -15495,12 +16557,13 @@ class _InquiryPageState extends State<InquiryPage> {
                 ),
               )
             else
-              ...inquiries.map(
+              ...pagedInquiries.map(
                 (item) => Padding(
-                  padding: const EdgeInsets.only(bottom: 10),
+                  padding: const EdgeInsets.only(bottom: 6),
                   child: inquiryItem(item),
                 ),
               ),
+            inquiryPager(),
             const SizedBox(height: 18),
             Text(
               '문의 작성',
@@ -15595,12 +16658,14 @@ class _CloseGuessRankingPageState extends State<CloseGuessRankingPage> {
   String selectedDate = '';
   String lastSubmittedId = '';
   String winnerMessageToken = '';
+  double referenceClose = 0;
   bool loading = false;
   bool started = false;
 
   @override
   void initState() {
     super.initState();
+    referenceClose = widget.initialClose;
     loadRanking();
   }
 
@@ -15665,6 +16730,9 @@ class _CloseGuessRankingPageState extends State<CloseGuessRankingPage> {
     setState(() {
       selectedDate = ranking.date;
       dates = ranking.dates.isEmpty ? [ranking.date] : ranking.dates;
+      if (ranking.referenceClose > 0) {
+        referenceClose = ranking.referenceClose;
+      }
       entries = ranking.entries
           .map(
             (entry) => CloseGuessEntry(
@@ -15710,6 +16778,7 @@ class _CloseGuessRankingPageState extends State<CloseGuessRankingPage> {
             ? ranking.dates
             : [ranking.date, ...ranking.dates],
         entries: mergedEntries,
+        referenceClose: ranking.referenceClose,
         winnerMessage: ranking.winnerMessage,
       ),
     );
@@ -15754,7 +16823,7 @@ class _CloseGuessRankingPageState extends State<CloseGuessRankingPage> {
         ) ??
         0;
     final price = double.parse(rawPrice.toStringAsFixed(2));
-    final close = widget.initialClose;
+    final close = referenceClose > 0 ? referenceClose : widget.initialClose;
 
     if (price <= 0 || close <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -15800,20 +16869,12 @@ class _CloseGuessRankingPageState extends State<CloseGuessRankingPage> {
       if (response.statusCode < 200 || response.statusCode >= 300) {
         throw Exception('Ranking API ${response.statusCode}');
       }
-      final ranking = CloseGuessRankingState.fromMap(
-        jsonDecode(response.body) as Map<String, dynamic>,
-      );
-      if (ranking == null) throw Exception('Invalid ranking response');
       final data = jsonDecode(response.body) as Map<String, dynamic>;
+      final ranking = CloseGuessRankingState.fromMap(data);
+      if (ranking == null) throw Exception('Invalid ranking response');
       final token = (data['winnerMessageToken'] ?? '').toString();
-      applyRanking(ranking);
       if (token.isNotEmpty) {
         await saveWinnerMessageToken(ranking.date, identity.uid, token);
-        if (mounted) {
-          setState(() {
-            winnerMessageToken = token;
-          });
-        }
       }
     } catch (_) {
       if (!mounted) return;
@@ -15828,6 +16889,12 @@ class _CloseGuessRankingPageState extends State<CloseGuessRankingPage> {
 
     idController.clear();
     priceController.clear();
+    if (!mounted) return;
+    setState(() {
+      selectedDate = '';
+      winnerMessageToken = '';
+    });
+    unawaited(loadRanking());
   }
 
   Future<void> submitWinnerMessage() async {
@@ -15902,9 +16969,6 @@ class _CloseGuessRankingPageState extends State<CloseGuessRankingPage> {
         whiteMode ? const Color(0xFFF8FAFC) : const Color(0xFF111827);
     final rankings = sortedEntries();
     final winner = rankings.isEmpty ? null : rankings.first;
-    final canWriteWinnerMessage = winner != null &&
-        selectedDate == todayDate() &&
-        winnerMessageToken.isNotEmpty;
 
     InputDecoration inputDecoration(String label) => InputDecoration(
           labelText: label,
@@ -16062,10 +17126,10 @@ class _CloseGuessRankingPageState extends State<CloseGuessRankingPage> {
                         ),
                         const SizedBox(height: 6),
                         Text(
-                          widget.initialClose > 0
+                          referenceClose > 0
                               ? localizedCloseGuessReferenceClose(
                                   gameLocale,
-                                  widget.initialClose,
+                                  referenceClose,
                                 )
                               : localizedCloseGuessText(
                                   gameLocale,
@@ -16138,34 +17202,6 @@ class _CloseGuessRankingPageState extends State<CloseGuessRankingPage> {
                     ),
                   ),
                   const SizedBox(height: 14),
-                  if (dates.isNotEmpty)
-                    SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: Row(
-                        children: dates.map((date) {
-                          final selected = date == selectedDate;
-                          return Padding(
-                            padding: const EdgeInsets.only(right: 6),
-                            child: ChoiceChip(
-                              label: Text(date.substring(5)),
-                              selected: selected,
-                              selectedColor: accent,
-                              backgroundColor: cardBg,
-                              side: BorderSide(
-                                  color: selected ? accent : cardLine),
-                              labelStyle: TextStyle(
-                                color: selected
-                                    ? (whiteMode ? Colors.white : _appBg)
-                                    : secondaryText,
-                                fontWeight: FontWeight.w800,
-                              ),
-                              onSelected: (_) => loadRanking(date: date),
-                            ),
-                          );
-                        }).toList(),
-                      ),
-                    ),
-                  const SizedBox(height: 12),
                   Container(
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
@@ -16180,9 +17216,8 @@ class _CloseGuessRankingPageState extends State<CloseGuessRankingPage> {
                           children: [
                             Expanded(
                               child: Text(
-                                selectedDate.isEmpty
-                                    ? todayDate()
-                                    : selectedDate,
+                                localizedCloseGuessPreviousResultTitle(
+                                    gameLocale),
                                 style: TextStyle(
                                   color: primaryText,
                                   fontSize: 14,
@@ -16201,138 +17236,34 @@ class _CloseGuessRankingPageState extends State<CloseGuessRankingPage> {
                               ),
                           ],
                         ),
-                        const SizedBox(height: 10),
-                        if (rankings.isEmpty)
-                          Text(
-                            localizedCloseGuessText(gameLocale, 'noPlayers'),
-                            style: TextStyle(
-                              color: mutedText,
-                              fontSize: 13,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          )
-                        else
-                          ...rankings.asMap().entries.map((entry) {
-                            final index = entry.key + 1;
-                            final rank = entry.value;
-                            return Padding(
-                              padding:
-                                  EdgeInsets.only(top: index == 1 ? 0 : 10),
-                              child: Row(
-                                children: [
-                                  SizedBox(
-                                    width: 34,
-                                    child: Text(
-                                      localizedCloseGuessRank(
-                                          gameLocale, index),
-                                      style: TextStyle(
-                                        color:
-                                            index == 1 ? accent : secondaryText,
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.w900,
-                                      ),
-                                    ),
-                                  ),
-                                  Expanded(
-                                    child: Text(
-                                      rank.id,
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: TextStyle(
-                                        color: primaryText,
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.w800,
-                                      ),
-                                    ),
-                                  ),
-                                  Text(
-                                    '\$${rank.price.toStringAsFixed(2)}',
-                                    style: TextStyle(
-                                      color: secondaryText,
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w700,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Text(
-                                    localizedCloseGuessDifference(
-                                      gameLocale,
-                                      rank.difference,
-                                    ),
-                                    style: TextStyle(
-                                      color: mutedText,
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.w700,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            );
-                          }),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 14),
-                  Container(
-                    padding: const EdgeInsets.all(14),
-                    decoration: BoxDecoration(
-                      color: accent.withValues(alpha: whiteMode ? 0.08 : 0.12),
-                      borderRadius: BorderRadius.circular(18),
-                      border: Border.all(color: accent.withValues(alpha: 0.22)),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
+                        const SizedBox(height: 12),
                         Text(
-                          localizedCloseGuessText(
-                              gameLocale, 'winnerMessageTitle'),
+                          referenceClose > 0
+                              ? localizedCloseGuessPreviousClose(
+                                  gameLocale,
+                                  referenceClose,
+                                )
+                              : localizedCloseGuessText(
+                                  gameLocale,
+                                  'referenceCloseLoading',
+                                ),
                           style: TextStyle(
                             color: primaryText,
-                            fontSize: 14,
+                            fontSize: 16,
                             fontWeight: FontWeight.w900,
                           ),
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          winnerMessage?.message.isNotEmpty == true
-                              ? '"${winnerMessage!.message}" - ${winnerMessage!.id}'
-                              : localizedCloseGuessText(
-                                  gameLocale, 'noWinnerMessage'),
+                          localizedCloseGuessWinnerSummary(gameLocale, winner),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                           style: TextStyle(
-                            color: winnerMessage?.message.isNotEmpty == true
-                                ? primaryText
-                                : secondaryText,
-                            fontSize: 13,
-                            fontWeight: FontWeight.w700,
+                            color: winner == null ? mutedText : accent,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w900,
                           ),
                         ),
-                        if (canWriteWinnerMessage) ...[
-                          const SizedBox(height: 12),
-                          TextField(
-                            controller: messageController,
-                            maxLength: 100,
-                            style: TextStyle(color: primaryText, fontSize: 13),
-                            decoration: inputDecoration(
-                              localizedCloseGuessText(
-                                  gameLocale, 'winnerMessageInput'),
-                            ),
-                          ),
-                          SizedBox(
-                            width: double.infinity,
-                            child: OutlinedButton(
-                              onPressed: submitWinnerMessage,
-                              style: OutlinedButton.styleFrom(
-                                foregroundColor: accent,
-                                side: BorderSide(color: accent),
-                              ),
-                              child: Text(
-                                localizedCloseGuessText(
-                                    gameLocale, 'leaveMessage'),
-                                style: TextStyle(fontWeight: FontWeight.w900),
-                              ),
-                            ),
-                          ),
-                        ],
                       ],
                     ),
                   ),
@@ -16577,10 +17508,11 @@ Widget buildFixedAdBottomBar(
               child: closeGuessWidget,
             ),
           ),
-        SizedBox(
-          height: AdSize.banner.height.toDouble(),
-          child: const StrategyBannerAd(),
-        ),
+        if (bottomBannerAdHeight > 0)
+          SizedBox(
+            height: bottomBannerAdHeight,
+            child: const StrategyBannerAd(),
+          ),
         nav,
       ],
     ),
@@ -16592,10 +17524,12 @@ Widget buildAdOnlyBottomBar() {
     color: whiteModeNotifier.value ? _lightAppBg : _appBg,
     child: SafeArea(
       top: false,
-      child: SizedBox(
-        height: AdSize.banner.height.toDouble(),
-        child: const StrategyBannerAd(),
-      ),
+      child: bottomBannerAdHeight > 0
+          ? SizedBox(
+              height: bottomBannerAdHeight,
+              child: const StrategyBannerAd(),
+            )
+          : const SizedBox.shrink(),
     ),
   );
 }

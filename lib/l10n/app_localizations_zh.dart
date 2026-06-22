@@ -136,6 +136,52 @@ class AppLocalizationsZh extends AppLocalizations {
       '[ 策略指南 ]\n\n本策略不会一次性将全部资产投入QLD。\n\n初始阶段只投入部分资产，其余资金以现金形式持有，为市场大幅下跌做好准备。\n\n持有现金的力量\n\n持有现金不是为了提高收益，而是为了在下跌市场中保持冷静与纪律，留出心理余地。\n\n比追求最高收益率更重要的，是建立一个能够将复利坚持到底的投资系统。\n\n示例：\n- 仅将初始资产的70%投入QLD\n- 剩余30%持有现金\n\nQLD是一只追踪纳斯达克100指数约2倍日内涨跌幅的ETF。\n\n因此，在初始状态下：\n2倍杠杆 × 70%投资比例 = 整体约1.4倍的市场敞口。\n\n例如：\n- 纳斯达克 +1%\n→ 总资产约 +1.4%\n\n当市场出现大幅下跌时，持有的现金将分阶段用于追加买入。\n\n示例：\n- 在QLD下跌约40%的区域追加买入\n\n这样可以在较低价格积累更多份额，并在市场恢复时显著降低平均买入成本。\n\n因此，与简单持有策略相比，本策略可能在恢复阶段获得更高收益。\n\n本策略的核心是：\n- 在上涨市场中利用现金降低波动\n- 在大幅下跌时使用现金追加买入并降低平均成本。';
 
   @override
+  String get basePositionIntro =>
+      '这是一种不一次性投入全部资金，而是同时持有 QLD 和现金的基础策略。上涨时降低波动，市场大跌时保留追加买入的空间。';
+
+  @override
+  String get basePositionQldAllocationLabel => 'QLD 基础持仓';
+
+  @override
+  String get basePositionCashAllocationLabel => '备用现金';
+
+  @override
+  String get basePositionCorePrinciple => '核心原则';
+
+  @override
+  String get basePositionCashTitle => '现金不是拖累收益的钱';
+
+  @override
+  String get basePositionCashText => '现金是在大幅下跌中保持纪律，并以更低价格追加买入的安全余地。';
+
+  @override
+  String get basePositionInitialLeverageTitle => '初始波动约为 1.4 倍';
+
+  @override
+  String get basePositionInitialLeverageText =>
+      'QLD 大约追踪纳斯达克100的 2 倍波动。仅将 70% 资产配置在 QLD，整体资产波动会降至约 1.4 倍。';
+
+  @override
+  String get basePositionStepLeverageTitle => '下跌区间会逐步提高倍数';
+
+  @override
+  String get basePositionStepLeverageText =>
+      '从 -20%~-30% 区间开始加入 TQQQ 摊低成本，整体波动可升至约 1.8 倍。在最深下跌区间，可能提高到约 2.3 倍。';
+
+  @override
+  String get basePositionLowAverageTitle => '恐惧越强，越要建立更低均价';
+
+  @override
+  String get basePositionLowAverageText =>
+      '本应用的结构是：下跌越深，越用备用现金分阶段追加买入 TQQQ。在低位区间增加份额，之后大幅反弹时可更强地拉动收益率。';
+
+  @override
+  String get basePositionSummaryTitle => '总结';
+
+  @override
+  String get basePositionSummaryText => '目标不是猜中最高收益，而是在下跌市场中也能坚持计划，让复利持续更久。';
+
+  @override
   String get buySignalMessage => '买入信号会自动显示在这里。';
 
   @override
@@ -224,7 +270,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get minus20Title => '-20% 策略';
 
   @override
-  String get minus20Headline => '开始少量定投 TQQQ';
+  String get minus20Headline => '每周用1%现金开始定投TQQQ';
 
   @override
   String get minus20OverviewTitle => 'Strategy Overview';
@@ -457,6 +503,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get alertSettingsTitle => '通知设置';
 
   @override
+  String get alertSettingsCloseBasisNote => '提醒会根据收盘价发送。';
+
+  @override
   String get alertHighTitle => '新高提醒';
 
   @override
@@ -505,25 +554,28 @@ class AppLocalizationsZh extends AppLocalizations {
   String get minus20ActionTitle => '立即行动';
 
   @override
-  String get minus20ActionText => '以很小金额开始分批定投TQQQ。不要一次投入大额资金。';
+  String get minus20ActionText => '每周只使用总现金的1%，以零股方式定投TQQQ。不要一次投入大额资金。';
 
   @override
-  String get minus20BuyRuleTitle => '买入规则';
+  String get minus20BuyRuleTitle => '目的';
 
   @override
-  String get minus20BuyRuleText => '只使用总现金中很小的一部分。重点不是大举进场，而是开始节奏。';
+  String get minus20BuyRuleText =>
+      '从-20%区间开始设置，是为了在市场横盘时也能少量累积，逐步降低TQQQ平均成本。重点不是马上抓到利润，而是建立更低的平均成本。';
 
   @override
   String get minus20CashTitle => '现金管理';
 
   @override
-  String get minus20CashText => '大部分现金必须保留，用于应对-30%、-40%、-50%区间。';
+  String get minus20CashText =>
+      '大部分现金仍要保留给-30%、-40%、-50%区间。即使在-50%时用完计划现金，之后新增现金也通过每周定投继续降低平均成本。';
 
   @override
-  String get minus20AvoidTitle => '避免';
+  String get minus20AvoidTitle => '卖出标准';
 
   @override
-  String get minus20AvoidText => '不要激进买入TQQQ。-20%仍只是初期区间。';
+  String get minus20AvoidText =>
+      '这个区间累积的TQQQ不在每次短线反弹时卖出。应视为以后创出新高并整理TQQQ仓位时一起处理的部分。';
 
   @override
   String get minus30ActionTitle => '立即行动';
@@ -847,6 +899,95 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get investmentCurrencyRussiaRub => '俄罗斯 RUB';
+
+  @override
+  String get contentTitle => '内容';
+
+  @override
+  String get contentInquiry => '咨询';
+
+  @override
+  String get contentCloseGuess => '收盘价竞猜';
+
+  @override
+  String get contentStockQuote => '今日股票名言';
+
+  @override
+  String get contentNumberGuess => '猜数字';
+
+  @override
+  String get contentBookReader => '阅读书籍';
+
+  @override
+  String get contentStockMeme => '股票梗图';
+
+  @override
+  String get contentLottoNumbers => '彩票号码推荐';
+
+  @override
+  String get contentJumpDodge => '跳跃躲避游戏';
+
+  @override
+  String get stockQuoteTitle => '今日股票名言';
+
+  @override
+  String get stockQuoteTapHint => '点击可查看另一句话。';
+
+  @override
+  String get stockQuoteShuffle => '查看另一句名言';
+
+  @override
+  String get usageGuideTitle => '应用使用方法';
+
+  @override
+  String get usageGuideSubtitle => '长期纳斯达克2倍杠杆策略规则';
+
+  @override
+  String get usageGuideCardTitle => '应用使用方法';
+
+  @override
+  String get usageGuideCardSubtitle => '基础仓位、下跌区间、买入记录、辅助指标';
+
+  @override
+  String get usageGuideWhatAppTitle => '这是什么应用？';
+
+  @override
+  String get usageGuideWhatAppBody =>
+      '这个应用是面向长期纳斯达克2倍杠杆投资者的行动规则指南。\n\n它会自动计算当前价格相对历史最高点的回撤幅度，帮助确认当前位置，并为不同区间提供对应的投资策略。\n\n它帮助你不被市场的恐惧和贪婪左右，持续执行计划好的投资原则。';
+
+  @override
+  String get usageGuideNoBuyTitle => '1. 先阅读基础仓位和策略';
+
+  @override
+  String get usageGuideNoBuyBody =>
+      '先点击主画面的“基础仓位卡片”，阅读如何准备。同时点击右下角的“策略”标签，了解详细策略。';
+
+  @override
+  String get usageGuideStrategyTitle => '2. 查看下跌区间自动策略';
+
+  @override
+  String get usageGuideStrategyBody =>
+      '主画面第三张卡片会自动计算QLD相比历史最高价下跌了百分之几。对应策略会自动显示，满足条件时也会发送提醒。';
+
+  @override
+  String get usageGuideIndicatorsTitle => '四个辅助指标';
+
+  @override
+  String get usageGuideIndicatorsBody =>
+      'CNN F&G显示市场情绪更偏恐惧还是贪婪。\n\nVIX显示市场波动和不安程度，数字越高通常代表市场越紧张。\n\n美国主要日程包括NFP、CPI、FOMC。NFP看就业，CPI看通胀，FOMC看利率方向。这些结果可能让纳斯达克和QLD大幅波动。\n\n10年国债收益率是美国10年期国债利率。快速上升时，可能对成长股、纳斯达克和QLD形成压力。';
+
+  @override
+  String get usageGuideQldTitle => '3. 买入后记录到投资组合';
+
+  @override
+  String get usageGuideQldBody =>
+      '参考显示的策略和金额，在自己使用的券商买入。买入后，在应用的投资组合中记录数量、平均价格和现金。';
+
+  @override
+  String get usageGuideDisclaimer => '本应用内容仅供投资参考，不保证收益。';
+
+  @override
+  String get usageGuideConfirm => '确定';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).
@@ -981,6 +1122,52 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
       '[ 策略指南 ]\n\n本策略不會一次將全部資產投入QLD。\n\n初始階段只投入部分資產，其餘資金以現金形式持有，為市場大幅下跌做好準備。\n\n持有現金的力量\n\n持有現金不是為了提高報酬，而是為了在下跌市場中保持冷靜與紀律，保留心理餘裕。\n\n比追求最高報酬率更重要的，是建立一套能將複利持續到底的投資系統。\n\n範例：\n- 僅將初始資產的70%投入QLD\n- 剩餘30%持有現金\n\nQLD是一檔追蹤那斯達克100指數約2倍每日漲跌幅的ETF。\n\n因此，在初始狀態下：\n2倍槓桿 × 70%投資比例 = 整體約1.4倍的市場曝險。\n\n例如：\n- 那斯達克 +1%\n→ 總資產約 +1.4%\n\n當市場出現大幅下跌時，持有的現金將分階段用於追加買入。\n\n範例：\n- 在QLD下跌約40%的區域追加買入\n\n如此可在較低價格累積更多部位，並在市場復甦時顯著降低平均買入成本。\n\n因此，與單純持有策略相比，本策略可能在復甦階段獲得更高報酬。\n\n本策略的核心是：\n- 在上漲市場中利用現金降低波動\n- 在大幅下跌時使用現金追加買入並降低平均成本。';
 
   @override
+  String get basePositionIntro =>
+      '這是一種不一次投入全部資金，而是同時持有 QLD 和現金的基礎策略。上漲時降低波動，市場大跌時保留追加買入的空間。';
+
+  @override
+  String get basePositionQldAllocationLabel => 'QLD 基礎持倉';
+
+  @override
+  String get basePositionCashAllocationLabel => '備用現金';
+
+  @override
+  String get basePositionCorePrinciple => '核心原則';
+
+  @override
+  String get basePositionCashTitle => '現金不是拖累報酬的資金';
+
+  @override
+  String get basePositionCashText => '現金是在大幅下跌中保持紀律，並以更低價格追加買入的安全餘裕。';
+
+  @override
+  String get basePositionInitialLeverageTitle => '初始波動約為 1.4 倍';
+
+  @override
+  String get basePositionInitialLeverageText =>
+      'QLD 約追蹤那斯達克100的 2 倍波動。僅將 70% 資產配置在 QLD，整體資產波動會降至約 1.4 倍。';
+
+  @override
+  String get basePositionStepLeverageTitle => '下跌區間會逐步提高倍數';
+
+  @override
+  String get basePositionStepLeverageText =>
+      '從 -20%~-30% 區間開始加入 TQQQ 攤低成本，整體波動可升至約 1.8 倍。在最深下跌區間，可能提高到約 2.3 倍。';
+
+  @override
+  String get basePositionLowAverageTitle => '恐懼越強，越要建立更低均價';
+
+  @override
+  String get basePositionLowAverageText =>
+      '本應用的結構是：下跌越深，越用備用現金分階段追加買入 TQQQ。在低位區間增加部位，之後大幅反彈時可更強地拉動報酬率。';
+
+  @override
+  String get basePositionSummaryTitle => '總結';
+
+  @override
+  String get basePositionSummaryText => '目標不是猜中最高報酬，而是在下跌市場中也能堅持計畫，讓複利持續更久。';
+
+  @override
   String get buySignalMessage => '買入信號會自動顯示在這裡。';
 
   @override
@@ -1069,7 +1256,7 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get minus20Title => '-20% 策略';
 
   @override
-  String get minus20Headline => '開始少量定投 TQQQ';
+  String get minus20Headline => '每週用1%現金開始定投TQQQ';
 
   @override
   String get minus20OverviewTitle => 'Strategy Overview';
@@ -1302,6 +1489,9 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get alertSettingsTitle => '通知設定';
 
   @override
+  String get alertSettingsCloseBasisNote => '通知會以收盤價為基準發送。';
+
+  @override
   String get alertHighTitle => '新高提醒';
 
   @override
@@ -1350,25 +1540,28 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get minus20ActionTitle => '立即行动';
 
   @override
-  String get minus20ActionText => '以很小金额开始分批定投TQQQ。不要一次投入大额资金。';
+  String get minus20ActionText => '每週只使用總現金的1%，以零股方式定投TQQQ。不要一次投入大額資金。';
 
   @override
-  String get minus20BuyRuleTitle => '买入规则';
+  String get minus20BuyRuleTitle => '目的';
 
   @override
-  String get minus20BuyRuleText => '只使用总现金中很小的一部分。重点不是大举进场，而是开始节奏。';
+  String get minus20BuyRuleText =>
+      '從-20%區間開始設定，是為了在市場橫盤時也能少量累積，逐步降低TQQQ平均成本。重點不是馬上抓到獲利，而是建立更低的平均成本。';
 
   @override
   String get minus20CashTitle => '现金管理';
 
   @override
-  String get minus20CashText => '大部分现金必须保留，用于应对-30%、-40%、-50%区间。';
+  String get minus20CashText =>
+      '大部分現金仍要保留給-30%、-40%、-50%區間。即使在-50%時用完計畫現金，之後新增現金也透過每週定投繼續降低平均成本。';
 
   @override
-  String get minus20AvoidTitle => '避免';
+  String get minus20AvoidTitle => '賣出標準';
 
   @override
-  String get minus20AvoidText => '不要激进买入TQQQ。-20%仍只是初期区间。';
+  String get minus20AvoidText =>
+      '這個區間累積的TQQQ不在每次短線反彈時賣出。應視為之後創新高並整理TQQQ部位時一起處理的部分。';
 
   @override
   String get minus30ActionTitle => '立即行动';
@@ -1692,4 +1885,93 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get investmentCurrencyRussiaRub => '俄羅斯 RUB';
+
+  @override
+  String get contentTitle => '內容';
+
+  @override
+  String get contentInquiry => '諮詢';
+
+  @override
+  String get contentCloseGuess => '收盤價猜測';
+
+  @override
+  String get contentStockQuote => '今日股票名言';
+
+  @override
+  String get contentNumberGuess => '猜數字';
+
+  @override
+  String get contentBookReader => '閱讀書籍';
+
+  @override
+  String get contentStockMeme => '股票迷因';
+
+  @override
+  String get contentLottoNumbers => '樂透號碼推薦';
+
+  @override
+  String get contentJumpDodge => '跳躍閃避遊戲';
+
+  @override
+  String get stockQuoteTitle => '今日股票名言';
+
+  @override
+  String get stockQuoteTapHint => '點一下可查看另一句話。';
+
+  @override
+  String get stockQuoteShuffle => '查看另一句名言';
+
+  @override
+  String get usageGuideTitle => 'App 使用方法';
+
+  @override
+  String get usageGuideSubtitle => '長期那斯達克2倍槓桿策略規則';
+
+  @override
+  String get usageGuideCardTitle => 'App 使用方法';
+
+  @override
+  String get usageGuideCardSubtitle => '基礎部位、下跌區間、買入紀錄、輔助指標';
+
+  @override
+  String get usageGuideWhatAppTitle => '這是什麼 App？';
+
+  @override
+  String get usageGuideWhatAppBody =>
+      '這個 App 是面向長期那斯達克2倍槓桿投資者的行動規則指南。\n\n它會自動計算目前價格相對歷史最高點的回撤幅度，幫助確認目前位置，並為不同區間提供對應的投資策略。\n\n它幫助你不被市場的恐懼與貪婪左右，持續執行計畫好的投資原則。';
+
+  @override
+  String get usageGuideNoBuyTitle => '1. 先閱讀基礎部位和策略';
+
+  @override
+  String get usageGuideNoBuyBody =>
+      '先點擊主畫面的「基礎部位卡片」，閱讀如何準備。同時點擊右下角的「策略」分頁，了解詳細策略。';
+
+  @override
+  String get usageGuideStrategyTitle => '2. 查看下跌區間自動策略';
+
+  @override
+  String get usageGuideStrategyBody =>
+      '主畫面第三張卡片會自動計算QLD相較歷史最高價下跌了百分之幾。對應策略會自動顯示，符合條件時也會發送提醒。';
+
+  @override
+  String get usageGuideIndicatorsTitle => '四個輔助指標';
+
+  @override
+  String get usageGuideIndicatorsBody =>
+      'CNN F&G顯示市場情緒更偏恐懼還是貪婪。\n\nVIX顯示市場波動和不安程度，數字越高通常代表市場越緊張。\n\n美國主要日程包括NFP、CPI、FOMC。NFP看就業，CPI看通膨，FOMC看利率方向。這些結果可能讓那斯達克和QLD大幅波動。\n\n10年國債殖利率是美國10年期國債利率。快速上升時，可能對成長股、那斯達克和QLD形成壓力。';
+
+  @override
+  String get usageGuideQldTitle => '3. 買入後記錄到投資組合';
+
+  @override
+  String get usageGuideQldBody =>
+      '參考顯示的策略和金額，在自己使用的券商買入。買入後，在 App 的投資組合中記錄數量、平均價格和現金。';
+
+  @override
+  String get usageGuideDisclaimer => '本 App 內容僅供投資參考，不保證收益。';
+
+  @override
+  String get usageGuideConfirm => '確定';
 }

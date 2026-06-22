@@ -137,6 +137,58 @@ class AppLocalizationsPt extends AppLocalizations {
       '[ Guia da estratégia ]\n\nEsta estratégia não investe todos os ativos em QLD de uma só vez.\n\nNo início, apenas parte dos ativos é investida, enquanto o restante é mantido em caixa para enfrentar grandes quedas do mercado.\n\nO poder de manter caixa\n\nO caixa não é mantido para aumentar o retorno, mas para preservar a tranquilidade e a disciplina mesmo durante uma queda do mercado.\n\nMais importante do que obter o maior retorno possível é ter um sistema de investimento capaz de manter os juros compostos até o fim.\n\nExemplo:\n- Investir apenas 70% dos ativos iniciais em QLD\n- Manter os 30% restantes em caixa\n\nQLD é um ETF que acompanha aproximadamente 2 vezes o movimento diário do índice Nasdaq-100.\n\nPortanto, no estado inicial:\nalavancagem de 2x × investimento de 70% = exposição total aproximada de 1,4x.\n\nPor exemplo:\n- Nasdaq +1%\n→ Ativos totais em torno de +1,4%\n\nQuando ocorre uma grande queda, o caixa disponível é usado gradualmente para compras adicionais.\n\nExemplo:\n- Compra adicional perto da zona de -40% do QLD\n\nIsso permite acumular mais cotas a preços menores e reduzir significativamente o preço médio quando o mercado se recupera.\n\nComo resultado, esta estratégia pode gerar retornos maiores durante a recuperação do que uma estratégia simples de manter a posição.\n\nO núcleo desta estratégia é:\n- Reduzir a volatilidade com caixa durante mercados de alta\n- Usar o caixa para comprar mais durante grandes quedas e reduzir o preço médio.';
 
   @override
+  String get basePositionIntro =>
+      'Esta estratégia base não investe tudo de uma vez. Ela mantém QLD junto com caixa, reduz oscilações em mercados de alta e preserva espaço para comprar mais em grandes quedas.';
+
+  @override
+  String get basePositionQldAllocationLabel => 'Posição base em QLD';
+
+  @override
+  String get basePositionCashAllocationLabel => 'Reserva em caixa';
+
+  @override
+  String get basePositionCorePrinciple => 'Princípios centrais';
+
+  @override
+  String get basePositionCashTitle =>
+      'Caixa não é dinheiro que apenas reduz retorno';
+
+  @override
+  String get basePositionCashText =>
+      'É margem de segurança para manter disciplina em grandes quedas e comprar mais a preços menores.';
+
+  @override
+  String get basePositionInitialLeverageTitle =>
+      'O movimento inicial é de cerca de 1,4x';
+
+  @override
+  String get basePositionInitialLeverageText =>
+      'QLD acompanha aproximadamente 2 vezes o Nasdaq-100. Com apenas 70% dos ativos em QLD, o movimento total da carteira cai para cerca de 1,4x.';
+
+  @override
+  String get basePositionStepLeverageTitle =>
+      'Nas quedas, a alavancagem sobe por etapas';
+
+  @override
+  String get basePositionStepLeverageText =>
+      'Das zonas de -20% a -30%, adicionar TQQQ pode elevar o movimento total para cerca de 1,8x. Nas zonas de queda mais profundas, pode se aproximar de 2,3x.';
+
+  @override
+  String get basePositionLowAverageTitle =>
+      'Quanto maior o medo, menor pode ficar o preço médio';
+
+  @override
+  String get basePositionLowAverageText =>
+      'O app é estruturado para usar caixa e comprar TQQQ gradualmente conforme a queda se aprofunda. Aumentar a quantidade em zonas baixas pode fortalecer o retorno no rebote posterior.';
+
+  @override
+  String get basePositionSummaryTitle => 'Resumo';
+
+  @override
+  String get basePositionSummaryText =>
+      'O objetivo não é acertar o maior retorno. É manter um plano durante as quedas e permitir que os juros compostos continuem por mais tempo.';
+
+  @override
   String get buySignalMessage => 'Os sinais de compra aparecerão aqui.';
 
   @override
@@ -226,7 +278,7 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get minus20Headline =>
-      'Iniciar compras fracionadas recorrentes de TQQQ';
+      'Iniciar acúmulo semanal de TQQQ com 1% do caixa';
 
   @override
   String get minus20OverviewTitle => 'Strategy Overview';
@@ -461,6 +513,10 @@ class AppLocalizationsPt extends AppLocalizations {
   String get alertSettingsTitle => 'Configurações de alerta';
 
   @override
+  String get alertSettingsCloseBasisNote =>
+      'Os alertas são enviados com base no preço de fechamento.';
+
+  @override
   String get alertHighTitle => 'Alerta de nova máxima';
 
   @override
@@ -517,28 +573,28 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get minus20ActionText =>
-      'Comece compras fracionadas muito pequenas de TQQQ. Não coloque muito dinheiro de uma vez.';
+      'Use apenas 1% do caixa total uma vez por semana para acumular TQQQ fracionado. Não coloque muito dinheiro de uma vez.';
 
   @override
-  String get minus20BuyRuleTitle => 'Regra de compra';
+  String get minus20BuyRuleTitle => 'Objetivo';
 
   @override
   String get minus20BuyRuleText =>
-      'Use apenas uma pequena parte do caixa total. O objetivo é iniciar o ritmo, não uma grande entrada.';
+      'Esta configuração começa na zona de -20% para que, se o mercado andar de lado, pequenas compras recorrentes reduzam gradualmente o preço médio de TQQQ. O objetivo não é acertar lucro imediato, mas construir uma base de custo menor.';
 
   @override
   String get minus20CashTitle => 'Gestão de caixa';
 
   @override
   String get minus20CashText =>
-      'A maior parte do caixa deve ficar disponível para as zonas -30%, -40% e -50%.';
+      'A maior parte do caixa deve ficar disponível para as zonas -30%, -40% e -50%. Mesmo após usar todo o caixa planejado em -50%, novo caixa pode continuar reduzindo o preço médio com acúmulo semanal.';
 
   @override
-  String get minus20AvoidTitle => 'Evitar';
+  String get minus20AvoidTitle => 'Plano de saída';
 
   @override
   String get minus20AvoidText =>
-      'Não compre TQQQ agressivamente. A zona -20% ainda é apenas o começo.';
+      'Não venda essas cotas de TQQQ a cada repique curto. Trate-as como parte da posição a encerrar depois, quando houver nova máxima e a posição em TQQQ for reduzida.';
 
   @override
   String get minus30ActionTitle => 'Ação imediata';
@@ -898,4 +954,98 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get investmentCurrencyRussiaRub => 'Rússia RUB';
+
+  @override
+  String get contentTitle => 'Conteudo';
+
+  @override
+  String get contentInquiry => 'Consultas';
+
+  @override
+  String get contentCloseGuess => 'Adivinhar fechamento';
+
+  @override
+  String get contentStockQuote => 'Frases do mercado';
+
+  @override
+  String get contentNumberGuess => 'Adivinhe o numero';
+
+  @override
+  String get contentBookReader => 'Leitor de livros';
+
+  @override
+  String get contentStockMeme => 'Meme de acoes';
+
+  @override
+  String get contentLottoNumbers => 'Numeros da loteria';
+
+  @override
+  String get contentJumpDodge => 'Jogo de pular e desviar';
+
+  @override
+  String get stockQuoteTitle => 'Frases do mercado';
+
+  @override
+  String get stockQuoteTapHint => 'Toque para ver outra frase.';
+
+  @override
+  String get stockQuoteShuffle => 'Ver outra frase';
+
+  @override
+  String get usageGuideTitle => 'Como usar o app';
+
+  @override
+  String get usageGuideSubtitle =>
+      'Regras para uma estratégia Nasdaq 2x de longo prazo';
+
+  @override
+  String get usageGuideCardTitle => 'Como usar o app';
+
+  @override
+  String get usageGuideCardSubtitle =>
+      'Posição base, zonas de queda, registros, indicadores';
+
+  @override
+  String get usageGuideWhatAppTitle => 'O que é este app?';
+
+  @override
+  String get usageGuideWhatAppBody =>
+      'Este app é um guia de regras para investidores em Nasdaq 2x com visão de longo prazo.\n\nEle calcula automaticamente a queda atual em relação ao topo histórico para mostrar a posição do mercado e oferece uma estratégia para cada zona.\n\nAjuda a manter os princípios de investimento planejados sem se deixar levar pelo medo ou pela ganância do mercado.';
+
+  @override
+  String get usageGuideNoBuyTitle =>
+      '1. Leia primeiro a posição base e a estratégia';
+
+  @override
+  String get usageGuideNoBuyBody =>
+      'Toque no cartão de Posição base na tela principal e leia como se preparar. Também veja a aba Estratégia no canto inferior direito.';
+
+  @override
+  String get usageGuideStrategyTitle =>
+      '2. Confira a estratégia automática por queda';
+
+  @override
+  String get usageGuideStrategyBody =>
+      'O terceiro cartão calcula automaticamente quanto o QLD está abaixo do topo histórico. A estratégia correspondente aparece e alertas chegam quando as condições são atendidas.';
+
+  @override
+  String get usageGuideIndicatorsTitle => 'Quatro indicadores de apoio';
+
+  @override
+  String get usageGuideIndicatorsBody =>
+      'CNN F&G mostra se o sentimento do mercado está mais perto do medo ou da ganância.\n\nVIX mostra a volatilidade do mercado. Número maior costuma indicar mais ansiedade.\n\nEventos importantes dos EUA incluem NFP, CPI e FOMC. NFP mede emprego, CPI mede inflação e FOMC indica a direção dos juros. Eles podem mover forte Nasdaq e QLD.\n\nO rendimento do título de 10 anos é a taxa do Tesouro dos EUA de 10 anos. Alta rápida pode pressionar ações de crescimento, Nasdaq e QLD.';
+
+  @override
+  String get usageGuideQldTitle => '3. Compre e registre no portfólio';
+
+  @override
+  String get usageGuideQldBody =>
+      'Use a estratégia e o valor como guia, compre na sua corretora e depois registre quantidade, preço médio e caixa no portfólio do app.';
+
+  @override
+  String get usageGuideDisclaimer =>
+      'Este app é apenas referência de investimento e não garante lucro.';
+
+  @override
+  String get usageGuideConfirm => 'OK';
 }

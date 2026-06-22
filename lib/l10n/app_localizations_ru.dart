@@ -137,6 +137,57 @@ class AppLocalizationsRu extends AppLocalizations {
       '[ Руководство по стратегии ]\n\nЭта стратегия не предполагает вложение всех активов в QLD одновременно.\n\nВначале инвестируется только часть активов, а остальные средства хранятся в денежной форме для подготовки к сильному падению рынка.\n\nСила денежного резерва\n\nДенежный резерв нужен не для повышения доходности, а для сохранения спокойствия и дисциплины даже во время падения рынка.\n\nВажнее максимальной доходности иметь инвестиционную систему, способную поддерживать сложный процент до конца.\n\nПример:\n- Инвестировать в QLD только 70% начальных активов\n- Оставить остальные 30% в денежном резерве\n\nQLD — это ETF, который отслеживает примерно двойное дневное движение индекса Nasdaq-100.\n\nПоэтому в начальном состоянии:\nплечо 2x × инвестиция 70% = общая экспозиция около 1,4x.\n\nНапример:\n- Nasdaq +1%\n→ Общие активы около +1,4%\n\nПри сильном падении рынка денежный резерв постепенно используется для дополнительных покупок.\n\nПример:\n- Дополнительная покупка в районе падения QLD на 40%\n\nЭто позволяет приобрести больше паёв по низким ценам и значительно снизить среднюю цену входа при восстановлении рынка.\n\nВ результате во время восстановления эта стратегия может дать более высокую доходность, чем простое удержание позиции.\n\nОснова этой стратегии:\n- Снижать волатильность с помощью денежного резерва во время роста рынка\n- Использовать резерв для дополнительных покупок во время сильных падений и снижать среднюю цену.';
 
   @override
+  String get basePositionIntro =>
+      'Эта базовая стратегия не вкладывает все средства сразу. Она держит QLD вместе с кэшем, снижает колебания на растущем рынке и оставляет запас для докупок при сильных падениях.';
+
+  @override
+  String get basePositionQldAllocationLabel => 'Базовая доля QLD';
+
+  @override
+  String get basePositionCashAllocationLabel => 'Резерв кэша';
+
+  @override
+  String get basePositionCorePrinciple => 'Ключевые принципы';
+
+  @override
+  String get basePositionCashTitle => 'Кэш не просто снижает доходность';
+
+  @override
+  String get basePositionCashText =>
+      'Это запас прочности, чтобы сохранять дисциплину при сильных падениях и покупать больше по низким ценам.';
+
+  @override
+  String get basePositionInitialLeverageTitle =>
+      'Начальное движение около 1,4x';
+
+  @override
+  String get basePositionInitialLeverageText =>
+      'QLD примерно в 2 раза повторяет движение Nasdaq-100. Если только 70% активов находится в QLD, общее движение портфеля снижается примерно до 1,4x.';
+
+  @override
+  String get basePositionStepLeverageTitle =>
+      'При падениях плечо повышается поэтапно';
+
+  @override
+  String get basePositionStepLeverageText =>
+      'Начиная с зон -20% и -30%, добавление TQQQ может поднять общее движение примерно до 1,8x. В самых глубоких зонах падения оно может приблизиться к 2,3x.';
+
+  @override
+  String get basePositionLowAverageTitle =>
+      'Чем сильнее страх, тем ниже может стать средняя цена';
+
+  @override
+  String get basePositionLowAverageText =>
+      'Приложение построено так, чтобы при углублении падения поэтапно использовать кэш для докупки TQQQ. Набор большего количества долей в низких зонах может усилить доходность при последующем отскоке.';
+
+  @override
+  String get basePositionSummaryTitle => 'Итог';
+
+  @override
+  String get basePositionSummaryText =>
+      'Цель не в том, чтобы угадать максимальную доходность. Цель — сохранить план во время падений и дать сложному проценту работать дольше.';
+
+  @override
   String get buySignalMessage => 'Сигналы покупки появятся здесь.';
 
   @override
@@ -225,7 +276,8 @@ class AppLocalizationsRu extends AppLocalizations {
   String get minus20Title => 'Стратегия -20%';
 
   @override
-  String get minus20Headline => 'Начать дробные регулярные покупки TQQQ';
+  String get minus20Headline =>
+      'Начать еженедельное накопление TQQQ на 1% кэша';
 
   @override
   String get minus20OverviewTitle => 'Strategy Overview';
@@ -459,6 +511,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get alertSettingsTitle => 'Настройки уведомлений';
 
   @override
+  String get alertSettingsCloseBasisNote =>
+      'Уведомления отправляются на основе цены закрытия.';
+
+  @override
   String get alertHighTitle => 'Уведомление о новом максимуме';
 
   @override
@@ -516,28 +572,28 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get minus20ActionText =>
-      'Начните очень маленькие регулярные покупки TQQQ. Не вкладывайте крупную сумму сразу.';
+      'Раз в неделю используйте только 1% общего кэша для дробного накопления TQQQ. Не вкладывайте крупную сумму сразу.';
 
   @override
-  String get minus20BuyRuleTitle => 'Правило покупки';
+  String get minus20BuyRuleTitle => 'Цель';
 
   @override
   String get minus20BuyRuleText =>
-      'Используйте только малую часть наличных. Цель — начать ритм, а не сделать крупный вход.';
+      'Эта настройка начинается в зоне -20%, чтобы при боковом рынке небольшие регулярные покупки постепенно снижали среднюю цену TQQQ. Цель — не угадать мгновенную прибыль, а создать более низкую среднюю стоимость.';
 
   @override
   String get minus20CashTitle => 'Управление наличными';
 
   @override
   String get minus20CashText =>
-      'Большая часть наличных должна остаться для зон -30%, -40% и -50%.';
+      'Большая часть кэша должна остаться для зон -30%, -40% и -50%. Даже после полного использования планового кэша на -50% новый кэш может продолжать снижать среднюю цену через еженедельное накопление.';
 
   @override
-  String get minus20AvoidTitle => 'Избегать';
+  String get minus20AvoidTitle => 'План выхода';
 
   @override
   String get minus20AvoidText =>
-      'Не покупайте TQQQ агрессивно. Зона -20% все еще ранняя.';
+      'Не продавайте эти доли TQQQ на каждом коротком отскоке. Рассматривайте их как часть позиции, которую позже закрывают вместе с сокращением TQQQ после нового максимума.';
 
   @override
   String get minus30ActionTitle => 'Немедленное действие';
@@ -899,4 +955,98 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get investmentCurrencyRussiaRub => 'Россия RUB';
+
+  @override
+  String get contentTitle => 'Контент';
+
+  @override
+  String get contentInquiry => 'Вопросы';
+
+  @override
+  String get contentCloseGuess => 'Угадать закрытие';
+
+  @override
+  String get contentStockQuote => 'Биржевые цитаты';
+
+  @override
+  String get contentNumberGuess => 'Угадай число';
+
+  @override
+  String get contentBookReader => 'Чтение книг';
+
+  @override
+  String get contentStockMeme => 'Биржевой мем';
+
+  @override
+  String get contentLottoNumbers => 'Номера лотереи';
+
+  @override
+  String get contentJumpDodge => 'Игра: прыгай и уклоняйся';
+
+  @override
+  String get stockQuoteTitle => 'Биржевые цитаты';
+
+  @override
+  String get stockQuoteTapHint => 'Нажмите, чтобы увидеть другую цитату.';
+
+  @override
+  String get stockQuoteShuffle => 'Другая цитата';
+
+  @override
+  String get usageGuideTitle => 'Как пользоваться приложением';
+
+  @override
+  String get usageGuideSubtitle =>
+      'Правила для долгосрочной стратегии Nasdaq 2x';
+
+  @override
+  String get usageGuideCardTitle => 'Как пользоваться приложением';
+
+  @override
+  String get usageGuideCardSubtitle =>
+      'Базовая позиция, зоны падения, записи, индикаторы';
+
+  @override
+  String get usageGuideWhatAppTitle => 'Что это за приложение?';
+
+  @override
+  String get usageGuideWhatAppBody =>
+      'Это приложение служит руководством по правилам для инвесторов в Nasdaq 2x с долгосрочным подходом.\n\nОно автоматически рассчитывает текущее снижение от исторического максимума, помогает понять текущую позицию рынка и предлагает стратегию для каждой зоны.\n\nОно помогает придерживаться заранее выбранных инвестиционных принципов, не поддаваясь рыночному страху или жадности.';
+
+  @override
+  String get usageGuideNoBuyTitle =>
+      '1. Сначала изучите базовую позицию и стратегию';
+
+  @override
+  String get usageGuideNoBuyBody =>
+      'На главном экране нажмите карточку базовой позиции и прочитайте, как подготовиться. Также откройте вкладку Стратегия внизу справа.';
+
+  @override
+  String get usageGuideStrategyTitle =>
+      '2. Проверьте автоматическую стратегию по зоне';
+
+  @override
+  String get usageGuideStrategyBody =>
+      'Третья карточка автоматически считает, на сколько процентов QLD ниже исторического максимума. Подходящая стратегия показывается автоматически, а при выполнении условий приходят уведомления.';
+
+  @override
+  String get usageGuideIndicatorsTitle => 'Четыре вспомогательных индикатора';
+
+  @override
+  String get usageGuideIndicatorsBody =>
+      'CNN F&G показывает, ближе рынок к страху или жадности.\n\nVIX показывает волатильность рынка. Чем выше число, тем выше тревога.\n\nК важным событиям США относятся NFP, CPI и FOMC. NFP показывает занятость, CPI — инфляцию, FOMC — направление ставок. Эти события могут сильно двигать Nasdaq и QLD.\n\nДоходность 10-летних облигаций — это ставка по 10-летним казначейским облигациям США. Быстрый рост может давить на акции роста, Nasdaq и QLD.';
+
+  @override
+  String get usageGuideQldTitle => '3. Купите и запишите в портфель';
+
+  @override
+  String get usageGuideQldBody =>
+      'Используйте стратегию и сумму как ориентир, купите через своего брокера, затем запишите количество, среднюю цену и наличные в портфеле приложения.';
+
+  @override
+  String get usageGuideDisclaimer =>
+      'Это приложение только для справки и не гарантирует прибыль.';
+
+  @override
+  String get usageGuideConfirm => 'OK';
 }

@@ -37,6 +37,7 @@ class StrategyPage extends StatelessWidget {
           buildStrategyCard(
             context: context,
             color: Colors.blueGrey,
+            icon: Icons.pause_circle_outline_rounded,
             percent: '0% ~ -20%',
             text: AppLocalizations.of(context)!.noBuyZone,
             page: const NoBuyZonePage(),
@@ -44,6 +45,7 @@ class StrategyPage extends StatelessWidget {
           buildStrategyCard(
             context: context,
             color: Colors.green,
+            icon: Icons.savings_outlined,
             percent: '-20%',
             text: AppLocalizations.of(context)!.minus20Headline,
             page: const Minus20Page(),
@@ -51,6 +53,7 @@ class StrategyPage extends StatelessWidget {
           buildStrategyCard(
             context: context,
             color: Colors.orange,
+            icon: Icons.trending_down_rounded,
             percent: '-30%',
             text: AppLocalizations.of(context)!.minus30Headline,
             page: const Minus30Page(),
@@ -58,6 +61,7 @@ class StrategyPage extends StatelessWidget {
           buildStrategyCard(
             context: context,
             color: Colors.red,
+            icon: Icons.warning_amber_rounded,
             percent: '-40%',
             text: AppLocalizations.of(context)!.minus40Headline,
             page: const Minus40Page(),
@@ -65,6 +69,7 @@ class StrategyPage extends StatelessWidget {
           buildStrategyCard(
             context: context,
             color: Colors.purple,
+            icon: Icons.bolt_rounded,
             percent: '-50%',
             text: AppLocalizations.of(context)!.minus50Headline,
             page: const Minus50Page(),
@@ -77,20 +82,26 @@ class StrategyPage extends StatelessWidget {
   Widget buildStrategyCard({
     required BuildContext context,
     required Color color,
+    required IconData icon,
     required String percent,
     required String text,
     required Widget page,
   }) {
+    final l10n = AppLocalizations.of(context)!;
+    final title = localizedStrategyHeadline(l10n, percent, text);
+    final actions = localizedStrategyActions(l10n, percent, const []);
+    final primaryAction = actions.isEmpty ? null : actions.first;
     final whiteMode = isWhiteModeEnabled(context);
     final surface = whiteMode ? _lightSurface : const Color(0xFF151B24);
     final line = whiteMode ? _lightLine : Colors.white.withValues(alpha: 0.08);
     final primaryText = whiteMode ? _lightText : Colors.white;
+    final secondaryText = whiteMode ? _lightMuted : Colors.white70;
     final faintText = whiteMode ? const Color(0xFF94A3B8) : Colors.white38;
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.only(bottom: 14),
       child: InkWell(
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(18),
         onTap: () {
           Navigator.push(
             context,
@@ -101,70 +112,127 @@ class StrategyPage extends StatelessWidget {
         },
         child: Container(
           constraints: const BoxConstraints(
-            minHeight: 76,
+            minHeight: 112,
           ),
-          padding: const EdgeInsets.symmetric(
-            horizontal: 14,
-            vertical: 12,
-          ),
+          padding: const EdgeInsets.fromLTRB(14, 14, 12, 14),
           decoration: BoxDecoration(
             color: surface,
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(18),
             border: Border.all(
-              color: line,
+              color: whiteMode ? line : color.withValues(alpha: 0.18),
             ),
             boxShadow: whiteMode
                 ? [
                     BoxShadow(
-                      color: const Color(0xFF0F172A).withValues(alpha: 0.05),
+                      color: color.withValues(alpha: 0.10),
                       blurRadius: 18,
-                      offset: const Offset(0, 8),
+                      offset: const Offset(0, 9),
                     ),
                   ]
                 : null,
           ),
           child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                width: 5,
-                height: 44,
+                width: 48,
+                height: 48,
                 decoration: BoxDecoration(
-                  color: color,
-                  borderRadius: BorderRadius.circular(8),
+                  color: color.withValues(alpha: whiteMode ? 0.10 : 0.16),
+                  borderRadius: BorderRadius.circular(15),
+                  border: Border.all(
+                    color: color.withValues(alpha: whiteMode ? 0.22 : 0.30),
+                  ),
                 ),
+                child: Icon(icon, color: color, size: 24),
               ),
               const SizedBox(width: 12),
-              SizedBox(
-                width: 88,
-                child: Text(
-                  percent,
-                  maxLines: 1,
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                    color: color,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 8),
               Expanded(
-                child: Text(
-                  text,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    height: 1.35,
-                    color: primaryText,
-                  ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 9,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: color.withValues(
+                              alpha: whiteMode ? 0.10 : 0.14,
+                            ),
+                            borderRadius: BorderRadius.circular(999),
+                          ),
+                          child: Text(
+                            percent,
+                            style: TextStyle(
+                              color: color,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w900,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        if (primaryAction != null)
+                          Expanded(
+                            child: Text(
+                              primaryAction.title,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                color: color,
+                                fontSize: 11.5,
+                                fontWeight: FontWeight.w900,
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                    const SizedBox(height: 9),
+                    Text(
+                      title,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w900,
+                        height: 1.25,
+                        color: primaryText,
+                      ),
+                    ),
+                    if (primaryAction != null) ...[
+                      const SizedBox(height: 7),
+                      Text(
+                        primaryAction.text,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          height: 1.35,
+                          color: secondaryText,
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
               ),
               const SizedBox(width: 10),
-              Icon(
-                Icons.chevron_right_rounded,
-                color: faintText,
-                size: 28,
+              Container(
+                width: 30,
+                height: 30,
+                decoration: BoxDecoration(
+                  color: whiteMode
+                      ? const Color(0xFFF8FAFC)
+                      : Colors.white.withValues(alpha: 0.04),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(
+                  Icons.chevron_right_rounded,
+                  color: faintText,
+                  size: 22,
+                ),
               ),
             ],
           ),
@@ -720,6 +788,17 @@ class _StrategyBannerAdState extends State<StrategyBannerAd> {
   @override
   void initState() {
     super.initState();
+    if (canRequestAdsense) {
+      registerAdsenseBannerViewFactory(
+        viewType: _adsenseBottomBannerViewType,
+        clientId: _adsenseClientId,
+        slotId: _adsenseBottomBannerSlotId,
+        width: _bottomBannerAdWidth,
+        height: _bottomBannerAdHeight,
+      );
+      return;
+    }
+
     if (!canRequestAds) return;
 
     BottomBannerAdCache.instance.preload();
@@ -774,9 +853,17 @@ class _StrategyBannerAdState extends State<StrategyBannerAd> {
 
   @override
   Widget build(BuildContext context) {
+    if (canRequestAdsense) {
+      return const SizedBox(
+        height: _bottomBannerAdHeight,
+        width: double.infinity,
+        child: HtmlElementView(viewType: _adsenseBottomBannerViewType),
+      );
+    }
+
     if (!canRequestAds || _bannerAd == null) {
       return Container(
-        height: AdSize.banner.height.toDouble(),
+        height: bottomBannerAdHeight,
         width: double.infinity,
         alignment: Alignment.center,
         color: Colors.transparent,

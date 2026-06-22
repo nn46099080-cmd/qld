@@ -365,6 +365,90 @@ abstract class AppLocalizations {
   /// **'[ Strategy Guide ]\n\nThis strategy does not invest all assets into QLD at once.\n\nAt the beginning, only part of the assets is invested, while the rest is held in cash to prepare for major market declines.\n\nThe power of holding cash\n\nCash is not held to increase returns. It provides the psychological room to stay disciplined even during a falling market.\n\nMore important than the highest possible return is an investment system that can keep compounding until the end.\n\nExample:\n- Invest only 70% of initial assets into QLD\n- Hold the remaining 30% in cash\n\nQLD is an ETF that tracks approximately 2x the daily movement of the Nasdaq-100 Index.\n\nTherefore, in the initial state:\n2x leverage × 70% investment = approximately 1.4x overall exposure.\n\nFor example:\n- Nasdaq +1%\n→ Total assets about +1.4%\n\nWhen a major decline occurs, the cash held is used step by step for additional buying.\n\nExample:\n- Additional buying around the QLD -40% zone\n\nThis allows more shares to be accumulated at lower prices, and when the market recovers, the average entry price can be significantly reduced.\n\nAs a result, this strategy may produce higher returns during recovery phases than a simple buy-and-hold strategy.\n\nThe core of this strategy is:\n- Reduce volatility with cash during rising markets\n- Use cash to buy more during major declines and lower the average cost.'**
   String get basePositionDescription;
 
+  /// No description provided for @basePositionIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'This base strategy does not invest everything at once. It holds QLD together with cash, reducing swings in rising markets and keeping room to buy more during major declines.'**
+  String get basePositionIntro;
+
+  /// No description provided for @basePositionQldAllocationLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Core QLD holding'**
+  String get basePositionQldAllocationLabel;
+
+  /// No description provided for @basePositionCashAllocationLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash reserve'**
+  String get basePositionCashAllocationLabel;
+
+  /// No description provided for @basePositionCorePrinciple.
+  ///
+  /// In en, this message translates to:
+  /// **'Core Principles'**
+  String get basePositionCorePrinciple;
+
+  /// No description provided for @basePositionCashTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash is not money that lowers returns'**
+  String get basePositionCashTitle;
+
+  /// No description provided for @basePositionCashText.
+  ///
+  /// In en, this message translates to:
+  /// **'It is safety room for staying disciplined in major declines and buying more at lower prices.'**
+  String get basePositionCashText;
+
+  /// No description provided for @basePositionInitialLeverageTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Initial movement is about 1.4x'**
+  String get basePositionInitialLeverageTitle;
+
+  /// No description provided for @basePositionInitialLeverageText.
+  ///
+  /// In en, this message translates to:
+  /// **'QLD tracks roughly 2x the Nasdaq-100. Holding only 70% of assets in QLD lowers total portfolio movement to about 1.4x.'**
+  String get basePositionInitialLeverageText;
+
+  /// No description provided for @basePositionStepLeverageTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Leverage rises step by step in drawdowns'**
+  String get basePositionStepLeverageTitle;
+
+  /// No description provided for @basePositionStepLeverageText.
+  ///
+  /// In en, this message translates to:
+  /// **'From the -20% to -30% zones, adding TQQQ can lift total movement to about 1.8x. In the deepest drawdown zones, it can rise toward about 2.3x.'**
+  String get basePositionStepLeverageText;
+
+  /// No description provided for @basePositionLowAverageTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'More fear means a lower average cost'**
+  String get basePositionLowAverageTitle;
+
+  /// No description provided for @basePositionLowAverageText.
+  ///
+  /// In en, this message translates to:
+  /// **'This app is structured to use cash to average down into TQQQ as drawdowns deepen. Building shares near low zones can make the later rebound work harder for returns.'**
+  String get basePositionLowAverageText;
+
+  /// No description provided for @basePositionSummaryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Summary'**
+  String get basePositionSummaryTitle;
+
+  /// No description provided for @basePositionSummaryText.
+  ///
+  /// In en, this message translates to:
+  /// **'The goal is not to guess the highest return. It is to keep a plan through drawdowns and let compounding continue for longer.'**
+  String get basePositionSummaryText;
+
   /// No description provided for @buySignalMessage.
   ///
   /// In en, this message translates to:
@@ -530,7 +614,7 @@ abstract class AppLocalizations {
   /// No description provided for @minus20Headline.
   ///
   /// In en, this message translates to:
-  /// **'Start Fractional Recurring TQQQ Buys'**
+  /// **'Start Weekly 1% Cash TQQQ Accumulation'**
   String get minus20Headline;
 
   /// No description provided for @minus20OverviewTitle.
@@ -947,6 +1031,12 @@ abstract class AppLocalizations {
   /// **'Alert Settings'**
   String get alertSettingsTitle;
 
+  /// No description provided for @alertSettingsCloseBasisNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Alerts are sent based on closing prices.'**
+  String get alertSettingsCloseBasisNote;
+
   /// No description provided for @alertHighTitle.
   ///
   /// In en, this message translates to:
@@ -1046,19 +1136,19 @@ abstract class AppLocalizations {
   /// No description provided for @minus20ActionText.
   ///
   /// In en, this message translates to:
-  /// **'Start very small fractional recurring TQQQ buys. Do not put in a large amount at once.'**
+  /// **'Use only 1% of total cash once a week to accumulate fractional TQQQ shares. Do not put in a large amount at once.'**
   String get minus20ActionText;
 
   /// No description provided for @minus20BuyRuleTitle.
   ///
   /// In en, this message translates to:
-  /// **'Buy Rule'**
+  /// **'Purpose'**
   String get minus20BuyRuleTitle;
 
   /// No description provided for @minus20BuyRuleText.
   ///
   /// In en, this message translates to:
-  /// **'Use only a tiny portion of total cash. The goal is not a big entry; it is to start the rhythm.'**
+  /// **'This setup starts in the -20% zone so that, if the market moves sideways, small recurring buys can gradually lower the TQQQ average cost. The point is not to time an immediate profit, but to build a lower cost basis.'**
   String get minus20BuyRuleText;
 
   /// No description provided for @minus20CashTitle.
@@ -1070,19 +1160,19 @@ abstract class AppLocalizations {
   /// No description provided for @minus20CashText.
   ///
   /// In en, this message translates to:
-  /// **'Most cash must remain available for the -30%, -40%, and -50% zones.'**
+  /// **'Most cash must remain available for the -30%, -40%, and -50% zones. Even after planned cash is fully used at -50%, new cash can keep lowering the average through weekly accumulation.'**
   String get minus20CashText;
 
   /// No description provided for @minus20AvoidTitle.
   ///
   /// In en, this message translates to:
-  /// **'Avoid'**
+  /// **'Exit Plan'**
   String get minus20AvoidTitle;
 
   /// No description provided for @minus20AvoidText.
   ///
   /// In en, this message translates to:
-  /// **'Do not buy TQQQ aggressively. The -20% zone is still only the early stage.'**
+  /// **'Do not sell these TQQQ shares on every short rebound. Treat them as part of the position to close later when a new high is reached and the TQQQ position is being trimmed.'**
   String get minus20AvoidText;
 
   /// No description provided for @minus30ActionTitle.
@@ -1714,6 +1804,174 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Russia RUB'**
   String get investmentCurrencyRussiaRub;
+
+  /// No description provided for @contentTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Contents'**
+  String get contentTitle;
+
+  /// No description provided for @contentInquiry.
+  ///
+  /// In en, this message translates to:
+  /// **'Inquiries'**
+  String get contentInquiry;
+
+  /// No description provided for @contentCloseGuess.
+  ///
+  /// In en, this message translates to:
+  /// **'Close Guess'**
+  String get contentCloseGuess;
+
+  /// No description provided for @contentStockQuote.
+  ///
+  /// In en, this message translates to:
+  /// **'Stock Quotes'**
+  String get contentStockQuote;
+
+  /// No description provided for @contentNumberGuess.
+  ///
+  /// In en, this message translates to:
+  /// **'Number Guess'**
+  String get contentNumberGuess;
+
+  /// No description provided for @contentBookReader.
+  ///
+  /// In en, this message translates to:
+  /// **'Book Reader'**
+  String get contentBookReader;
+
+  /// No description provided for @contentStockMeme.
+  ///
+  /// In en, this message translates to:
+  /// **'Stock Meme'**
+  String get contentStockMeme;
+
+  /// No description provided for @contentLottoNumbers.
+  ///
+  /// In en, this message translates to:
+  /// **'Lotto Numbers'**
+  String get contentLottoNumbers;
+
+  /// No description provided for @contentJumpDodge.
+  ///
+  /// In en, this message translates to:
+  /// **'Jump Dodge Game'**
+  String get contentJumpDodge;
+
+  /// No description provided for @stockQuoteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Stock Quotes'**
+  String get stockQuoteTitle;
+
+  /// No description provided for @stockQuoteTapHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to see another quote.'**
+  String get stockQuoteTapHint;
+
+  /// No description provided for @stockQuoteShuffle.
+  ///
+  /// In en, this message translates to:
+  /// **'Another quote'**
+  String get stockQuoteShuffle;
+
+  /// No description provided for @usageGuideTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'How to use'**
+  String get usageGuideTitle;
+
+  /// No description provided for @usageGuideSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'A rule-based guide for long-term Nasdaq 2x leverage'**
+  String get usageGuideSubtitle;
+
+  /// No description provided for @usageGuideCardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'How to use'**
+  String get usageGuideCardTitle;
+
+  /// No description provided for @usageGuideCardSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Base position, decline zones, trade records, indicators'**
+  String get usageGuideCardSubtitle;
+
+  /// No description provided for @usageGuideWhatAppTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'What is this app?'**
+  String get usageGuideWhatAppTitle;
+
+  /// No description provided for @usageGuideWhatAppBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This app is a rule-based guide for investors using long-term upward Nasdaq 2x leverage.\n\nIt automatically calculates the current drawdown from the all-time high so you can see where the market stands, then provides a strategy for each zone.\n\nIt helps you stay with planned investment rules without being shaken by market fear or greed.'**
+  String get usageGuideWhatAppBody;
+
+  /// No description provided for @usageGuideNoBuyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'1. Read the base position and strategy first'**
+  String get usageGuideNoBuyTitle;
+
+  /// No description provided for @usageGuideNoBuyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'First, tap the Base Position card on the main screen and read how to prepare. Also tap the Strategy tab at the bottom right to understand the detailed strategy.'**
+  String get usageGuideNoBuyBody;
+
+  /// No description provided for @usageGuideStrategyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'2. Check the automatic decline-zone strategy'**
+  String get usageGuideStrategyTitle;
+
+  /// No description provided for @usageGuideStrategyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The third card on the main screen automatically calculates how far QLD is below its all-time high. The matching strategy is shown automatically, and alerts arrive when conditions are met.'**
+  String get usageGuideStrategyBody;
+
+  /// No description provided for @usageGuideIndicatorsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Four support indicators'**
+  String get usageGuideIndicatorsTitle;
+
+  /// No description provided for @usageGuideIndicatorsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'CNN F&G shows whether market sentiment is closer to fear or greed.\n\nVIX shows market volatility. A higher number usually means more market anxiety.\n\nMajor U.S. events include NFP, CPI, and FOMC. NFP tracks employment, CPI tracks inflation, and FOMC shows the interest-rate direction. These events can move Nasdaq and QLD sharply.\n\nThe 10-year Treasury yield is the U.S. 10-year bond rate. A fast rise can pressure growth stocks, Nasdaq, and QLD.'**
+  String get usageGuideIndicatorsBody;
+
+  /// No description provided for @usageGuideQldTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'3. Buy through your broker and record it'**
+  String get usageGuideQldTitle;
+
+  /// No description provided for @usageGuideQldBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Use the displayed strategy and amount as a guide, then buy in your own brokerage app. After buying, record shares, average price, and cash in the app portfolio.'**
+  String get usageGuideQldBody;
+
+  /// No description provided for @usageGuideDisclaimer.
+  ///
+  /// In en, this message translates to:
+  /// **'This app is for investment reference only and does not guarantee profit.'**
+  String get usageGuideDisclaimer;
+
+  /// No description provided for @usageGuideConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'OK'**
+  String get usageGuideConfirm;
 }
 
 class _AppLocalizationsDelegate

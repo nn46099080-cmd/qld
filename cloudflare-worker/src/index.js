@@ -10,6 +10,8 @@ const ANDROID_PACKAGE_NAME = 'com.qldalert.app';
 const CORE_ALERT_PRODUCT_ID = 'core_alert';
 const PAID_DEVICE_PREFIX = 'paid-device:';
 const PAID_PURCHASE_PREFIX = 'paid-purchase:';
+const USER_DEVICE_PREFIX = 'user-device:';
+const OWNER_ADMIN_UID = 'qld-admin-179204';
 const PAID_VOIDED_SCAN_STATE_KEY = 'paid-voided-scan';
 const FINNHUB_API_KEY = '';
 
@@ -30,6 +32,7 @@ const VOIDED_PURCHASE_SCAN_OVERLAP_MS = 24 * 60 * 60 * 1000;
 const FEAR_GREED_CACHE_TTL_MS = 60 * 60 * 1000;
 const CLOSE_GUESS_PREFIX = 'close-guess:';
 const CLOSE_GUESS_MAX_ENTRIES = 200;
+const CLOSE_GUESS_MAX_ATTEMPTS = 3;
 const CLOSE_GUESS_MAX_MESSAGE_LENGTH = 100;
 const INQUIRIES_KEY = 'inquiries';
 const INQUIRY_MAX_ENTRIES = 200;
@@ -1119,6 +1122,35 @@ function closeGuessSubmissionDate(now = new Date()) {
   return parts.date;
 }
 
+function closeGuessResultDate(now = new Date()) {
+  const parts = newYorkTimeParts(now);
+  const [year, month, day] = parts.date.split('-').map((part) => Number(part));
+
+  if (isUsMarketOpenDay(parts) && parts.minutes >= marketCloseMinute(parts)) {
+    return parts.date;
+  }
+
+  return previousTradingDate(
+    year,
+    month,
+    day,
+    buildUsMarketCalendar(year).closedDates,
+  );
+}
+
+function closeGuessDefaultDate(dates) {
+  const resultDate = closeGuessResultDate();
+  if (dates.includes(resultDate) || closeGuessQuoteFallbackAllowed(resultDate)) {
+    return resultDate;
+  }
+  return dates[0] || resultDate;
+}
+
+function closeGuessVisibleResultDates(dates, now = new Date()) {
+  const resultDate = closeGuessResultDate(now);
+  return dates.filter((date) => date <= resultDate);
+}
+
 function dropZoneForPercent(dropPercent) {
   if (dropPercent <= -50) return 50;
   if (dropPercent <= -40) return 40;
@@ -1210,7 +1242,146 @@ function notificationTextForLanguage(data, language) {
   return { title, body };
 }
 
+function cleanServerAlertText(type) {
+  const texts = {
+    high: {
+      title_en: 'QLD reached a new high',
+      body_en:
+        'QLD closed at a new high. The shared server high has been updated.',
+      title_ko: 'QLD 신고가 알림',
+      body_ko:
+        'QLD가 종가 기준 신고가를 기록했습니다. 서버 기준 최고가가 갱신되었습니다.',
+    },
+    minus20: {
+      title_en: 'QLD -20% strategy zone',
+      body_en:
+        'QLD closed 20% or more below its high. Review your staged buying plan.',
+      title_ko: 'QLD -20% 전략 알림',
+      body_ko:
+        'QLD가 최고가 대비 -20% 구간에 들어왔습니다. 분할 매수 계획을 확인하세요.',
+    },
+    minus30: {
+      title_en: 'QLD -30% strategy zone',
+      body_en:
+        'QLD closed 30% or more below its high. Review your staged buying plan.',
+      title_ko: 'QLD -30% 전략 알림',
+      body_ko:
+        'QLD가 최고가 대비 -30% 구간에 들어왔습니다. 분할 매수 계획을 확인하세요.',
+    },
+    minus40: {
+      title_en: 'QLD -40% strategy zone',
+      body_en:
+        'QLD closed 40% or more below its high. Review your staged buying plan.',
+      title_ko: 'QLD -40% 전략 알림',
+      body_ko:
+        'QLD가 최고가 대비 -40% 구간에 들어왔습니다. 분할 매수 계획을 확인하세요.',
+    },
+    minus50: {
+      title_en: 'QLD -50% strategy zone',
+      body_en:
+        'QLD closed 50% or more below its high. Review your staged buying plan.',
+      title_ko: 'QLD -50% 전략 알림',
+      body_ko:
+        'QLD가 최고가 대비 -50% 구간에 들어왔습니다. 현금 비중과 분할 매수 계획을 확인하세요.',
+    },
+    recovery20: {
+      title_en: 'QLD recovered above -20%',
+      body_en:
+        'QLD recovered above the -20% drawdown zone. Review your portfolio plan.',
+      title_ko: 'QLD -20% 구간 회복',
+      body_ko:
+        'QLD가 최고가 대비 -20% 구간 위로 회복했습니다. 포트폴리오 계획을 확인하세요.',
+    },
+    recovery30: {
+      title_en: 'QLD recovered above -30%',
+      body_en:
+        'QLD recovered above the -30% drawdown zone. Review your portfolio plan.',
+      title_ko: 'QLD -30% 구간 회복',
+      body_ko:
+        'QLD가 최고가 대비 -30% 구간 위로 회복했습니다. 포트폴리오 계획을 확인하세요.',
+    },
+    recovery40: {
+      title_en: 'QLD recovered above -40%',
+      body_en:
+        'QLD recovered above the -40% drawdown zone. Review your portfolio plan.',
+      title_ko: 'QLD -40% 구간 회복',
+      body_ko:
+        'QLD가 최고가 대비 -40% 구간 위로 회복했습니다. 포트폴리오 계획을 확인하세요.',
+    },
+    recovery50: {
+      title_en: 'QLD recovered above -50%',
+      body_en:
+        'QLD recovered above the -50% drawdown zone. Review your portfolio plan.',
+      title_ko: 'QLD -50% 구간 회복',
+      body_ko:
+        'QLD가 최고가 대비 -50% 구간 위로 회복했습니다. 포트폴리오 계획을 확인하세요.',
+    },
+  };
+
+  return texts[type] || null;
+}
+
 function localizedAlertPayload(type) {
+  if (type === 'marketOpen') {
+    const titleEn = 'U.S. market is open';
+    const bodyEn =
+      'Regular trading has started. Check your plan only if action is needed today.';
+    return {
+      type,
+      title: titleEn,
+      body: bodyEn,
+      detail: bodyEn,
+      title_en: titleEn,
+      body_en: bodyEn,
+      detail_en: bodyEn,
+      title_ko: '\uBBF8\uAD6D \uC99D\uC2DC\uAC00 \uC2DC\uC791\uB418\uC5C8\uC2B5\uB2C8\uB2E4',
+      body_ko:
+        '\uC815\uADDC\uC7A5\uC774 \uC2DC\uC791\uB418\uC5C8\uC2B5\uB2C8\uB2E4. \uC624\uB298 \uD589\uB3D9\uD560 \uACC4\uD68D\uC774 \uC788\uC744 \uB54C\uB9CC \uAC00\uACA9\uACFC \uC804\uB7B5 \uC54C\uB9BC\uC744 \uD655\uC778\uD558\uC138\uC694.',
+      detail_ko:
+        '\uC815\uADDC\uC7A5\uC774 \uC2DC\uC791\uB418\uC5C8\uC2B5\uB2C8\uB2E4. \uC624\uB298 \uD589\uB3D9\uD560 \uACC4\uD68D\uC774 \uC788\uC744 \uB54C\uB9CC \uAC00\uACA9\uACFC \uC804\uB7B5 \uC54C\uB9BC\uC744 \uD655\uC778\uD558\uC138\uC694.',
+      title_ja: '\u7C73\u56FD\u5E02\u5834\u304C\u958B\u304D\u307E\u3057\u305F',
+      body_ja:
+        '\u901A\u5E38\u53D6\u5F15\u304C\u59CB\u307E\u308A\u307E\u3057\u305F\u3002\u4ECA\u65E5\u884C\u52D5\u304C\u5FC5\u8981\u306A\u5834\u5408\u3060\u3051\u8A08\u753B\u3092\u78BA\u8A8D\u3057\u3066\u304F\u3060\u3055\u3044\u3002',
+      detail_ja:
+        '\u901A\u5E38\u53D6\u5F15\u304C\u59CB\u307E\u308A\u307E\u3057\u305F\u3002\u4ECA\u65E5\u884C\u52D5\u304C\u5FC5\u8981\u306A\u5834\u5408\u3060\u3051\u8A08\u753B\u3092\u78BA\u8A8D\u3057\u3066\u304F\u3060\u3055\u3044\u3002',
+      title_es: 'El mercado de EE. UU. esta abierto',
+      body_es:
+        'La sesion regular ha comenzado. Revisa tu plan solo si necesitas actuar hoy.',
+      detail_es:
+        'La sesion regular ha comenzado. Revisa tu plan solo si necesitas actuar hoy.',
+      title_pt: 'O mercado dos EUA abriu',
+      body_pt:
+        'A sessao regular comecou. Verifique seu plano apenas se precisar agir hoje.',
+      detail_pt:
+        'A sessao regular comecou. Verifique seu plano apenas se precisar agir hoje.',
+      title_ru: '\u0420\u044B\u043D\u043E\u043A \u0421\u0428\u0410 \u043E\u0442\u043A\u0440\u044B\u043B\u0441\u044F',
+      body_ru:
+        '\u041E\u0441\u043D\u043E\u0432\u043D\u0430\u044F \u0441\u0435\u0441\u0441\u0438\u044F \u043D\u0430\u0447\u0430\u043B\u0430\u0441\u044C. \u041F\u0440\u043E\u0432\u0435\u0440\u044F\u0439\u0442\u0435 \u043F\u043B\u0430\u043D \u0442\u043E\u043B\u044C\u043A\u043E \u0435\u0441\u043B\u0438 \u043D\u0443\u0436\u043D\u043E \u0434\u0435\u0439\u0441\u0442\u0432\u043E\u0432\u0430\u0442\u044C \u0441\u0435\u0433\u043E\u0434\u043D\u044F.',
+      detail_ru:
+        '\u041E\u0441\u043D\u043E\u0432\u043D\u0430\u044F \u0441\u0435\u0441\u0441\u0438\u044F \u043D\u0430\u0447\u0430\u043B\u0430\u0441\u044C. \u041F\u0440\u043E\u0432\u0435\u0440\u044F\u0439\u0442\u0435 \u043F\u043B\u0430\u043D \u0442\u043E\u043B\u044C\u043A\u043E \u0435\u0441\u043B\u0438 \u043D\u0443\u0436\u043D\u043E \u0434\u0435\u0439\u0441\u0442\u0432\u043E\u0432\u0430\u0442\u044C \u0441\u0435\u0433\u043E\u0434\u043D\u044F.',
+      title_zh: '\u7F8E\u56FD\u5E02\u573A\u5DF2\u5F00\u76D8',
+      body_zh:
+        '\u5E38\u89C4\u4EA4\u6613\u5DF2\u5F00\u59CB\u3002\u53EA\u6709\u4ECA\u5929\u9700\u8981\u884C\u52A8\u65F6\u518D\u68C0\u67E5\u8BA1\u5212\u3002',
+      detail_zh:
+        '\u5E38\u89C4\u4EA4\u6613\u5DF2\u5F00\u59CB\u3002\u53EA\u6709\u4ECA\u5929\u9700\u8981\u884C\u52A8\u65F6\u518D\u68C0\u67E5\u8BA1\u5212\u3002',
+      title_zh_TW: '\u7F8E\u570B\u5E02\u5834\u5DF2\u958B\u76E4',
+      body_zh_TW:
+        '\u5E38\u898F\u4EA4\u6613\u5DF2\u958B\u59CB\u3002\u53EA\u6709\u4ECA\u5929\u9700\u8981\u884C\u52D5\u6642\u518D\u6AA2\u67E5\u8A08\u756B\u3002',
+      detail_zh_TW:
+        '\u5E38\u898F\u4EA4\u6613\u5DF2\u958B\u59CB\u3002\u53EA\u6709\u4ECA\u5929\u9700\u8981\u884C\u52D5\u6642\u518D\u6AA2\u67E5\u8A08\u756B\u3002',
+      title_fr: 'Le marche americain est ouvert',
+      body_fr:
+        'La seance reguliere a commence. Verifiez votre plan seulement si une action est necessaire.',
+      detail_fr:
+        'La seance reguliere a commence. Verifiez votre plan seulement si une action est necessaire.',
+      title_de: 'Der US-Markt ist geoeffnet',
+      body_de:
+        'Der regulaere Handel hat begonnen. Pruefe deinen Plan nur, wenn heute Handlungsbedarf besteht.',
+      detail_de:
+        'Der regulaere Handel hat begonnen. Pruefe deinen Plan nur, wenn heute Handlungsbedarf besteht.',
+    };
+  }
+
   if (type.startsWith('profitTarget')) {
     const match = type.match(/^profitTarget(Qld|Tqqq)(50|100|200|300)$/);
     const symbol = match?.[1] === 'Tqqq' ? 'TQQQ' : 'QLD';
@@ -1254,6 +1425,22 @@ function localizedAlertPayload(type) {
       title_en: titleEn,
       body_en: bodyEn,
       detail_en: bodyEn,
+    };
+  }
+
+  const cleanText = cleanServerAlertText(type);
+  if (cleanText) {
+    return {
+      type,
+      title: cleanText.title_en,
+      body: cleanText.body_en,
+      detail: cleanText.body_en,
+      title_en: cleanText.title_en,
+      body_en: cleanText.body_en,
+      detail_en: cleanText.body_en,
+      title_ko: cleanText.title_ko,
+      body_ko: cleanText.body_ko,
+      detail_ko: cleanText.body_ko,
     };
   }
 
@@ -2045,11 +2232,24 @@ function normalizeCloseGuessEntry(entry) {
   const close = Number(entry?.close);
   const submittedAt = String(entry?.submittedAt || new Date().toISOString());
   const messageTokenHash = String(entry?.messageTokenHash || '');
+  const attempts = Math.max(1, Math.floor(Number(entry?.attempts) || 1));
 
   if ((!uid && !id) || !Number.isFinite(price) || price <= 0) return null;
   if (!Number.isFinite(close) || close <= 0) return null;
 
-  return { uid, id, price, close, submittedAt, messageTokenHash };
+  return { uid, id, price, close, submittedAt, messageTokenHash, attempts };
+}
+
+function sameCloseGuessUser(left, right) {
+  if (!left || !right) return false;
+  if (left.uid && right.uid) return left.uid === right.uid;
+  return left.id === right.id;
+}
+
+function closeGuessAttemptCount(entries, entry) {
+  return entries
+    .filter((saved) => sameCloseGuessUser(saved, entry))
+    .reduce((max, saved) => Math.max(max, Number(saved.attempts) || 1), 0);
 }
 
 function randomCloseGuessToken() {
@@ -2069,9 +2269,93 @@ function sortCloseGuessEntries(entries) {
     });
 }
 
+function applyCloseGuessReferenceClose(entries, referenceClose) {
+  const close = Number(referenceClose);
+  if (!Number.isFinite(close) || close <= 0) {
+    return sortCloseGuessEntries(entries);
+  }
+
+  return sortCloseGuessEntries(
+    entries.map((entry) => ({
+      ...entry,
+      close,
+    })),
+  );
+}
+
+function closeGuessQuoteFallbackAllowed(date, now = new Date()) {
+  const parts = newYorkTimeParts(now);
+  return (
+    parts.date === date &&
+    isUsMarketOpenDay(parts) &&
+    parts.minutes >= marketCloseMinute(parts)
+  );
+}
+
+function closeGuessReferenceCloseLookupDate(date, now = new Date()) {
+  const normalizedDate = normalizeCloseGuessDate(date);
+  const parts = newYorkTimeParts(now);
+  const targetParts = newYorkDateParts(normalizedDate);
+  const targetCloseMinute = marketCloseMinute(targetParts);
+
+  if (
+    normalizedDate < parts.date ||
+    (normalizedDate === parts.date &&
+      targetCloseMinute > 0 &&
+      parts.minutes >= targetCloseMinute)
+  ) {
+    return normalizedDate;
+  }
+
+  const [year, month, day] = normalizedDate
+    .split('-')
+    .map((part) => Number(part));
+  return previousTradingDate(
+    year,
+    month,
+    day,
+    buildUsMarketCalendar(year).closedDates,
+  );
+}
+
+async function closeGuessReferenceClose(env, date, fallbackClose = 0) {
+  const lookupDate = closeGuessReferenceCloseLookupDate(date);
+  try {
+    const dailyResult = await fetchDailyChartResult('QLD');
+    const matchingEntry = closeEntriesFromChartResult(dailyResult)
+      .reverse()
+      .find((entry) => entry.date === lookupDate);
+    if (matchingEntry?.close > 0) return matchingEntry.close;
+  } catch (error) {
+    console.warn('close guess daily close lookup failed', error?.message || error);
+  }
+
+  if (closeGuessQuoteFallbackAllowed(date) || lookupDate !== date) {
+    try {
+      const quote = await fetchQuoteResilient('QLD', env, () =>
+        fetchEquityQuote('QLD', env),
+      );
+      const quoteClose =
+        lookupDate !== date
+          ? numberOrZero(quote?.previousClose) ||
+            numberOrZero(quote?.regularMarketPreviousClose)
+          : numberOrZero(quote?.regularMarketPrice) ||
+            numberOrZero(quote?.currentPrice);
+      if (quoteClose > 0) return quoteClose;
+    } catch (error) {
+      console.warn('close guess quote close lookup failed', error?.message || error);
+    }
+  }
+
+  return numberOrZero(fallbackClose);
+}
+
 async function loadCloseGuessDay(env, date) {
   const stored = await env.ALERT_STATE?.get(closeGuessKey(date), 'json');
-  const entries = sortCloseGuessEntries(stored?.entries || []);
+  const storedEntries = sortCloseGuessEntries(stored?.entries || []);
+  const fallbackClose = storedEntries.find((entry) => entry.close > 0)?.close || 0;
+  const referenceClose = await closeGuessReferenceClose(env, date, fallbackClose);
+  const entries = applyCloseGuessReferenceClose(storedEntries, referenceClose);
   const winnerMessage =
     stored?.winnerMessage &&
     typeof stored.winnerMessage === 'object' &&
@@ -2091,6 +2375,7 @@ async function loadCloseGuessDay(env, date) {
   return {
     date,
     entries,
+    referenceClose,
     winnerMessage,
     updatedAt: stored?.updatedAt || '',
   };
@@ -2104,12 +2389,14 @@ function closeGuessDayResponse(day, dates) {
     close: entry.close,
     submittedAt: entry.submittedAt,
     difference: Math.abs(entry.price - entry.close),
+    attempts: entry.attempts || 1,
   }));
 
   return {
     date: day.date,
     dates,
     entries,
+    referenceClose: day.referenceClose || 0,
     winnerMessage: day.winnerMessage,
     updatedAt: day.updatedAt,
   };
@@ -2140,20 +2427,79 @@ function normalizeInquiryAnswer(value) {
     .slice(0, INQUIRY_MAX_CONTENT_LENGTH);
 }
 
+function normalizeInquiryMessage(item, fallbackRole = 'user') {
+  const role = item?.role === 'admin' ? 'admin' : fallbackRole;
+  const content = normalizeInquiryContent(item?.content);
+  const createdAt = String(item?.createdAt || new Date().toISOString());
+  const uid = normalizeUserUid(item?.uid);
+  const nickname = normalizeInquiryNickname(
+    item?.nickname || item?.id || (role === 'admin' ? '관리자' : ''),
+    uid,
+  );
+
+  if (!content) return null;
+  return { role, content, createdAt, uid, nickname };
+}
+
+function inquiryMessages(inquiry) {
+  const messages = Array.isArray(inquiry?.messages)
+    ? inquiry.messages
+        .map((item) => normalizeInquiryMessage(item))
+        .filter(Boolean)
+    : [];
+
+  if (messages.length > 0) return messages;
+
+  const uid = normalizeUserUid(inquiry?.uid);
+  const content = normalizeInquiryContent(inquiry?.content);
+  const createdAt = String(inquiry?.createdAt || '');
+  const nickname = normalizeInquiryNickname(inquiry?.nickname || inquiry?.id, uid);
+  const answer = normalizeInquiryAnswer(inquiry?.answer);
+  const answeredAt = String(inquiry?.answeredAt || '');
+  const answeredBy = normalizeInquiryNickname(inquiry?.answeredBy || '관리자');
+  const fallback = [];
+
+  if (content) {
+    fallback.push({
+      role: 'user',
+      content,
+      createdAt,
+      uid,
+      nickname,
+    });
+  }
+  if (answer) {
+    fallback.push({
+      role: 'admin',
+      content: answer,
+      createdAt: answeredAt || createdAt,
+      uid: '',
+      nickname: answeredBy,
+    });
+  }
+
+  return fallback;
+}
+
 function publicInquiry(inquiry) {
   const uid = normalizeUserUid(inquiry?.uid);
   const createdAt = String(inquiry?.createdAt || '');
   const answer = normalizeInquiryAnswer(inquiry?.answer);
   const pinned = inquiry?.pinned === true;
+  const messages = inquiryMessages(inquiry);
+  const lastAdminMessage = [...messages]
+    .reverse()
+    .find((message) => message.role === 'admin');
   return {
     inquiryId: String(inquiry?.inquiryId || createdAt),
     id: normalizeInquiryNickname(inquiry?.nickname || inquiry?.id, uid),
     nickname: normalizeInquiryNickname(inquiry?.nickname || inquiry?.id, uid),
     content: normalizeInquiryContent(inquiry?.content),
     createdAt,
-    answer,
-    answeredAt: answer ? String(inquiry?.answeredAt || '') : '',
-    answeredBy: answer ? normalizeInquiryNickname(inquiry?.answeredBy || '관리자') : '',
+    answer: lastAdminMessage?.content || answer,
+    answeredAt: lastAdminMessage?.createdAt || (answer ? String(inquiry?.answeredAt || '') : ''),
+    answeredBy: lastAdminMessage?.nickname || (answer ? normalizeInquiryNickname(inquiry?.answeredBy || '관리자') : ''),
+    messages,
     pinned,
     pinnedAt: pinned ? String(inquiry?.pinnedAt || '') : '',
   };
@@ -2179,6 +2525,7 @@ async function loadInquiries(env) {
           ...publicInquiry(item),
           uid: normalizeUserUid(item?.uid),
           passwordHash: String(item?.passwordHash || ''),
+          messages: inquiryMessages(item),
         }))
         .filter((item) => item.id && item.content && item.createdAt)
     : [];
@@ -2221,6 +2568,15 @@ async function handlePostInquiry(request, env) {
       nickname,
       content,
       createdAt: new Date().toISOString(),
+      messages: [
+        {
+          role: 'user',
+          uid,
+          nickname,
+          content,
+          createdAt: new Date().toISOString(),
+        },
+      ],
     },
     ...items,
   ].slice(0, INQUIRY_MAX_ENTRIES);
@@ -2232,6 +2588,94 @@ async function handlePostInquiry(request, env) {
       updatedAt: new Date().toISOString(),
     }),
   );
+
+  await sendInquiryNotification(env, OWNER_ADMIN_UID, 'new', nextItems[0]);
+
+  return apiJsonResponse({ items: sortInquiries(nextItems).map(publicInquiry) }, 200);
+}
+
+async function handlePostInquiryMessage(request, env) {
+  if (!env.ALERT_STATE) {
+    return apiJsonResponse({ error: 'Inquiry storage is unavailable' }, 503);
+  }
+
+  const contentLength = Number(request.headers.get('content-length') || 0);
+  if (contentLength > 8192) {
+    return apiJsonResponse({ error: 'Request too large' }, 413);
+  }
+
+  const body = await request.json();
+  const inquiryId = String(body?.inquiryId || '').trim();
+  const uid = normalizeUserUid(body?.uid);
+  const adminUid = normalizeUserUid(body?.adminUid);
+  const isAdmin = isAdminUid(env, adminUid || uid);
+  const role = isAdmin ? 'admin' : 'user';
+  const content = normalizeInquiryContent(body?.content || body?.answer);
+  const nickname = isAdmin
+    ? '관리자'
+    : normalizeInquiryNickname(body?.nickname || body?.id, uid);
+
+  if (!inquiryId || !content || (!isAdmin && !uid)) {
+    return apiJsonResponse({ error: 'Invalid inquiry message' }, 400);
+  }
+
+  const items = await loadInquiries(env);
+  let updated = false;
+  let notificationTargetUid = '';
+  let notificationKind = '';
+  let notificationInquiry = null;
+  const now = new Date().toISOString();
+  const nextItems = items.map((item) => {
+    const itemId = String(item.inquiryId || item.createdAt || '');
+    if (itemId !== inquiryId) return item;
+
+    const messages = [
+      ...inquiryMessages(item),
+      {
+        role,
+        uid: isAdmin ? '' : uid,
+        nickname,
+        content,
+        createdAt: now,
+      },
+    ].slice(-80);
+
+    updated = true;
+    const nextItem = {
+      ...item,
+      inquiryId: itemId,
+      messages,
+      answer: role === 'admin' ? content : item.answer || '',
+      answeredAt: role === 'admin' ? now : item.answeredAt || '',
+      answeredBy: role === 'admin' ? '관리자' : item.answeredBy || '',
+    };
+    notificationTargetUid =
+      role === 'admin' ? normalizeUserUid(item.uid) : OWNER_ADMIN_UID;
+    notificationKind = role === 'admin' ? 'reply' : 'new';
+    notificationInquiry = nextItem;
+    return nextItem;
+  });
+
+  if (!updated) {
+    return apiJsonResponse({ error: 'Inquiry not found' }, 404);
+  }
+
+  await env.ALERT_STATE.put(
+    INQUIRIES_KEY,
+    JSON.stringify({
+      items: nextItems,
+      updatedAt: now,
+    }),
+  );
+
+  if (notificationTargetUid && notificationInquiry) {
+    await sendInquiryNotification(
+      env,
+      notificationTargetUid,
+      notificationKind,
+      notificationInquiry,
+    );
+  }
 
   return apiJsonResponse({ items: sortInquiries(nextItems).map(publicInquiry) }, 200);
 }
@@ -2260,17 +2704,34 @@ async function handlePostInquiryReply(request, env) {
 
   const items = await loadInquiries(env);
   let updated = false;
+  let replyNotificationTargetUid = '';
+  let replyNotificationInquiry = null;
   const nextItems = items.map((item) => {
     const itemId = String(item.inquiryId || item.createdAt || '');
     if (itemId !== inquiryId) return item;
+    const now = new Date().toISOString();
+    const messages = [
+      ...inquiryMessages(item),
+      {
+        role: 'admin',
+        uid: '',
+        nickname: '관리자',
+        content: answer,
+        createdAt: now,
+      },
+    ].slice(-80);
     updated = true;
-    return {
+    const nextItem = {
       ...item,
       inquiryId: itemId,
+      messages,
       answer,
-      answeredAt: new Date().toISOString(),
+      answeredAt: now,
       answeredBy: '관리자',
     };
+    replyNotificationTargetUid = normalizeUserUid(item.uid);
+    replyNotificationInquiry = nextItem;
+    return nextItem;
   });
 
   if (!updated) {
@@ -2284,6 +2745,15 @@ async function handlePostInquiryReply(request, env) {
       updatedAt: new Date().toISOString(),
     }),
   );
+
+  if (replyNotificationTargetUid && replyNotificationInquiry) {
+    await sendInquiryNotification(
+      env,
+      replyNotificationTargetUid,
+      'reply',
+      replyNotificationInquiry,
+    );
+  }
 
   return apiJsonResponse({ items: sortInquiries(nextItems).map(publicInquiry) }, 200);
 }
@@ -2398,9 +2868,12 @@ async function handleGetCloseGuessRankings(env, url) {
     return apiJsonResponse({ error: 'Ranking storage is unavailable' }, 503);
   }
 
-  const dates = await listCloseGuessDates(env);
+  const storedDates = await listCloseGuessDates(env);
+  const dates = closeGuessVisibleResultDates(storedDates);
   const requestedDate = normalizeCloseGuessDate(url.searchParams.get('date'));
-  const date = url.searchParams.has('date') ? requestedDate : dates[0] || requestedDate;
+  const date = url.searchParams.has('date')
+    ? requestedDate
+    : closeGuessDefaultDate(dates);
   const day = await loadCloseGuessDay(env, date);
   return apiJsonResponse(closeGuessDayResponse(day, dates.includes(date) ? dates : [date, ...dates]), 200);
 }
@@ -2442,21 +2915,37 @@ async function handlePostCloseGuess(request, env) {
   }
 
   const day = await loadCloseGuessDay(env, date);
+  const referenceClose = day.referenceClose || entry.close;
+  const previousAttempts = closeGuessAttemptCount(day.entries, entry);
+  if (previousAttempts >= CLOSE_GUESS_MAX_ATTEMPTS) {
+    return apiJsonResponse(
+      {
+        error: 'Close guess attempt limit exceeded',
+        code: 'close_guess_attempt_limit',
+        maxAttempts: CLOSE_GUESS_MAX_ATTEMPTS,
+      },
+      429,
+    );
+  }
   const entries = day.entries
-    .filter((saved) =>
-      entry.uid ? saved.uid !== entry.uid : saved.id !== entry.id,
-    )
-    .concat(entry)
+    .filter((saved) => !sameCloseGuessUser(saved, entry))
+    .concat({
+      ...entry,
+      close: referenceClose,
+      attempts: previousAttempts + 1,
+    })
     .slice(-CLOSE_GUESS_MAX_ENTRIES);
+  const rankedEntries = sortCloseGuessEntries(entries);
   const nextDay = {
     date,
     entries,
+    referenceClose,
     winnerMessage:
       day.winnerMessage &&
       ((day.winnerMessage.uid &&
-        day.winnerMessage.uid === sortCloseGuessEntries(entries)[0]?.uid) ||
+        day.winnerMessage.uid === rankedEntries[0]?.uid) ||
         (!day.winnerMessage.uid &&
-          day.winnerMessage.id === sortCloseGuessEntries(entries)[0]?.id))
+          day.winnerMessage.id === rankedEntries[0]?.id))
         ? day.winnerMessage
         : null,
     updatedAt: new Date().toISOString(),
@@ -2466,7 +2955,7 @@ async function handlePostCloseGuess(request, env) {
   const dates = await listCloseGuessDates(env);
   const response = closeGuessDayResponse(nextDay, dates);
   response.winnerMessageToken =
-    sortCloseGuessEntries(entries)[0]?.uid === entry.uid ? messageToken : '';
+    rankedEntries[0]?.uid === entry.uid ? messageToken : '';
   return apiJsonResponse(response, 200);
 }
 
@@ -2507,6 +2996,7 @@ async function handlePostCloseGuessWinnerMessage(request, env) {
   const nextDay = {
     date,
     entries: day.entries,
+    referenceClose: day.referenceClose || 0,
     winnerMessage: message
       ? {
           uid: winner.uid,
@@ -2789,7 +3279,7 @@ async function removeVoidedPaidDevices(env) {
   return { checked: voided.length, removed };
 }
 
-async function registerPaidDevice(env, purchaseToken, fcmToken, language) {
+async function registerPaidDevice(env, purchaseToken, fcmToken, language, uid = '') {
   const purchase = await verifyGooglePlayPurchase(env, purchaseToken);
   if (await isPurchaseTokenVoided(env, purchaseToken)) {
     throw new Error('Google Play purchase has been voided');
@@ -2807,6 +3297,7 @@ async function registerPaidDevice(env, purchaseToken, fcmToken, language) {
     `${PAID_DEVICE_PREFIX}${deviceHash}`,
     JSON.stringify({
       fcmToken,
+      uid: normalizeUserUid(uid),
       language: normalizedAlertLanguage(language),
       productId: CORE_ALERT_PRODUCT_ID,
       orderId: purchase.orderId || '',
@@ -2821,6 +3312,27 @@ async function registerPaidDevice(env, purchaseToken, fcmToken, language) {
     entitled: true,
     language: normalizedAlertLanguage(language),
   };
+}
+
+async function registerUserDevice(env, uid, fcmToken, language) {
+  const normalizedUid = normalizeUserUid(uid);
+  if (!normalizedUid || !fcmToken) {
+    throw new Error('Invalid user device registration');
+  }
+
+  const deviceHash = await sha256Hex(fcmToken);
+  await env.ALERT_STATE.put(
+    `${USER_DEVICE_PREFIX}${normalizedUid}:${deviceHash}`,
+    JSON.stringify({
+      uid: normalizedUid,
+      fcmToken,
+      language: normalizedAlertLanguage(language),
+      registeredAt: new Date().toISOString(),
+    }),
+    { expirationTtl: 90 * 24 * 60 * 60 },
+  );
+
+  return { registered: true };
 }
 
 async function reconcilePaidDevices(env) {
@@ -2882,6 +3394,7 @@ async function sendFcmTopicAlert(env, type, extraData = {}, options = {}) {
   if (alertTag) {
     data.alertTag = alertTag;
   }
+  const notification = notificationTextForLanguage(data, language);
   const response = await fetch(
     `https://fcm.googleapis.com/v1/projects/${env.FIREBASE_PROJECT_ID}/messages:send`,
     {
@@ -2893,11 +3406,17 @@ async function sendFcmTopicAlert(env, type, extraData = {}, options = {}) {
       body: JSON.stringify({
         message: {
           topic,
+          notification,
           data,
           android: {
             collapse_key: alertTag || type,
             priority: 'HIGH',
             ttl: '3600s',
+            notification: {
+              channel_id: 'qld_alerts',
+              sound: 'default',
+              tag: alertTag || type,
+            },
           },
         },
       }),
@@ -2921,6 +3440,7 @@ async function sendFcmDeviceAlert(env, fcmToken, type, extraData = {}, language 
       Object.entries(extraData).map(([key, value]) => [key, String(value)]),
     ),
   };
+  const notification = notificationTextForLanguage(data, language);
   const response = await fetch(
     `https://fcm.googleapis.com/v1/projects/${env.FIREBASE_PROJECT_ID}/messages:send`,
     {
@@ -2932,11 +3452,17 @@ async function sendFcmDeviceAlert(env, fcmToken, type, extraData = {}, language 
       body: JSON.stringify({
         message: {
           token: fcmToken,
+          notification,
           data,
           android: {
             collapse_key: type,
             priority: 'HIGH',
             ttl: '3600s',
+            notification: {
+              channel_id: 'qld_alerts',
+              sound: 'default',
+              tag: type,
+            },
           },
         },
       }),
@@ -2991,6 +3517,75 @@ async function sendPaidDeviceAlerts(env, type, extraData = {}) {
   } while (cursor);
 
   return { sent, failed };
+}
+
+async function sendUserDeviceAlerts(env, uid, type, extraData = {}) {
+  const normalizedUid = normalizeUserUid(uid);
+  if (!normalizedUid || !env.ALERT_STATE) return { sent: 0, failed: 0 };
+
+  let cursor;
+  let sent = 0;
+  let failed = 0;
+
+  do {
+    const page = await env.ALERT_STATE.list({
+      prefix: `${USER_DEVICE_PREFIX}${normalizedUid}:`,
+      cursor,
+      limit: 50,
+    });
+
+    for (const key of page.keys) {
+      const device = await env.ALERT_STATE.get(key.name, 'json');
+      if (!device?.fcmToken) continue;
+
+      try {
+        await sendFcmDeviceAlert(
+          env,
+          device.fcmToken,
+          type,
+          extraData,
+          device.language,
+        );
+        sent += 1;
+      } catch (error) {
+        failed += 1;
+        console.warn(
+          JSON.stringify({
+            event: 'user_fcm_send_failed',
+            uid: normalizedUid,
+            message: error?.message ?? String(error),
+          }),
+        );
+      }
+    }
+
+    cursor = page.list_complete ? undefined : page.cursor;
+  } while (cursor);
+
+  return { sent, failed };
+}
+
+function sendInquiryNotification(env, uid, kind, inquiry) {
+  const isReply = kind === 'reply';
+  const type = isReply ? 'inquiryReply' : 'inquiryNew';
+  const inquiryId = String(inquiry?.inquiryId || inquiry?.createdAt || '');
+  const extraData = isReply
+    ? {
+        inquiryId,
+        title_ko: '\uBB38\uC758 \uB2F5\uBCC0\uC774 \uB4F1\uB85D\uB418\uC5C8\uC2B5\uB2C8\uB2E4',
+        body_ko: '\uBB38\uC758\uC0AC\uD56D\uC5D0 \uAD00\uB9AC\uC790 \uB2F5\uBCC0\uC774 \uB4F1\uB85D\uB418\uC5C8\uC2B5\uB2C8\uB2E4.',
+        title_en: 'Your inquiry has a reply',
+        body_en: 'An admin reply has been added to your inquiry.',
+      }
+    : {
+        inquiryId,
+        title_ko: '\uC0C8 \uBB38\uC758\uC0AC\uD56D\uC774 \uB4F1\uB85D\uB418\uC5C8\uC2B5\uB2C8\uB2E4',
+        body_ko: '\uC0AC\uC6A9\uC790\uAC00 \uC0C8 \uBB38\uC758\uC0AC\uD56D\uC744 \uB0A8\uACBC\uC2B5\uB2C8\uB2E4.',
+        title_en: 'New inquiry received',
+        body_en: 'A user has submitted a new inquiry.',
+      };
+
+  return sendUserDeviceAlerts(env, uid, type, extraData);
 }
 
 async function sendLocalizedFcmTopicAlert(env, type, extraData = {}) {
@@ -3060,8 +3655,32 @@ function isAfterCloseAlertWindow(parts) {
   return (
     closeMinute > 0 &&
     parts.minutes >= closeMinute + 10 &&
-    parts.minutes < closeMinute + 240
+    parts.minutes < 24 * 60
   );
+}
+
+function isMarketOpenAlertWindow(parts) {
+  return (
+    isUsMarketOpenDay(parts) &&
+    parts.minutes >= 570 &&
+    parts.minutes < 600
+  );
+}
+
+async function evaluateMarketOpenAlert(env, parts) {
+  if (!isMarketOpenAlertWindow(parts)) return;
+
+  const lastMarketOpenAlertDate = await getState(
+    env,
+    'marketOpenAlertDate',
+    '',
+  );
+  if (lastMarketOpenAlertDate === parts.date) return;
+
+  await sendLocalizedFcmTopicAlert(env, 'marketOpen', {
+    nyDate: parts.date,
+  });
+  await putState(env, 'marketOpenAlertDate', parts.date);
 }
 
 function qldMoveStateForPercent(percent) {
@@ -3085,24 +3704,27 @@ function qldMoveAlertText(percent, direction, threshold) {
   const base =
     direction === 'down'
       ? {
-          titleKo: `QLD ${value}% 큰 하락`,
+          titleKo: `QLD ${value}% \uD070 \uD558\uB77D`,
           titleEn: `QLD down ${value}%`,
-          bodyKo: `QLD가 전일 종가 대비 ${threshold}% 하락 구간에 도달했습니다. 리스크와 현금 비중을 확인하세요.`,
+          bodyKo: `QLD\uAC00 \uC804\uC77C \uC885\uAC00 \uB300\uBE44 ${threshold}% \uC774\uC0C1 \uD558\uB77D\uD588\uC2B5\uB2C8\uB2E4. \uB9AC\uC2A4\uD06C\uC640 \uD604\uAE08 \uBE44\uC911\uC744 \uD655\uC778\uD558\uC138\uC694.`,
           bodyEn: `QLD moved down ${value}% from the previous close. Check risk and cash before acting.`,
         }
       : {
-          titleKo: `QLD ${value}% 큰 상승`,
+          titleKo: `QLD ${value}% \uD070 \uC0C1\uC2B9`,
           titleEn: `QLD up ${value}%`,
-          bodyKo: `QLD가 전일 종가 대비 ${threshold}% 상승 구간에 도달했습니다. 오늘 움직임이 계획에 영향을 주는지 확인하세요.`,
+          bodyKo: `QLD\uAC00 \uC804\uC77C \uC885\uAC00 \uB300\uBE44 ${threshold}% \uC774\uC0C1 \uC0C1\uC2B9\uD588\uC2B5\uB2C8\uB2E4. \uC624\uB298 \uC6C0\uC9C1\uC784\uC774 \uACC4\uD68D\uC5D0 \uC601\uD5A5\uC744 \uC8FC\uB294\uC9C0 \uD655\uC778\uD558\uC138\uC694.`,
           bodyEn: `QLD moved up ${value}% from the previous close. Check whether today changes your plan.`,
         };
 
   return {
+    title_ko: base.titleKo,
+    body_ko: base.bodyKo,
+    detail_ko: base.bodyKo,
     title_en: base.titleEn,
     body_en: base.bodyEn,
+    detail_en: base.bodyEn,
   };
 }
-
 function highestHighFromChartResult(chartResult) {
   const highs = chartResult?.indicators?.quote?.[0]?.high ?? [];
   let highest = 0;
@@ -3131,6 +3753,10 @@ async function evaluateHighAndStrategyAlerts(env, parts, qldDailyResult) {
 
   const close = latestEntry.close;
   const historicalHigh = Math.max(...entries.map((entry) => entry.close));
+  const previousHistoricalHigh =
+    entries.length > 1
+      ? Math.max(...entries.slice(0, -1).map((entry) => entry.close))
+      : 0;
   const storedHigh = Number(
     (await getState(env, 'qldCloseHigh', 0)) || (await getState(env, 'qldHigh', 0)),
   );
@@ -3148,7 +3774,12 @@ async function evaluateHighAndStrategyAlerts(env, parts, qldDailyResult) {
     return;
   }
 
-  if (close > storedHigh) {
+  const referenceHigh = Math.max(storedHigh, previousHistoricalHigh);
+  if (previousHistoricalHigh > storedHigh) {
+    await putState(env, 'qldCloseHigh', previousHistoricalHigh);
+  }
+
+  if (close > referenceHigh) {
     await putState(env, 'qldCloseHigh', close);
     await putState(env, 'dropZoneClose', 0);
     const lastHighAlertDate = await getState(env, 'highAlertDate', '');
@@ -3163,7 +3794,7 @@ async function evaluateHighAndStrategyAlerts(env, parts, qldDailyResult) {
   }
 
   const dropPercent =
-    ((close - storedHigh) / storedHigh) * 100;
+    ((close - referenceHigh) / referenceHigh) * 100;
   const nextZone = dropZoneForPercent(dropPercent);
   const savedZone = Number(await getState(env, 'dropZoneClose', nextZone));
 
@@ -3177,7 +3808,7 @@ async function evaluateHighAndStrategyAlerts(env, parts, qldDailyResult) {
 
     await sendLocalizedFcmTopicAlert(env, type, {
       qldPrice: close.toFixed(2),
-      high: storedHigh.toFixed(2),
+      high: referenceHigh.toFixed(2),
       dropPercent: dropPercent.toFixed(2),
       nyDate: parts.date,
     });
@@ -3188,7 +3819,7 @@ async function evaluateHighAndStrategyAlerts(env, parts, qldDailyResult) {
   for (const type of recoveryTypes) {
     await sendLocalizedFcmTopicAlert(env, type, {
       qldPrice: close.toFixed(2),
-      high: storedHigh.toFixed(2),
+      high: referenceHigh.toFixed(2),
       dropPercent: dropPercent.toFixed(2),
       nyDate: parts.date,
     });
@@ -3217,7 +3848,6 @@ async function evaluateQldMoveAlert(env, parts, qldDailyResult) {
   const thresholdStateKey = `qldMove${direction}Threshold:${parts.date}`;
   if (!initialized) {
     await putState(env, 'qldMoveAlertInitialized', true);
-    return;
   }
 
   if (nextState === 0 || !threshold) return;
@@ -3322,6 +3952,8 @@ async function evaluateScheduledAlerts(env, scheduledTime = Date.now()) {
 
   const now = new Date(scheduledTime);
   const parts = newYorkTimeParts(now);
+
+  await evaluateMarketOpenAlert(env, parts);
 
   if (!isAfterCloseAlertWindow(parts)) return;
 
@@ -3507,6 +4139,7 @@ export default {
       path === '/close-guess' ||
       path === '/close-guess-winner-message' ||
       path === '/inquiries/reply' ||
+      path === '/inquiries/message' ||
       path === '/inquiries/pin' ||
       path === '/inquiries/delete' ||
       path === '/inquiries' ||
@@ -3539,6 +4172,9 @@ export default {
         }
         if (path === '/inquiries/reply' && request.method === 'POST') {
           return handlePostInquiryReply(request, env);
+        }
+        if (path === '/inquiries/message' && request.method === 'POST') {
+          return handlePostInquiryMessage(request, env);
         }
         if (path === '/inquiries/pin' && request.method === 'POST') {
           return handlePinInquiry(request, env);
@@ -3585,6 +4221,7 @@ export default {
 
       try {
         const body = await request.json();
+        const uid = normalizeUserUid(body?.uid);
         const purchaseToken = String(body?.purchaseToken || '').trim();
         const fcmToken = String(body?.fcmToken || '').trim();
         const language = String(body?.language || 'en');
@@ -3603,7 +4240,11 @@ export default {
           purchaseToken,
           fcmToken,
           language,
+          uid,
         );
+        if (uid) {
+          await registerUserDevice(env, uid, fcmToken, language);
+        }
         return apiJsonResponse(result, 200);
       } catch (error) {
         console.warn(
@@ -3616,6 +4257,46 @@ export default {
           { entitled: false, error: 'Purchase verification failed' },
           403,
         );
+      }
+    }
+
+    if (path === '/device/register') {
+      if (request.method !== 'POST') {
+        return apiJsonResponse({ error: 'Method Not Allowed' }, 405);
+      }
+
+      const { success } = await env.API_RATE_LIMITER.limit({ key: clientKey });
+      if (!success) {
+        return apiJsonResponse({ error: 'Too many requests' }, 429);
+      }
+
+      const contentLength = Number(request.headers.get('content-length') || 0);
+      if (contentLength > 8192) {
+        return apiJsonResponse({ error: 'Request too large' }, 413);
+      }
+
+      try {
+        const body = await request.json();
+        const uid = normalizeUserUid(body?.uid);
+        const fcmToken = String(body?.fcmToken || '').trim();
+        const language = String(body?.language || 'en');
+
+        if (!uid || fcmToken.length < 16 || fcmToken.length > 4096) {
+          return apiJsonResponse({ error: 'Invalid device registration' }, 400);
+        }
+
+        return apiJsonResponse(
+          await registerUserDevice(env, uid, fcmToken, language),
+          200,
+        );
+      } catch (error) {
+        console.warn(
+          JSON.stringify({
+            event: 'user_device_registration_failed',
+            message: error?.message ?? String(error),
+          }),
+        );
+        return apiJsonResponse({ registered: false }, 500);
       }
     }
 
@@ -3802,7 +4483,7 @@ export default {
 
     if (path === '/app-config') {
       const defaultConfig = {
-        latestVersionCode: 41,
+        latestVersionCode: 50,
         forceUpdate: false,
         updateUrl:
           'https://play.google.com/store/apps/details?id=com.qldalert.app',

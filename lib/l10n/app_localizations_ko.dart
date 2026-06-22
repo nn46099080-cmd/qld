@@ -136,6 +136,53 @@ class AppLocalizationsKo extends AppLocalizations {
       '[ 전략 안내 ]\n\n이 전략은 자산 전체를 한 번에 QLD에 투자하지 않습니다.\n\n초기에는 자산의 일부만 투자하고, 나머지는 현금으로 보유해 큰 하락장에 대비합니다.\n\n현금 보유의 힘\n\n현금은 수익을 높이기 위한 것이 아니라, 하락장에서도 흔들리지 않기 위한 심리적 여유입니다.\n\n최고 수익률보다 중요한 것은 끝까지 복리를 지속할 수 있는 투자 시스템입니다.\n\n예시:\n- 초기 자산의 70%만 QLD 투자\n- 나머지 30%는 현금 보유\n\nQLD는 나스닥100 지수의 약 2배 움직임을 추종하는 ETF입니다.\n\n따라서 초기 상태에서는:\n2배 레버리지 × 70% 투자 = 약 1.4배 수준의 움직임이 됩니다.\n\n즉:\n- 나스닥 +1%\n→ 전체 자산 약 +1.4%\n\n그리고 큰 하락장이 발생하면 보유 중인 현금을 단계적으로 추가 매수에 사용합니다.\n\n예:\n- QLD -40% 구간에서 추가 매수\n\n이 경우 낮아진 가격에서 더 많은 수량을 확보하게 되며, 이후 시장 회복 시 평균 단가가 크게 낮아지는 효과가 발생합니다.\n\n따라서 단순 보유 전략보다 회복 구간에서 더 높은 수익률이 발생할 수 있습니다.\n\n이 전략의 핵심은:\n- 상승장에서는 현금 비중으로 변동성을 낮추고\n- 큰 하락장에서는 현금으로 추가 매수해 평균 단가를 낮추는 것입니다.';
 
   @override
+  String get basePositionIntro =>
+      '전부를 한 번에 투자하지 않고, QLD와 현금을 함께 보유하는 기본 전략입니다. 상승장에서는 흔들림을 줄이고, 큰 하락장에서는 현금으로 추가 매수할 여지를 남깁니다.';
+
+  @override
+  String get basePositionQldAllocationLabel => 'QLD 기본 보유';
+
+  @override
+  String get basePositionCashAllocationLabel => '현금 대기';
+
+  @override
+  String get basePositionCorePrinciple => '핵심 원칙';
+
+  @override
+  String get basePositionCashTitle => '현금은 수익률을 낮추는 돈이 아닙니다';
+
+  @override
+  String get basePositionCashText => '큰 하락장에서 버티고, 낮은 가격에 추가 매수하기 위한 안전 여유입니다.';
+
+  @override
+  String get basePositionInitialLeverageTitle => '초기 움직임은 약 1.4배 수준';
+
+  @override
+  String get basePositionInitialLeverageText =>
+      'QLD는 나스닥100의 약 2배를 추종합니다. 자산의 70%만 QLD에 두면 전체 자산 변동은 약 1.4배로 낮아집니다.';
+
+  @override
+  String get basePositionStepLeverageTitle => '하락 구간에서는 배율을 단계적으로 높입니다';
+
+  @override
+  String get basePositionStepLeverageText =>
+      '-20%~-30% 구간부터 TQQQ를 섞어 물타기를 시작하면 전체 움직임은 약 1.8배 수준으로 올라갑니다. 가장 깊은 하락 구간에서는 약 2.3배까지 높아질 수 있습니다.';
+
+  @override
+  String get basePositionLowAverageTitle => '공포가 클수록 낮은 평단가를 만듭니다';
+
+  @override
+  String get basePositionLowAverageText =>
+      '이 앱의 구조는 하락이 깊어질수록 대기 현금으로 TQQQ를 단계적으로 추가 매수하는 방식입니다. 저점 구간에서 수량을 늘려두면, 이후 큰 반등 때 수익률을 더 강하게 끌어올릴 수 있습니다.';
+
+  @override
+  String get basePositionSummaryTitle => '정리';
+
+  @override
+  String get basePositionSummaryText =>
+      '목표는 최고 수익률을 맞히는 것이 아니라, 하락장에서도 계획을 유지해 복리를 오래 지속하는 것입니다.';
+
+  @override
   String get buySignalMessage => '매수 신호는 이곳에 자동으로 표시됩니다.';
 
   @override
@@ -221,7 +268,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get minus20Title => '-20% 전략';
 
   @override
-  String get minus20Headline => '소수점 적립식 TQQQ 매수 시작';
+  String get minus20Headline => '현금 1% 주간 TQQQ 적립 시작';
 
   @override
   String get minus20OverviewTitle => '전략 개요';
@@ -453,6 +500,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get alertSettingsTitle => '알림 설정';
 
   @override
+  String get alertSettingsCloseBasisNote => '알림은 종가 기준으로 발송됩니다.';
+
+  @override
   String get alertHighTitle => '신고가 알림';
 
   @override
@@ -504,27 +554,28 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get minus20ActionText =>
-      'TQQQ를 소수점 단위로 아주 작게 적립 매수합니다. 큰 금액을 한 번에 넣지 않습니다.';
+      '전체 현금의 1%만 사용해 일주일에 한 번 TQQQ를 소수점 단위로 적립 매수합니다. 큰 금액을 한 번에 넣지 않습니다.';
 
   @override
-  String get minus20BuyRuleTitle => '매수 기준';
+  String get minus20BuyRuleTitle => '목적';
 
   @override
   String get minus20BuyRuleText =>
-      '전체 현금 중 아주 일부만 사용합니다. 핵심은 큰 진입이 아니라 리듬을 시작하는 것입니다.';
+      '-20% 구간부터 횡보장이 길어질 때 조금씩 수량을 모아 TQQQ 평단가를 낮추기 위한 설정입니다. 핵심은 수익을 바로 맞히는 것이 아니라 낮은 평균단가를 만드는 것입니다.';
 
   @override
   String get minus20CashTitle => '현금 관리';
 
   @override
   String get minus20CashText =>
-      '대부분의 현금은 반드시 남깁니다. -30%, -40%, -50% 구간을 대비해야 합니다.';
+      '대부분의 현금은 -30%, -40%, -50% 구간을 위해 남깁니다. -50%에서 계획된 현금을 모두 사용한 뒤에도 새로 생기는 현금은 주간 적립으로 평단을 계속 낮춥니다.';
 
   @override
-  String get minus20AvoidTitle => '금지 행동';
+  String get minus20AvoidTitle => '정리 기준';
 
   @override
-  String get minus20AvoidText => 'TQQQ를 성급하게 크게 사지 않습니다. -20%는 아직 초입 구간입니다.';
+  String get minus20AvoidText =>
+      '이 구간에서 모은 TQQQ는 단기 반등마다 정리하지 않습니다. 이후 신고가를 경신하고 TQQQ를 정리하는 시점에 함께 정리하는 전략으로 봅니다.';
 
   @override
   String get minus30ActionTitle => '즉시 행동';
@@ -870,4 +921,93 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get investmentCurrencyRussiaRub => '러시아 RUB';
+
+  @override
+  String get contentTitle => '콘텐츠';
+
+  @override
+  String get contentInquiry => '문의사항';
+
+  @override
+  String get contentCloseGuess => '종가 맞추기';
+
+  @override
+  String get contentStockQuote => '오늘의 주식 명언';
+
+  @override
+  String get contentNumberGuess => '숫자 맞추기';
+
+  @override
+  String get contentBookReader => '책 읽기';
+
+  @override
+  String get contentStockMeme => '주식 짤';
+
+  @override
+  String get contentLottoNumbers => '로또번호 추천';
+
+  @override
+  String get contentJumpDodge => '점프 장애물 피하기';
+
+  @override
+  String get stockQuoteTitle => '오늘의 주식 명언';
+
+  @override
+  String get stockQuoteTapHint => '터치하면 다른 문구가 나옵니다.';
+
+  @override
+  String get stockQuoteShuffle => '다른 명언 보기';
+
+  @override
+  String get usageGuideTitle => '앱 사용방법';
+
+  @override
+  String get usageGuideSubtitle => '장기 우상향 나스닥 2배 레버리지 행동규칙';
+
+  @override
+  String get usageGuideCardTitle => '앱 사용방법';
+
+  @override
+  String get usageGuideCardSubtitle => '기본 포지션, 하락구간, 매수 기록, 보조지표';
+
+  @override
+  String get usageGuideWhatAppTitle => '이 앱은 어떤 앱인가요?';
+
+  @override
+  String get usageGuideWhatAppBody =>
+      '이 앱은 장기 우상향하는 나스닥 2배 레버리지 투자자를 위한 행동규칙 안내 앱입니다.\n\n역대 최고가 대비 현재 하락률을 자동 계산하여 현재 위치를 확인하고, 각 구간에 맞는 투자 전략을 제공합니다.\n\n시장의 공포와 탐욕에 흔들리지 않고, 계획된 투자 원칙을 꾸준히 실천할 수 있도록 돕습니다.';
+
+  @override
+  String get usageGuideNoBuyTitle => '1. 기본 포지션과 전략을 먼저 읽기';
+
+  @override
+  String get usageGuideNoBuyBody =>
+      '먼저 메인화면의 \"기본 포지션 카드\"를 눌러 어떤 방법으로 준비하는지 설명을 읽어보세요. 또한 오른쪽 최하단의 \"전략\" 탭을 눌러 상세한 전략을 숙지합니다.';
+
+  @override
+  String get usageGuideStrategyTitle => '2. 하락구간별 자동 전략 확인';
+
+  @override
+  String get usageGuideStrategyBody =>
+      '메인 3번째 카드에 \"역대최고가 대비 -몇 %\"가 자동 계산됩니다. 그 구간에 맞는 전략이 자동으로 표시되고, 조건에 맞으면 알림도 옵니다.';
+
+  @override
+  String get usageGuideIndicatorsTitle => '보조지표 4가지';
+
+  @override
+  String get usageGuideIndicatorsBody =>
+      'CNN F&G는 시장이 공포 쪽인지 탐욕 쪽인지 보여주는 투자심리 지표입니다.\n\nVIX는 시장이 얼마나 불안한지 보여주는 변동성 지표입니다. 숫자가 높을수록 시장 불안이 크다고 볼 수 있습니다.\n\n미국 주요 일정에는 NFP, CPI, FOMC가 있습니다. NFP는 고용, CPI는 물가, FOMC는 금리 방향을 확인하는 일정입니다. 발표 결과에 따라 나스닥과 QLD가 크게 흔들릴 수 있어 확인합니다.\n\n10년 국채 수익률은 미국 10년물 금리입니다. 금리가 빠르게 오르면 성장주와 나스닥, QLD에는 부담이 될 수 있습니다.';
+
+  @override
+  String get usageGuideQldTitle => '3. 매수 후 포트폴리오에 기록';
+
+  @override
+  String get usageGuideQldBody =>
+      '표시된 전략과 금액을 참고해 개인이 사용하는 거래소에서 직접 매수합니다. 매수 후에는 앱의 포트폴리오에 수량, 평균단가, 현금을 기록해 다음 전략 기준을 확인합니다.';
+
+  @override
+  String get usageGuideDisclaimer => '이 앱의 내용은 투자 참고용이며 수익을 보장하지 않습니다.';
+
+  @override
+  String get usageGuideConfirm => '확인';
 }

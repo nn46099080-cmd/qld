@@ -136,6 +136,53 @@ class AppLocalizationsJa extends AppLocalizations {
       '[ 戦略ガイド ]\n\nこの戦略は、資産全体を一度にQLDへ投資するものではありません。\n\n初期段階では資産の一部だけを投資し、残りは現金として保有して大きな下落相場に備えます。\n\n現金を保有する力\n\n現金はリターンを高めるためではなく、下落相場でも動揺せず規律を守るための心の余裕です。\n\n最高のリターンより重要なのは、最後まで複利を続けられる投資システムです。\n\n例:\n- 初期資産の70%のみをQLDに投資\n- 残りの30%は現金で保有\n\nQLDはナスダック100指数のおよそ2倍の値動きを追跡するETFです。\n\nそのため初期状態では:\n2倍レバレッジ × 70%投資 = 約1.4倍程度の値動きになります。\n\nつまり:\n- ナスダック +1%\n→ 全体資産は約 +1.4%\n\n大きな下落相場が発生した場合、保有している現金を段階的な追加購入に使用します。\n\n例:\n- QLD -40%付近で追加購入\n\nこの場合、下がった価格でより多くの数量を確保でき、その後市場が回復したときに平均取得単価を大きく下げる効果があります。\n\nそのため、単純な保有戦略よりも回復局面で高いリターンが期待できます。\n\nこの戦略の核心は:\n- 上昇相場では現金比率で変動性を抑える\n- 大きな下落相場では現金で追加購入し、平均単価を下げることです。';
 
   @override
+  String get basePositionIntro =>
+      'すべてを一度に投資せず、QLDと現金を一緒に持つ基本戦略です。上昇相場では揺れを抑え、大きな下落相場では追加購入の余地を残します。';
+
+  @override
+  String get basePositionQldAllocationLabel => 'QLDの基本保有';
+
+  @override
+  String get basePositionCashAllocationLabel => '待機現金';
+
+  @override
+  String get basePositionCorePrinciple => '核心原則';
+
+  @override
+  String get basePositionCashTitle => '現金はリターンを下げるだけの資金ではありません';
+
+  @override
+  String get basePositionCashText => '大きな下落相場で規律を保ち、低い価格で追加購入するための安全余力です。';
+
+  @override
+  String get basePositionInitialLeverageTitle => '初期の値動きは約1.4倍';
+
+  @override
+  String get basePositionInitialLeverageText =>
+      'QLDはナスダック100のおよそ2倍を追跡します。資産の70%だけをQLDに置くと、全体の値動きは約1.4倍に抑えられます。';
+
+  @override
+  String get basePositionStepLeverageTitle => '下落局面では倍率を段階的に高めます';
+
+  @override
+  String get basePositionStepLeverageText =>
+      '-20%〜-30%の局面からTQQQを加えて平均取得単価を下げると、全体の値動きは約1.8倍まで上がります。最も深い下落局面では約2.3倍まで高まる可能性があります。';
+
+  @override
+  String get basePositionLowAverageTitle => '恐怖が強いほど低い平均単価を作ります';
+
+  @override
+  String get basePositionLowAverageText =>
+      'このアプリは、下落が深まるほど待機現金でTQQQを段階的に追加購入する構造です。安値圏で数量を増やしておくことで、その後の大きな反発時にリターンを強く押し上げられます。';
+
+  @override
+  String get basePositionSummaryTitle => 'まとめ';
+
+  @override
+  String get basePositionSummaryText =>
+      '目的は最高リターンを当てることではなく、下落相場でも計画を守り、複利を長く続けることです。';
+
+  @override
   String get buySignalMessage => '買いシグナルはここに自動表示されます。';
 
   @override
@@ -220,7 +267,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get minus20Title => '-20%戦略';
 
   @override
-  String get minus20Headline => '少額積立でTQQQ買付開始';
+  String get minus20Headline => '現金1%で週1回TQQQ積立開始';
 
   @override
   String get minus20OverviewTitle => '戦略概要';
@@ -451,6 +498,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get alertSettingsTitle => '通知設定';
 
   @override
+  String get alertSettingsCloseBasisNote => '通知は終値を基準に送信されます。';
+
+  @override
   String get alertHighTitle => '新高値通知';
 
   @override
@@ -499,26 +549,29 @@ class AppLocalizationsJa extends AppLocalizations {
   String get minus20ActionTitle => 'すぐに行うこと';
 
   @override
-  String get minus20ActionText => 'TQQQを小さな単位で少額ずつ積立買いします。大きな金額を一度に入れません。';
+  String get minus20ActionText =>
+      '総現金の1%だけを使い、週に1回TQQQを端株で積み立てます。一度に大きな金額を入れません。';
 
   @override
-  String get minus20BuyRuleTitle => '買いルール';
+  String get minus20BuyRuleTitle => '目的';
 
   @override
   String get minus20BuyRuleText =>
-      '総現金のごく一部だけを使います。目的は大きな投入ではなく、買いのリズムを始めることです。';
+      '-20%ゾーンから始めることで、横ばいが続く場合でも少しずつ数量を増やし、TQQQの平均取得単価を下げるための設定です。すぐ利益を当てることではなく、低い平均単価を作ることが目的です。';
 
   @override
   String get minus20CashTitle => '現金管理';
 
   @override
-  String get minus20CashText => '大部分の現金は必ず残します。-30%、-40%、-50%ゾーンに備えます。';
+  String get minus20CashText =>
+      '大半の現金は-30%、-40%、-50%ゾーンに備えて残します。-50%で計画した現金を使い切った後も、新しい現金は週次積立で平均単価を下げ続けます。';
 
   @override
-  String get minus20AvoidTitle => '避けること';
+  String get minus20AvoidTitle => '整理基準';
 
   @override
-  String get minus20AvoidText => 'TQQQを急いで大きく買いません。-20%はまだ序盤です。';
+  String get minus20AvoidText =>
+      'このゾーンで集めたTQQQは短期反発のたびに売りません。後に新高値を更新し、TQQQを整理するタイミングで一緒に整理する戦略として扱います。';
 
   @override
   String get minus30ActionTitle => 'すぐに行うこと';
@@ -855,4 +908,93 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get investmentCurrencyRussiaRub => 'ロシア RUB';
+
+  @override
+  String get contentTitle => 'コンテンツ';
+
+  @override
+  String get contentInquiry => 'お問い合わせ';
+
+  @override
+  String get contentCloseGuess => '終値予想';
+
+  @override
+  String get contentStockQuote => '今日の投資格言';
+
+  @override
+  String get contentNumberGuess => '数字当て';
+
+  @override
+  String get contentBookReader => '本を読む';
+
+  @override
+  String get contentStockMeme => '株式ミーム';
+
+  @override
+  String get contentLottoNumbers => 'ロト番号おすすめ';
+
+  @override
+  String get contentJumpDodge => 'ジャンプ回避ゲーム';
+
+  @override
+  String get stockQuoteTitle => '今日の投資格言';
+
+  @override
+  String get stockQuoteTapHint => 'タップすると別の言葉が表示されます。';
+
+  @override
+  String get stockQuoteShuffle => '別の格言を見る';
+
+  @override
+  String get usageGuideTitle => 'アプリの使い方';
+
+  @override
+  String get usageGuideSubtitle => '長期Nasdaq 2倍レバレッジの行動ルール';
+
+  @override
+  String get usageGuideCardTitle => 'アプリの使い方';
+
+  @override
+  String get usageGuideCardSubtitle => '基本ポジション、下落ゾーン、購入記録、補助指標';
+
+  @override
+  String get usageGuideWhatAppTitle => 'このアプリは何ですか？';
+
+  @override
+  String get usageGuideWhatAppBody =>
+      'このアプリは、長期的なNasdaq 2倍レバレッジ投資家のための行動ルール案内アプリです。\n\n過去最高値からの現在の下落率を自動計算し、今の位置を確認できるようにして、各ゾーンに合った投資戦略を提示します。\n\n市場の恐怖や欲に振り回されず、計画した投資原則を続けられるようにサポートします。';
+
+  @override
+  String get usageGuideNoBuyTitle => '1. 基本ポジションと戦略を先に読む';
+
+  @override
+  String get usageGuideNoBuyBody =>
+      'まずメイン画面の「基本ポジションカード」をタップし、どのように準備するかを読んでください。右下の「戦略」タブでも詳しい戦略を確認します。';
+
+  @override
+  String get usageGuideStrategyTitle => '2. 下落ゾーン別の自動戦略を確認';
+
+  @override
+  String get usageGuideStrategyBody =>
+      'メインの3番目のカードに「過去最高値から-何%」が自動計算されます。そのゾーンに合う戦略が自動表示され、条件に合えば通知も届きます。';
+
+  @override
+  String get usageGuideIndicatorsTitle => '補助指標4つ';
+
+  @override
+  String get usageGuideIndicatorsBody =>
+      'CNN F&Gは市場心理が恐怖寄りか欲張り寄りかを見る指標です。\n\nVIXは市場の不安度を見る変動性指標です。数値が高いほど市場不安が大きいと見られます。\n\n米国主要予定にはNFP、CPI、FOMCがあります。NFPは雇用、CPIは物価、FOMCは金利方針を確認する予定です。結果によってNasdaqとQLDが大きく動くことがあります。\n\n10年国債利回りは米国10年債の金利です。急上昇すると成長株、Nasdaq、QLDの負担になることがあります。';
+
+  @override
+  String get usageGuideQldTitle => '3. 購入後はポートフォリオに記録';
+
+  @override
+  String get usageGuideQldBody =>
+      '表示された戦略と金額を参考に、自分が使う証券会社で直接購入します。購入後はアプリのポートフォリオに数量、平均単価、現金を記録します。';
+
+  @override
+  String get usageGuideDisclaimer => 'このアプリの内容は投資の参考用であり、利益を保証するものではありません。';
+
+  @override
+  String get usageGuideConfirm => 'OK';
 }
