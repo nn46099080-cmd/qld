@@ -1,6 +1,7 @@
 {
   "scripts": {
     "check": "wrangler deploy --dry-run --config wrangler.toml",
+    "test:market-open": "node test/market-open-alert.test.mjs",
     "deploy": "wrangler deploy --config wrangler.toml"
   },
   "devDependencies": {
