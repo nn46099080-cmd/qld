@@ -1,4 +1,4 @@
-{
+﻿{
   "appTitle": "Оповещение QLD",
   "noBuyZone": "Зона без покупок",
   "tapToViewStrategy": "Посмотреть стратегию",
@@ -82,7 +82,7 @@
   "guide3": "✅ Focus on long-term positioning",
   "guide4": "❌ Avoid emotional overbuying",
   "minus20Title": "Стратегия -20%",
-  "minus20Headline": "Начать еженедельное накопление TQQQ на 1% кэша",
+  "minus20Headline": "Начать еженедельное накопление TQQQ на 1% от общего кэша",
   "minus20OverviewTitle": "Strategy Overview",
   "minus20OverviewText": "This zone represents approximately a 10% correction in QQQ.\n\nSince the decline is still relatively moderate, maintaining cash reserves remains important.",
   "minus20AllocationTitle": "Suggested Allocation",
@@ -169,11 +169,11 @@
   "noBuyNextTitle": "Следующий шаг",
   "noBuyNextText": "При достижении -20% подготовьте небольшие регулярные покупки TQQQ.",
   "minus20ActionTitle": "Немедленное действие",
-  "minus20ActionText": "Раз в неделю используйте только 1% общего кэша для дробного накопления TQQQ. Не вкладывайте крупную сумму сразу.",
+  "minus20ActionText": "Покупайте TQQQ еженедельно на 1% от имеющихся наличных.\nПример: $500 наличными → $5 в неделю",
   "minus20BuyRuleTitle": "Цель",
   "minus20BuyRuleText": "Эта настройка начинается в зоне -20%, чтобы при боковом рынке небольшие регулярные покупки постепенно снижали среднюю цену TQQQ. Цель — не угадать мгновенную прибыль, а создать более низкую среднюю стоимость.",
   "minus20CashTitle": "Управление наличными",
-  "minus20CashText": "Большая часть кэша должна остаться для зон -30%, -40% и -50%. Даже после полного использования планового кэша на -50% новый кэш может продолжать снижать среднюю цену через еженедельное накопление.",
+  "minus20CashText": "Большая часть кэша должна остаться для зон -30%, -40% и -50%. Даже после полного использования планового кэша на -50% новый кэш может продолжать снижать среднюю цену через еженедельное накопление.\n\nДаже если рынок движется в боковике 10 и более недель, продолжайте еженедельно вкладывать 1% от общего кэша. Чем дольше боковик, тем больше накапливается долей — останавливаться не нужно.\n\nКогда достигается зона -30%, совершите разовую дополнительную покупку на 20% оставшегося на тот момент кэша. Еженедельное накопление не прекращается — оно продолжается параллельно со стратегией -30%. Накопление заканчивается только при восстановлении предыдущего максимума и проведении ребалансировки.",
   "minus20AvoidTitle": "План выхода",
   "minus20AvoidText": "Не продавайте эти доли TQQQ на каждом коротком отскоке. Рассматривайте их как часть позиции, которую позже закрывают вместе с сокращением TQQQ после нового максимума.",
   "minus30ActionTitle": "Немедленное действие",
@@ -249,6 +249,16 @@
   "holdAvoidText": "Не спешите продавать из-за волатильности и не совершайте импульсивные покупки из-за уверенности в восстановлении.",
   "holdResetTitle": "Сброс стратегии",
   "holdResetText": "Когда QLD полностью восстановится до предыдущего максимума, цикл падения завершится и стратегия вернётся в исходное состояние без покупок.",
+  "rebalanceTitle": "Зона ребалансировки",
+  "rebalanceHeadline": "Продать TQQQ и вернуться к базовой позиции",
+  "rebalanceOverviewTitle": "Обзор стратегии",
+  "rebalanceOverviewText": "Восстановление до исторического максимума сигнализирует о завершении фазы антикризисного реагирования. Пора продать TQQQ, накопленный в зонах -20% и ниже, и вернуться к базовой позиции (QLD 70%, Кэш 30%).",
+  "rebalanceActionTitle": "Немедленные действия",
+  "rebalanceActionText": "Продайте весь TQQQ, накопленный или купленный в зонах -20% и ниже. Затем перераспределите активы согласно базовой позиции.",
+  "rebalanceCashTitle": "Цель по кэшу",
+  "rebalanceCashText": "После ребалансировки поддерживать QLD 70% и Кэш 30%. Сохраняйте обеспеченный кэш как резерв для следующего падения.",
+  "rebalanceAvoidTitle": "Чего избегать",
+  "rebalanceAvoidText": "Не продолжайте накапливать TQQQ после восстановления исторического максимума. Продайте позиции, накопленные в кризисной фазе, и вернитесь к базовой позиции.",
   "investmentCalculatorTitle": "Калькулятор ожидаемой доходности",
   "investmentCalculatorSubtitle": "Простой расчет сложного процента на основе средней доходности QLD",
   "investmentCalculatorReturnRate": "Средняя доходность за 10 лет",
@@ -283,13 +293,23 @@
   "investmentCurrencyRussiaRub": "Россия RUB",
   "contentTitle": "Контент",
   "contentInquiry": "Вопросы",
+  "contentInquirySubtitle": "Отправьте анонимный запрос и получите ответ.",
+  "contentInquiryBadge": "Q&A",
   "contentCloseGuess": "Угадать закрытие",
   "contentStockQuote": "Биржевые цитаты",
+  "contentStockQuoteSubtitle": "Короткие цитаты для обострения инвестиционного чутья.",
+  "contentStockQuoteBadge": "Ежедн.",
   "contentNumberGuess": "Угадай число",
-  "contentBookReader": "Чтение книг",
+  "contentNumberGuessSubtitle": "Лёгкая вероятностная мини-игра для отдыха.",
+  "contentNumberGuessBadge": "Игра",
+  "contentBookReader": "Колонка",
+  "contentBookReaderSubtitle": "Тексты общественного достояния для спокойного чтения.",
+  "contentBookReaderBadge": "Читать",
   "contentStockMeme": "Биржевой мем",
   "contentLottoNumbers": "Номера лотереи",
   "contentJumpDodge": "Игра: прыгай и уклоняйся",
+  "contentJumpDodgeSubtitle": "Мини-игра с прыжками для коротких сессий.",
+  "contentJumpDodgeBadge": "Экшен",
   "stockQuoteTitle": "Биржевые цитаты",
   "stockQuoteTapHint": "Нажмите, чтобы увидеть другую цитату.",
   "stockQuoteShuffle": "Другая цитата",
@@ -308,5 +328,86 @@
   "usageGuideQldTitle": "3. Купите и запишите в портфель",
   "usageGuideQldBody": "Используйте стратегию и сумму как ориентир, купите через своего брокера, затем запишите количество, среднюю цену и наличные в портфеле приложения.",
   "usageGuideDisclaimer": "Это приложение только для справки и не гарантирует прибыль.",
-  "usageGuideConfirm": "OK"
+  "usageGuideConfirm": "OK",
+  "bookReadingTitle": "Колонка",
+  "bookReaderPageNumber": "Стр. {page}",
+  "@bookReaderPageNumber": {
+    "placeholders": {
+      "page": { "type": "int" }
+    }
+  },
+  "numGuessPrompt": "Угадайте число от 1 до 1000.",
+  "numGuessInvalidInput": "Пожалуйста, введите число от 1 до 1000.",
+  "numGuessCorrect": "Правильно! Вы угадали за {attempts} попытки.",
+  "@numGuessCorrect": {
+    "placeholders": {
+      "attempts": { "type": "int" }
+    }
+  },
+  "numGuessTooLow": "Число больше.",
+  "numGuessTooHigh": "Число меньше.",
+  "numGuessAttemptsLabel": "Попытки: {count}",
+  "@numGuessAttemptsLabel": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "numGuessInputHint": "Введите число",
+  "numGuessConfirm": "Подтвердить",
+  "numGuessNewGame": "Новая игра",
+  "numGuessRanking": "Рейтинг",
+  "numGuessNoRecords": "Записей пока нет.",
+  "numGuessAttemptCount": "{count} попыток",
+  "@numGuessAttemptCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "jumpLeaderboard": "Рекорды",
+  "jumpScore": "Счёт",
+  "jumpPersonalBest": "Личный рекорд",
+  "jumpTapToRestart": "Нажмите для перезапуска",
+  "jumpTapToStart": "Нажмите для начала",
+  "jumpInstruction": "Нажмите на экран, чтобы прыгать и уклоняться от препятствий.",
+  "inquiryLoadError": "Не удалось загрузить запросы.",
+  "inquiryAdminOnlyReply": "Только администраторы могут отвечать.",
+  "inquiryReplyEmpty": "Пожалуйста, введите ответ.",
+  "inquiryReplyError": "Не удалось отправить ответ. Попробуйте позже.",
+  "inquiryAdminOnlyPin": "Только администраторы могут закреплять.",
+  "inquiryPinError": "Не удалось сохранить статус закрепления.",
+  "inquiryAdminOnlyDelete": "Только администраторы могут удалять.",
+  "inquiryDeleteTitle": "Удалить запрос",
+  "inquiryDeleteConfirm": "Удалить этот запрос?",
+  "inquiryCancel": "Отмена",
+  "inquiryDeleteAction": "Удалить",
+  "inquiryDeleteError": "Не удалось удалить. Попробуйте позже.",
+  "inquiryContentEmpty": "Пожалуйста, введите ваш запрос.",
+  "inquirySubmitError": "Не удалось отправить запрос. Попробуйте позже.",
+  "inquiryAdminLabel": "Администратор",
+  "inquiryPasswordLabel": "Пароль",
+  "inquiryPasswordWrong": "Неверный пароль.",
+  "inquiryAdminActivatedRegistered": "Режим администратора включён (устройство зарегистрировано)",
+  "inquiryAdminActivatedFailed": "Режим администратора включён (ошибка регистрации устройства)",
+  "inquiryContentDetailLabel": "Запрос",
+  "inquiryAdminReplyLabel": "Ответ администратора",
+  "inquiryAdminReplyEdit": "Редактировать ответ",
+  "inquirySaving": "Сохранение...",
+  "inquirySubmitReply": "Отправить ответ",
+  "inquiryPrevPage": "Предыдущая страница",
+  "inquiryNextPage": "Следующая страница",
+  "inquiryPageOf": "Страница {current} / {total}",
+  "@inquiryPageOf": {
+    "placeholders": {
+      "current": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "inquiryUnpin": "Открепить",
+  "inquiryPin": "Закрепить",
+  "inquiryListTitle": "Список запросов",
+  "inquiryEmpty": "Запросов пока нет.",
+  "inquiryWriteTitle": "Написать запрос",
+  "inquiryContentFieldLabel": "Содержание",
+  "inquirySubmitting": "Отправка...",
+  "inquirySubmitButton": "Отправить"
 }

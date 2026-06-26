@@ -275,7 +275,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get minus20Title => '-20% Strategy';
 
   @override
-  String get minus20Headline => 'Start Weekly 1% Cash TQQQ Accumulation';
+  String get minus20Headline =>
+      'Start Weekly 1% of Total Cash TQQQ Accumulation';
 
   @override
   String get minus20OverviewTitle => 'Strategy Overview';
@@ -570,7 +571,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get minus20ActionText =>
-      'Use only 1% of total cash once a week to accumulate fractional TQQQ shares. Do not put in a large amount at once.';
+      'Start buying TQQQ weekly at 1% of your cash holdings.\nEx) \$500 cash → buy \$5 per week';
 
   @override
   String get minus20BuyRuleTitle => 'Purpose';
@@ -584,7 +585,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get minus20CashText =>
-      'Most cash must remain available for the -30%, -40%, and -50% zones. Even after planned cash is fully used at -50%, new cash can keep lowering the average through weekly accumulation.';
+      'Most cash must remain available for the -30%, -40%, and -50% zones. Even after planned cash is fully used at -50%, new cash can keep lowering the average through weekly accumulation.\n\nEven if the market moves sideways for 10 or more weeks, continue accumulating 1% of total cash every week. The longer the sideways movement, the more shares you build up — there is no reason to stop.\n\nWhen the -30% zone is reached, make a single additional purchase using 20% of the remaining cash at that point. The weekly accumulation does not stop — it continues alongside the -30% strategy. Accumulation ends only when the previous high is recovered and rebalancing takes place.';
 
   @override
   String get minus20AvoidTitle => 'Exit Plan';
@@ -850,6 +851,40 @@ class AppLocalizationsEn extends AppLocalizations {
       'When QLD fully recovers to the previous high, this decline cycle is complete and the strategy returns to the initial no-buy position.';
 
   @override
+  String get rebalanceTitle => 'Rebalancing Zone';
+
+  @override
+  String get rebalanceHeadline => 'Sell TQQQ and return to base position';
+
+  @override
+  String get rebalanceOverviewTitle => 'Strategy Overview';
+
+  @override
+  String get rebalanceOverviewText =>
+      'All-time high recovery signals the end of the crisis response phase. It is time to sell the TQQQ accumulated in the -20% or lower zones and return to the base position (QLD 70%, Cash 30%).';
+
+  @override
+  String get rebalanceActionTitle => 'Immediate Action';
+
+  @override
+  String get rebalanceActionText =>
+      'Sell all TQQQ accumulated or purchased in the -20% or lower zones. Then rebalance your assets according to the base position allocation.';
+
+  @override
+  String get rebalanceCashTitle => 'Cash Target';
+
+  @override
+  String get rebalanceCashText =>
+      'After rebalancing, maintain QLD 70% and Cash 30%. Keep the secured cash as a reserve for the next downturn.';
+
+  @override
+  String get rebalanceAvoidTitle => 'What to Avoid';
+
+  @override
+  String get rebalanceAvoidText =>
+      'Do not continue TQQQ accumulation after the all-time high recovery. Sell the positions accumulated during the crisis phase at this stage and return to the base position.';
+
+  @override
   String get investmentCalculatorTitle => 'Expected Return Calculator';
 
   @override
@@ -957,16 +992,44 @@ class AppLocalizationsEn extends AppLocalizations {
   String get contentInquiry => 'Inquiries';
 
   @override
+  String get contentInquirySubtitle =>
+      'Leave an anonymous inquiry and check the reply.';
+
+  @override
+  String get contentInquiryBadge => 'Q&A';
+
+  @override
   String get contentCloseGuess => 'Close Guess';
 
   @override
   String get contentStockQuote => 'Stock Quotes';
 
   @override
+  String get contentStockQuoteSubtitle =>
+      'A short quote to sharpen your investment instincts.';
+
+  @override
+  String get contentStockQuoteBadge => 'Daily';
+
+  @override
   String get contentNumberGuess => 'Number Guess';
 
   @override
-  String get contentBookReader => 'Book Reader';
+  String get contentNumberGuessSubtitle =>
+      'A light probability mini-game to enjoy casually.';
+
+  @override
+  String get contentNumberGuessBadge => 'Game';
+
+  @override
+  String get contentBookReader => 'Column';
+
+  @override
+  String get contentBookReaderSubtitle =>
+      'Public-domain texts you can read at a relaxed pace.';
+
+  @override
+  String get contentBookReaderBadge => 'Read';
 
   @override
   String get contentStockMeme => 'Stock Meme';
@@ -976,6 +1039,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get contentJumpDodge => 'Jump Dodge Game';
+
+  @override
+  String get contentJumpDodgeSubtitle =>
+      'A jump mini-game for short focused sessions.';
+
+  @override
+  String get contentJumpDodgeBadge => 'Action';
 
   @override
   String get stockQuoteTitle => 'Stock Quotes';
@@ -1043,4 +1113,184 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get usageGuideConfirm => 'OK';
+
+  @override
+  String get bookReadingTitle => 'Column';
+
+  @override
+  String bookReaderPageNumber(int page) {
+    return 'Page $page';
+  }
+
+  @override
+  String get numGuessPrompt => 'Guess a number between 1 and 1000.';
+
+  @override
+  String get numGuessInvalidInput =>
+      'Please enter a number between 1 and 1000.';
+
+  @override
+  String numGuessCorrect(int attempts) {
+    return 'Correct! You got it in $attempts tries.';
+  }
+
+  @override
+  String get numGuessTooLow => 'The number is higher.';
+
+  @override
+  String get numGuessTooHigh => 'The number is lower.';
+
+  @override
+  String numGuessAttemptsLabel(int count) {
+    return 'Attempts: $count';
+  }
+
+  @override
+  String get numGuessInputHint => 'Enter number';
+
+  @override
+  String get numGuessConfirm => 'Confirm';
+
+  @override
+  String get numGuessNewGame => 'New Game';
+
+  @override
+  String get numGuessRanking => 'Ranking';
+
+  @override
+  String get numGuessNoRecords => 'No records yet.';
+
+  @override
+  String numGuessAttemptCount(int count) {
+    return '$count tries';
+  }
+
+  @override
+  String get jumpLeaderboard => 'Leaderboard';
+
+  @override
+  String get jumpScore => 'Score';
+
+  @override
+  String get jumpPersonalBest => 'Personal Best';
+
+  @override
+  String get jumpTapToRestart => 'Tap to restart';
+
+  @override
+  String get jumpTapToStart => 'Tap to start';
+
+  @override
+  String get jumpInstruction => 'Tap the screen to jump and avoid obstacles.';
+
+  @override
+  String get inquiryLoadError => 'Failed to load inquiries.';
+
+  @override
+  String get inquiryAdminOnlyReply => 'Only admins can submit replies.';
+
+  @override
+  String get inquiryReplyEmpty => 'Please enter a reply.';
+
+  @override
+  String get inquiryReplyError =>
+      'Failed to submit reply. Please try again later.';
+
+  @override
+  String get inquiryAdminOnlyPin => 'Only admins can pin.';
+
+  @override
+  String get inquiryPinError => 'Failed to save pin status.';
+
+  @override
+  String get inquiryAdminOnlyDelete => 'Only admins can delete.';
+
+  @override
+  String get inquiryDeleteTitle => 'Delete Inquiry';
+
+  @override
+  String get inquiryDeleteConfirm => 'Delete this inquiry?';
+
+  @override
+  String get inquiryCancel => 'Cancel';
+
+  @override
+  String get inquiryDeleteAction => 'Delete';
+
+  @override
+  String get inquiryDeleteError => 'Failed to delete. Please try again later.';
+
+  @override
+  String get inquiryContentEmpty => 'Please enter your inquiry.';
+
+  @override
+  String get inquirySubmitError =>
+      'Failed to submit inquiry. Please try again later.';
+
+  @override
+  String get inquiryAdminLabel => 'Admin';
+
+  @override
+  String get inquiryPasswordLabel => 'Password';
+
+  @override
+  String get inquiryPasswordWrong => 'Incorrect password.';
+
+  @override
+  String get inquiryAdminActivatedRegistered =>
+      'Admin mode enabled (device registered)';
+
+  @override
+  String get inquiryAdminActivatedFailed =>
+      'Admin mode enabled (device registration failed)';
+
+  @override
+  String get inquiryContentDetailLabel => 'Inquiry';
+
+  @override
+  String get inquiryAdminReplyLabel => 'Admin Reply';
+
+  @override
+  String get inquiryAdminReplyEdit => 'Edit Reply';
+
+  @override
+  String get inquirySaving => 'Saving...';
+
+  @override
+  String get inquirySubmitReply => 'Submit Reply';
+
+  @override
+  String get inquiryPrevPage => 'Previous page';
+
+  @override
+  String get inquiryNextPage => 'Next page';
+
+  @override
+  String inquiryPageOf(int current, int total) {
+    return 'Page $current / $total';
+  }
+
+  @override
+  String get inquiryUnpin => 'Unpin';
+
+  @override
+  String get inquiryPin => 'Pin to top';
+
+  @override
+  String get inquiryListTitle => 'Inquiry List';
+
+  @override
+  String get inquiryEmpty => 'No inquiries yet.';
+
+  @override
+  String get inquiryWriteTitle => 'Write Inquiry';
+
+  @override
+  String get inquiryContentFieldLabel => 'Content';
+
+  @override
+  String get inquirySubmitting => 'Submitting...';
+
+  @override
+  String get inquirySubmitButton => 'Submit';
 }

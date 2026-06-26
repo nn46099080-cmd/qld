@@ -2863,6 +2863,79 @@ async function listCloseGuessDates(env) {
     .reverse();
 }
 
+const JUMP_DODGE_KEY = 'jump_dodge_leaderboard_v1';
+const JUMP_DODGE_MAX = 30;
+
+const NUMBER_GUESS_KEY = 'number_guess_leaderboard_v1';
+const NUMBER_GUESS_MAX = 30;
+
+async function handleGetNumberGuessLeaderboard(env) {
+  if (!env.ALERT_STATE) return apiJsonResponse({ error: 'Storage unavailable' }, 503);
+  const raw = await env.ALERT_STATE.get(NUMBER_GUESS_KEY);
+  const entries = raw ? JSON.parse(raw) : [];
+  return apiJsonResponse({ entries }, 200);
+}
+
+async function handlePostNumberGuessScore(request, env) {
+  if (!env.ALERT_STATE) return apiJsonResponse({ error: 'Storage unavailable' }, 503);
+  const contentLength = Number(request.headers.get('content-length') || 0);
+  if (contentLength > 512) return apiJsonResponse({ error: 'Request too large' }, 413);
+  const body = await request.json();
+  const uid = String(body?.uid ?? '').slice(0, 64).trim();
+  const attempts = Math.floor(Number(body?.attempts));
+  const name = String(body?.name ?? '').slice(0, 30).trim();
+  if (!uid || !name || isNaN(attempts) || attempts < 1 || attempts > 999) {
+    return apiJsonResponse({ error: 'Invalid data' }, 400);
+  }
+  const raw = await env.ALERT_STATE.get(NUMBER_GUESS_KEY);
+  let entries = raw ? JSON.parse(raw) : [];
+  const existing = entries.findIndex(e => e.uid === uid);
+  if (existing >= 0) {
+    // 적은 시도 횟수가 더 좋은 기록
+    if (attempts >= entries[existing].attempts) return apiJsonResponse({ entries }, 200);
+    entries[existing] = { uid, name, attempts, at: new Date().toISOString() };
+  } else {
+    entries.push({ uid, name, attempts, at: new Date().toISOString() });
+  }
+  entries.sort((a, b) => a.attempts - b.attempts);
+  entries = entries.slice(0, NUMBER_GUESS_MAX);
+  await env.ALERT_STATE.put(NUMBER_GUESS_KEY, JSON.stringify(entries));
+  return apiJsonResponse({ entries }, 200);
+}
+
+async function handleGetJumpDodgeLeaderboard(env) {
+  if (!env.ALERT_STATE) return apiJsonResponse({ error: 'Storage unavailable' }, 503);
+  const raw = await env.ALERT_STATE.get(JUMP_DODGE_KEY);
+  const entries = raw ? JSON.parse(raw) : [];
+  return apiJsonResponse({ entries }, 200);
+}
+
+async function handlePostJumpDodgeScore(request, env) {
+  if (!env.ALERT_STATE) return apiJsonResponse({ error: 'Storage unavailable' }, 503);
+  const contentLength = Number(request.headers.get('content-length') || 0);
+  if (contentLength > 512) return apiJsonResponse({ error: 'Request too large' }, 413);
+  const body = await request.json();
+  const uid = String(body?.uid ?? '').slice(0, 64).trim();
+  const score = Math.floor(Number(body?.score));
+  if (!uid || isNaN(score) || score < 1 || score > 9999) {
+    return apiJsonResponse({ error: 'Invalid score' }, 400);
+  }
+  const raw = await env.ALERT_STATE.get(JUMP_DODGE_KEY);
+  let entries = raw ? JSON.parse(raw) : [];
+  // Update or insert this uid's best score
+  const existing = entries.findIndex(e => e.uid === uid);
+  if (existing >= 0) {
+    if (score <= entries[existing].score) return apiJsonResponse({ entries }, 200);
+    entries[existing] = { uid, score, at: new Date().toISOString() };
+  } else {
+    entries.push({ uid, score, at: new Date().toISOString() });
+  }
+  entries.sort((a, b) => b.score - a.score);
+  entries = entries.slice(0, JUMP_DODGE_MAX);
+  await env.ALERT_STATE.put(JUMP_DODGE_KEY, JSON.stringify(entries));
+  return apiJsonResponse({ entries }, 200);
+}
+
 async function handleGetCloseGuessRankings(env, url) {
   if (!env.ALERT_STATE) {
     return apiJsonResponse({ error: 'Ranking storage is unavailable' }, 503);
@@ -3102,11 +3175,14 @@ async function googleServiceAccountAccessToken(env, scope, cacheKey) {
     throw new Error('Google service account secrets are missing');
   }
 
+  const firebaseClientEmail = env.FIREBASE_CLIENT_EMAIL.replace(/^﻿/, '');
+  const firebasePrivateKey = env.FIREBASE_PRIVATE_KEY.replace(/^﻿/, '');
+
   const unsignedJwt = `${base64UrlEncode(
     JSON.stringify({ alg: 'RS256', typ: 'JWT' }),
   )}.${base64UrlEncode(
     JSON.stringify({
-      iss: env.FIREBASE_CLIENT_EMAIL,
+      iss: firebaseClientEmail,
       scope,
       aud: GOOGLE_OAUTH_TOKEN_URL,
       iat: now,
@@ -3115,7 +3191,7 @@ async function googleServiceAccountAccessToken(env, scope, cacheKey) {
   )}`;
   const key = await crypto.subtle.importKey(
     'pkcs8',
-    pemToArrayBuffer(env.FIREBASE_PRIVATE_KEY),
+    pemToArrayBuffer(firebasePrivateKey),
     {
       name: 'RSASSA-PKCS1-v1_5',
       hash: 'SHA-256',
@@ -3394,9 +3470,8 @@ async function sendFcmTopicAlert(env, type, extraData = {}, options = {}) {
   if (alertTag) {
     data.alertTag = alertTag;
   }
-  const notification = notificationTextForLanguage(data, language);
   const response = await fetch(
-    `https://fcm.googleapis.com/v1/projects/${env.FIREBASE_PROJECT_ID}/messages:send`,
+    `https://fcm.googleapis.com/v1/projects/${env.FIREBASE_PROJECT_ID.replace(/^﻿/, '')}/messages:send`,
     {
       method: 'POST',
       headers: {
@@ -3406,17 +3481,11 @@ async function sendFcmTopicAlert(env, type, extraData = {}, options = {}) {
       body: JSON.stringify({
         message: {
           topic,
-          notification,
           data,
           android: {
             collapse_key: alertTag || type,
             priority: 'HIGH',
             ttl: '3600s',
-            notification: {
-              channel_id: 'qld_alerts',
-              sound: 'default',
-              tag: alertTag || type,
-            },
           },
         },
       }),
@@ -3440,9 +3509,8 @@ async function sendFcmDeviceAlert(env, fcmToken, type, extraData = {}, language 
       Object.entries(extraData).map(([key, value]) => [key, String(value)]),
     ),
   };
-  const notification = notificationTextForLanguage(data, language);
   const response = await fetch(
-    `https://fcm.googleapis.com/v1/projects/${env.FIREBASE_PROJECT_ID}/messages:send`,
+    `https://fcm.googleapis.com/v1/projects/${env.FIREBASE_PROJECT_ID.replace(/^﻿/, '')}/messages:send`,
     {
       method: 'POST',
       headers: {
@@ -3452,17 +3520,11 @@ async function sendFcmDeviceAlert(env, fcmToken, type, extraData = {}, language 
       body: JSON.stringify({
         message: {
           token: fcmToken,
-          notification,
           data,
           android: {
             collapse_key: type,
             priority: 'HIGH',
             ttl: '3600s',
-            notification: {
-              channel_id: 'qld_alerts',
-              sound: 'default',
-              tag: type,
-            },
           },
         },
       }),
@@ -4134,6 +4196,30 @@ export default {
     const path = url.pathname.replace(/\/+$/, '') || '/';
     const clientKey = request.headers.get('CF-Connecting-IP') || 'unknown';
 
+    if (path === '/jump-dodge-leaderboard') {
+      const { success } = await env.API_RATE_LIMITER.limit({ key: clientKey });
+      if (!success) return apiJsonResponse({ error: 'Too many requests' }, 429);
+      try {
+        if (request.method === 'GET') return handleGetJumpDodgeLeaderboard(env);
+        if (request.method === 'POST') return handlePostJumpDodgeScore(request, env);
+        return apiJsonResponse({ error: 'Method Not Allowed' }, 405);
+      } catch (e) {
+        return apiJsonResponse({ error: 'Leaderboard request failed' }, 500);
+      }
+    }
+
+    if (path === '/number-guess-leaderboard') {
+      const { success } = await env.API_RATE_LIMITER.limit({ key: clientKey });
+      if (!success) return apiJsonResponse({ error: 'Too many requests' }, 429);
+      try {
+        if (request.method === 'GET') return handleGetNumberGuessLeaderboard(env);
+        if (request.method === 'POST') return handlePostNumberGuessScore(request, env);
+        return apiJsonResponse({ error: 'Method Not Allowed' }, 405);
+      } catch (e) {
+        return apiJsonResponse({ error: 'Leaderboard request failed' }, 500);
+      }
+    }
+
     if (
       path === '/close-guess-rankings' ||
       path === '/close-guess' ||
@@ -4144,7 +4230,8 @@ export default {
       path === '/inquiries/delete' ||
       path === '/inquiries' ||
       path === '/major-us-schedules' ||
-      path === '/admin-status'
+      path === '/admin-status' ||
+      path === '/debug-fcm'
     ) {
       const { success } = await env.API_RATE_LIMITER.limit({ key: clientKey });
       if (!success) {
@@ -4190,6 +4277,23 @@ export default {
         }
         if (path === '/admin-status' && request.method === 'GET') {
           return adminStatusResponse(env, url.searchParams.get('uid'));
+        }
+        if (path === '/debug-fcm' && request.method === 'GET') {
+          try {
+            const cleanEmail = (env.FIREBASE_CLIENT_EMAIL ?? '').replace(/^﻿/, '');
+            const cleanKey = (env.FIREBASE_PRIVATE_KEY ?? '').replace(/^﻿/, '');
+            const now = Math.floor(Date.now() / 1000);
+            const unsignedJwt = `${base64UrlEncode(JSON.stringify({ alg: 'RS256', typ: 'JWT' }))}.${base64UrlEncode(JSON.stringify({ iss: cleanEmail, scope: 'https://www.googleapis.com/auth/firebase.messaging', aud: 'https://oauth2.googleapis.com/token', iat: now, exp: now + 3600 }))}`;
+            const keyData = pemToArrayBuffer(cleanKey);
+            const key = await crypto.subtle.importKey('pkcs8', keyData, { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' }, false, ['sign']);
+            const sig = await crypto.subtle.sign('RSASSA-PKCS1-v1_5', key, new TextEncoder().encode(unsignedJwt));
+            const jwt = `${unsignedJwt}.${base64UrlEncode(new Uint8Array(sig))}`;
+            const resp = await fetch('https://oauth2.googleapis.com/token', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: new URLSearchParams({ grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer', assertion: jwt }) });
+            const body = await resp.json();
+            return apiJsonResponse({ ok: resp.ok, status: resp.status, body, email: cleanEmail, projectId: (env.FIREBASE_PROJECT_ID ?? '').replace(/^﻿/, '') }, 200);
+          } catch (err) {
+            return apiJsonResponse({ ok: false, error: err?.message ?? String(err) }, 200);
+          }
         }
         return apiJsonResponse({ error: 'Method Not Allowed' }, 405);
       } catch (error) {
@@ -4359,7 +4463,7 @@ export default {
 
       if (
         !env.TEST_SECRET ||
-        !timingSafeSecretEqual(providedSecret, env.TEST_SECRET)
+        !timingSafeSecretEqual(providedSecret, env.TEST_SECRET.trim())
       ) {
         return new Response(
           JSON.stringify({
@@ -4483,7 +4587,7 @@ export default {
 
     if (path === '/app-config') {
       const defaultConfig = {
-        latestVersionCode: 50,
+        latestVersionCode: 52,
         forceUpdate: false,
         updateUrl:
           'https://play.google.com/store/apps/details?id=com.qldalert.app',

@@ -1,4 +1,4 @@
-{
+﻿{
   "appTitle": "Alerta QLD",
   "noBuyZone": "Zona sin compra",
   "tapToViewStrategy": "Ver estrategia",
@@ -82,7 +82,7 @@
   "guide3": "✅ Focus on long-term positioning",
   "guide4": "❌ Avoid emotional overbuying",
   "minus20Title": "-20% Estrategia",
-  "minus20Headline": "Iniciar acumulación semanal de TQQQ con 1% de efectivo",
+  "minus20Headline": "Iniciar acumulación semanal de TQQQ con 1% del efectivo total",
   "minus20OverviewTitle": "Strategy Overview",
   "minus20OverviewText": "This zone represents approximately a 10% correction in QQQ.\n\nSince the decline is still relatively moderate, maintaining cash reserves remains important.",
   "minus20AllocationTitle": "Suggested Allocation",
@@ -169,11 +169,11 @@
   "noBuyNextTitle": "Siguiente paso",
   "noBuyNextText": "Al llegar a -20%, prepárate para iniciar compras fraccionadas recurrentes de TQQQ.",
   "minus20ActionTitle": "Acción inmediata",
-  "minus20ActionText": "Usa solo el 1% del efectivo total una vez por semana para acumular TQQQ fraccionado. No inviertas una cantidad grande de una vez.",
+  "minus20ActionText": "Compre TQQQ semanalmente con el 1% de su efectivo disponible.\nEj.) $500 en efectivo → compra $5 por semana",
   "minus20BuyRuleTitle": "Objetivo",
   "minus20BuyRuleText": "Esta configuración empieza en la zona -20% para que, si el mercado se mueve lateralmente, las compras pequeñas reduzcan gradualmente el precio medio de TQQQ. El objetivo no es acertar una ganancia inmediata, sino construir un coste medio más bajo.",
   "minus20CashTitle": "Gestión de efectivo",
-  "minus20CashText": "La mayor parte del efectivo debe quedar disponible para las zonas -30%, -40% y -50%. Incluso tras usar el efectivo planificado en -50%, el nuevo efectivo puede seguir bajando el precio medio con acumulación semanal.",
+  "minus20CashText": "La mayor parte del efectivo debe quedar disponible para las zonas -30%, -40% y -50%. Incluso tras usar el efectivo planificado en -50%, el nuevo efectivo puede seguir bajando el precio medio con acumulación semanal.\n\nIncluso si el mercado se mueve lateralmente durante 10 semanas o más, continúa acumulando el 1% del efectivo total cada semana. Cuanto más dure el movimiento lateral, más participaciones acumulas — no hay razón para detenerse.\n\nCuando se alcance la zona -30%, realiza una compra adicional única usando el 20% del efectivo restante en ese momento. La acumulación semanal no se detiene — continúa junto con la estrategia -30%. La acumulación termina solo cuando se recupere el máximo anterior y se realice el rebalanceo.",
   "minus20AvoidTitle": "Plan de salida",
   "minus20AvoidText": "No vendas estas acciones de TQQQ en cada rebote corto. Trátalas como parte de la posición que se cerrará más adelante, cuando se marque un nuevo máximo y se reduzca TQQQ.",
   "minus30ActionTitle": "Acción inmediata",
@@ -249,6 +249,16 @@
   "holdAvoidText": "No vendas apresuradamente por la volatilidad ni compres impulsivamente por confiar en la recuperación.",
   "holdResetTitle": "Reinicio de estrategia",
   "holdResetText": "Cuando QLD recupere completamente el máximo anterior, este ciclo de caída termina y la estrategia vuelve a la posición inicial sin compras.",
+  "rebalanceTitle": "Zona de reequilibrio",
+  "rebalanceHeadline": "Vender TQQQ y volver a la posición base",
+  "rebalanceOverviewTitle": "Resumen de estrategia",
+  "rebalanceOverviewText": "La recuperación de máximos históricos señala el fin de la fase de respuesta a la crisis. Es el momento de vender el TQQQ acumulado en zonas de -20% o inferiores y volver a la posición base (QLD 70%, Efectivo 30%).",
+  "rebalanceActionTitle": "Acción inmediata",
+  "rebalanceActionText": "Venda todo el TQQQ acumulado o comprado en zonas de -20% o inferiores. Luego reequilibre sus activos según la asignación de posición base.",
+  "rebalanceCashTitle": "Objetivo de efectivo",
+  "rebalanceCashText": "Tras el reequilibrio, mantener QLD 70% y Efectivo 30%. Guardar el efectivo asegurado como reserva para la próxima caída.",
+  "rebalanceAvoidTitle": "Qué evitar",
+  "rebalanceAvoidText": "No continúe acumulando TQQQ tras la recuperación del máximo histórico. Venda las posiciones acumuladas durante la fase de crisis y vuelva a la posición base.",
   "investmentCalculatorTitle": "Calculadora de rentabilidad esperada",
   "investmentCalculatorSubtitle": "Cálculo compuesto simple basado en el promedio histórico de QLD",
   "investmentCalculatorReturnRate": "Rentabilidad media a 10 años",
@@ -283,13 +293,23 @@
   "investmentCurrencyRussiaRub": "Rusia RUB",
   "contentTitle": "Contenido",
   "contentInquiry": "Consultas",
+  "contentInquirySubtitle": "Envía una consulta anónima y revisa la respuesta.",
+  "contentInquiryBadge": "Q&A",
   "contentCloseGuess": "Adivinar cierre",
   "contentStockQuote": "Frases bursatiles",
+  "contentStockQuoteSubtitle": "Citas cortas para afinar tu instinto inversor.",
+  "contentStockQuoteBadge": "Diario",
   "contentNumberGuess": "Adivina el numero",
-  "contentBookReader": "Lector de libros",
+  "contentNumberGuessSubtitle": "Mini juego de probabilidad para disfrutar fácilmente.",
+  "contentNumberGuessBadge": "Juego",
+  "contentBookReader": "Columna",
+  "contentBookReaderSubtitle": "Textos de dominio público para leer con calma.",
+  "contentBookReaderBadge": "Leer",
   "contentStockMeme": "Meme bursatil",
   "contentLottoNumbers": "Numeros de loteria",
   "contentJumpDodge": "Juego de saltar y esquivar",
+  "contentJumpDodgeSubtitle": "Mini juego de salto para sesiones cortas y concentradas.",
+  "contentJumpDodgeBadge": "Acción",
   "stockQuoteTitle": "Frases bursatiles",
   "stockQuoteTapHint": "Toca para ver otra frase.",
   "stockQuoteShuffle": "Ver otra frase",
@@ -308,5 +328,86 @@
   "usageGuideQldTitle": "3. Compra y registra en el portafolio",
   "usageGuideQldBody": "Usa la estrategia y el monto como guía, compra en tu broker y luego registra cantidad, precio promedio y efectivo en el portafolio de la app.",
   "usageGuideDisclaimer": "Esta app es solo una referencia de inversión y no garantiza ganancias.",
-  "usageGuideConfirm": "OK"
+  "usageGuideConfirm": "OK",
+  "bookReadingTitle": "Columna",
+  "bookReaderPageNumber": "Página {page}",
+  "@bookReaderPageNumber": {
+    "placeholders": {
+      "page": { "type": "int" }
+    }
+  },
+  "numGuessPrompt": "Adivina un número entre 1 y 10000.",
+  "numGuessInvalidInput": "Por favor, ingresa un número entre 1 y 10000.",
+  "numGuessCorrect": "¡Correcto! Lo lograste en {attempts} intentos.",
+  "@numGuessCorrect": {
+    "placeholders": {
+      "attempts": { "type": "int" }
+    }
+  },
+  "numGuessTooLow": "El número es mayor.",
+  "numGuessTooHigh": "El número es menor.",
+  "numGuessAttemptsLabel": "Intentos: {count}",
+  "@numGuessAttemptsLabel": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "numGuessInputHint": "Ingresar número",
+  "numGuessConfirm": "Confirmar",
+  "numGuessNewGame": "Nuevo juego",
+  "numGuessRanking": "Clasificación",
+  "numGuessNoRecords": "Aún no hay registros.",
+  "numGuessAttemptCount": "{count} intentos",
+  "@numGuessAttemptCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "jumpLeaderboard": "Tabla de líderes",
+  "jumpScore": "Puntuación",
+  "jumpPersonalBest": "Mejor puntaje personal",
+  "jumpTapToRestart": "Toca para reiniciar",
+  "jumpTapToStart": "Toca para comenzar",
+  "jumpInstruction": "Toca la pantalla para saltar y esquivar obstáculos.",
+  "inquiryLoadError": "No se pudieron cargar las consultas.",
+  "inquiryAdminOnlyReply": "Solo los administradores pueden responder.",
+  "inquiryReplyEmpty": "Por favor, escribe una respuesta.",
+  "inquiryReplyError": "Error al enviar la respuesta. Inténtalo más tarde.",
+  "inquiryAdminOnlyPin": "Solo los administradores pueden fijar.",
+  "inquiryPinError": "No se pudo guardar el estado fijado.",
+  "inquiryAdminOnlyDelete": "Solo los administradores pueden eliminar.",
+  "inquiryDeleteTitle": "Eliminar consulta",
+  "inquiryDeleteConfirm": "¿Eliminar esta consulta?",
+  "inquiryCancel": "Cancelar",
+  "inquiryDeleteAction": "Eliminar",
+  "inquiryDeleteError": "Error al eliminar. Inténtalo más tarde.",
+  "inquiryContentEmpty": "Por favor, escribe tu consulta.",
+  "inquirySubmitError": "Error al enviar la consulta. Inténtalo más tarde.",
+  "inquiryAdminLabel": "Administrador",
+  "inquiryPasswordLabel": "Contraseña",
+  "inquiryPasswordWrong": "Contraseña incorrecta.",
+  "inquiryAdminActivatedRegistered": "Modo admin activado (dispositivo registrado)",
+  "inquiryAdminActivatedFailed": "Modo admin activado (fallo al registrar dispositivo)",
+  "inquiryContentDetailLabel": "Consulta",
+  "inquiryAdminReplyLabel": "Respuesta del administrador",
+  "inquiryAdminReplyEdit": "Editar respuesta",
+  "inquirySaving": "Guardando...",
+  "inquirySubmitReply": "Enviar respuesta",
+  "inquiryPrevPage": "Página anterior",
+  "inquiryNextPage": "Página siguiente",
+  "inquiryPageOf": "Página {current} / {total}",
+  "@inquiryPageOf": {
+    "placeholders": {
+      "current": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "inquiryUnpin": "Desfijar",
+  "inquiryPin": "Fijar arriba",
+  "inquiryListTitle": "Lista de consultas",
+  "inquiryEmpty": "No hay consultas aún.",
+  "inquiryWriteTitle": "Escribir consulta",
+  "inquiryContentFieldLabel": "Contenido",
+  "inquirySubmitting": "Enviando...",
+  "inquirySubmitButton": "Enviar"
 }

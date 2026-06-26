@@ -1,4 +1,4 @@
-{
+﻿{
   "appTitle": "QLD Alarm",
   "noBuyZone": "Keine-Kauf-Zone",
   "tapToViewStrategy": "Strategie anzeigen",
@@ -82,7 +82,7 @@
   "guide3": "✅ Focus on long-term positioning",
   "guide4": "❌ Avoid emotional overbuying",
   "minus20Title": "-20% Strategie",
-  "minus20Headline": "Wöchentliche TQQQ-Akkumulation mit 1% Cash starten",
+  "minus20Headline": "Wöchentliche TQQQ-Akkumulation mit 1% des Gesamtcashs starten",
   "minus20OverviewTitle": "Strategy Overview",
   "minus20OverviewText": "This zone represents approximately a 10% correction in QQQ.\n\nSince the decline is still relatively moderate, maintaining cash reserves remains important.",
   "minus20AllocationTitle": "Suggested Allocation",
@@ -169,11 +169,11 @@
   "noBuyNextTitle": "Nächster Schritt",
   "noBuyNextText": "Bei -20 % auf kleine regelmäßige TQQQ-Teilkaufe vorbereiten.",
   "minus20ActionTitle": "Sofortige Aktion",
-  "minus20ActionText": "Einmal pro Woche nur 1% des gesamten Cashs verwenden, um TQQQ fraktional zu sammeln. Keinen großen Betrag auf einmal einsetzen.",
+  "minus20ActionText": "Kaufen Sie wöchentlich TQQQ mit 1% Ihres Bargeldbestands.\nBsp.) 500 $ Bargeld → 5 $ pro Woche kaufen",
   "minus20BuyRuleTitle": "Zweck",
   "minus20BuyRuleText": "Diese Einstellung beginnt in der -20%-Zone, damit kleine regelmäßige Käufe bei Seitwärtsphasen den TQQQ-Durchschnittspreis schrittweise senken. Ziel ist nicht der sofortige Gewinn, sondern eine niedrigere Kostenbasis.",
   "minus20CashTitle": "Cash-Management",
-  "minus20CashText": "Der größte Teil des Cashs bleibt für -30%, -40% und -50% verfügbar. Selbst wenn das geplante Cash bei -50% vollständig eingesetzt ist, kann neues Cash über wöchentliche Akkumulation den Durchschnitt weiter senken.",
+  "minus20CashText": "Der größte Teil des Cashs bleibt für -30%, -40% und -50% verfügbar. Selbst wenn das geplante Cash bei -50% vollständig eingesetzt ist, kann neues Cash über wöchentliche Akkumulation den Durchschnitt weiter senken.\n\nSelbst wenn der Markt 10 oder mehr Wochen seitwärts läuft, wird wöchentlich 1% des gesamten Cashs weiter angesammelt. Je länger die Seitwärtsphase, desto mehr Anteile werden aufgebaut — es gibt keinen Grund aufzuhören.\n\nSobald die -30%-Zone erreicht ist, wird einmalig 20% des zu diesem Zeitpunkt verbleibenden Cashs zusätzlich investiert. Die wöchentliche Akkumulation wird nicht gestoppt — sie läuft parallel zur -30%-Strategie weiter. Die Akkumulation endet erst, wenn das vorherige Hoch zurückerobert und ein Rebalancing durchgeführt wird.",
   "minus20AvoidTitle": "Ausstiegsplan",
   "minus20AvoidText": "Diese TQQQ-Anteile nicht bei jeder kurzen Erholung verkaufen. Sie gehören zur Position, die später bei einem neuen Hoch zusammen mit dem TQQQ-Abbau reduziert wird.",
   "minus30ActionTitle": "Sofortige Aktion",
@@ -249,6 +249,16 @@
   "holdAvoidText": "Verkaufe nicht überstürzt wegen der Volatilität und kaufe nicht impulsiv nach, nur weil die Erholung sicher erscheint.",
   "holdResetTitle": "Strategie zurücksetzen",
   "holdResetText": "Wenn sich QLD vollständig bis zum vorherigen Hoch erholt, endet dieser Rückgangszyklus und die Strategie kehrt zur anfänglichen Kaufverbotsposition zurück.",
+  "rebalanceTitle": "Rebalancing-Zone",
+  "rebalanceHeadline": "TQQQ verkaufen und zur Basisposition zurückkehren",
+  "rebalanceOverviewTitle": "Strategieübersicht",
+  "rebalanceOverviewText": "Die Erholung auf ein Allzeithoch signalisiert das Ende der Krisenreaktionsphase. Jetzt ist es Zeit, das in den -20%-Zonen oder darunter angesammelte TQQQ zu verkaufen und zur Basisposition (QLD 70%, Cash 30%) zurückzukehren.",
+  "rebalanceActionTitle": "Sofortmaßnahme",
+  "rebalanceActionText": "Verkaufen Sie alle TQQQ, die in den -20%-Zonen oder darunter angesammelt oder gekauft wurden. Passen Sie dann Ihre Vermögenswerte gemäß der Basispositionsaufteilung an.",
+  "rebalanceCashTitle": "Cash-Ziel",
+  "rebalanceCashText": "Nach dem Rebalancing QLD 70% und Cash 30% halten. Das gesicherte Cash als Reserve für den nächsten Abschwung aufbewahren.",
+  "rebalanceAvoidTitle": "Was zu vermeiden ist",
+  "rebalanceAvoidText": "Setzen Sie die TQQQ-Akkumulation nach der Allzeithoch-Erholung nicht fort. Verkaufen Sie die in der Krisenphase angesammelten Positionen in dieser Phase und kehren Sie zur Basisposition zurück.",
   "investmentCalculatorTitle": "Rechner für erwartete Rendite",
   "investmentCalculatorSubtitle": "Einfache Zinseszinsrechnung auf Basis des QLD-Durchschnitts",
   "investmentCalculatorReturnRate": "10-Jahres-Durchschnittsrendite",
@@ -283,13 +293,23 @@
   "investmentCurrencyRussiaRub": "Russland RUB",
   "contentTitle": "Inhalte",
   "contentInquiry": "Anfragen",
+  "contentInquirySubtitle": "Anonyme Anfrage stellen und Antwort prüfen.",
+  "contentInquiryBadge": "Q&A",
   "contentCloseGuess": "Schlusskurs raten",
   "contentStockQuote": "Boersenzitate",
+  "contentStockQuoteSubtitle": "Kurze Zitate zum Schärfen des Investmentgespürs.",
+  "contentStockQuoteBadge": "Täglich",
   "contentNumberGuess": "Zahl erraten",
-  "contentBookReader": "Buch lesen",
+  "contentNumberGuessSubtitle": "Leichtes Wahrscheinlichkeits-Minispiel.",
+  "contentNumberGuessBadge": "Spiel",
+  "contentBookReader": "Kolumne",
+  "contentBookReaderSubtitle": "Texte aus dem öffentlichen Bereich zum ruhigen Lesen.",
+  "contentBookReaderBadge": "Lesen",
   "contentStockMeme": "Aktien-Meme",
   "contentLottoNumbers": "Lottozahlen",
   "contentJumpDodge": "Sprung-Ausweichspiel",
+  "contentJumpDodgeSubtitle": "Kurzes Sprung-Minispiel für konzentrierte Sessions.",
+  "contentJumpDodgeBadge": "Aktion",
   "stockQuoteTitle": "Boersenzitate",
   "stockQuoteTapHint": "Tippen, um ein anderes Zitat zu sehen.",
   "stockQuoteShuffle": "Anderes Zitat",
@@ -308,5 +328,86 @@
   "usageGuideQldTitle": "3. Kaufen und im Portfolio erfassen",
   "usageGuideQldBody": "Nutzen Sie Strategie und Betrag als Orientierung, kaufen Sie bei Ihrem Broker und erfassen Sie danach Stückzahl, Durchschnittspreis und Cash im App-Portfolio.",
   "usageGuideDisclaimer": "Diese App dient nur als Investment-Referenz und garantiert keinen Gewinn.",
-  "usageGuideConfirm": "OK"
+  "usageGuideConfirm": "OK",
+  "bookReadingTitle": "Kolumne",
+  "bookReaderPageNumber": "Seite {page}",
+  "@bookReaderPageNumber": {
+    "placeholders": {
+      "page": { "type": "int" }
+    }
+  },
+  "numGuessPrompt": "Raten Sie eine Zahl zwischen 1 und 10000.",
+  "numGuessInvalidInput": "Bitte geben Sie eine Zahl zwischen 1 und 10000 ein.",
+  "numGuessCorrect": "Richtig! Sie haben es in {attempts} Versuchen erraten.",
+  "@numGuessCorrect": {
+    "placeholders": {
+      "attempts": { "type": "int" }
+    }
+  },
+  "numGuessTooLow": "Die Zahl ist höher.",
+  "numGuessTooHigh": "Die Zahl ist niedriger.",
+  "numGuessAttemptsLabel": "Versuche: {count}",
+  "@numGuessAttemptsLabel": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "numGuessInputHint": "Zahl eingeben",
+  "numGuessConfirm": "Bestätigen",
+  "numGuessNewGame": "Neues Spiel",
+  "numGuessRanking": "Rangliste",
+  "numGuessNoRecords": "Noch keine Einträge.",
+  "numGuessAttemptCount": "{count} Versuche",
+  "@numGuessAttemptCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "jumpLeaderboard": "Bestenliste",
+  "jumpScore": "Punktzahl",
+  "jumpPersonalBest": "Persönlicher Rekord",
+  "jumpTapToRestart": "Tippen zum Neustart",
+  "jumpTapToStart": "Tippen zum Starten",
+  "jumpInstruction": "Tippen Sie, um zu springen und Hindernissen auszuweichen.",
+  "inquiryLoadError": "Anfragen konnten nicht geladen werden.",
+  "inquiryAdminOnlyReply": "Nur Admins können antworten.",
+  "inquiryReplyEmpty": "Bitte geben Sie eine Antwort ein.",
+  "inquiryReplyError": "Antwort konnte nicht übermittelt werden. Bitte später erneut versuchen.",
+  "inquiryAdminOnlyPin": "Nur Admins können anheften.",
+  "inquiryPinError": "Pin-Status konnte nicht gespeichert werden.",
+  "inquiryAdminOnlyDelete": "Nur Admins können löschen.",
+  "inquiryDeleteTitle": "Anfrage löschen",
+  "inquiryDeleteConfirm": "Diese Anfrage löschen?",
+  "inquiryCancel": "Abbrechen",
+  "inquiryDeleteAction": "Löschen",
+  "inquiryDeleteError": "Löschen fehlgeschlagen. Bitte später erneut versuchen.",
+  "inquiryContentEmpty": "Bitte geben Sie Ihre Anfrage ein.",
+  "inquirySubmitError": "Anfrage konnte nicht übermittelt werden. Bitte später erneut versuchen.",
+  "inquiryAdminLabel": "Admin",
+  "inquiryPasswordLabel": "Passwort",
+  "inquiryPasswordWrong": "Falsches Passwort.",
+  "inquiryAdminActivatedRegistered": "Admin-Modus aktiviert (Gerät registriert)",
+  "inquiryAdminActivatedFailed": "Admin-Modus aktiviert (Geräteregistrierung fehlgeschlagen)",
+  "inquiryContentDetailLabel": "Anfrage",
+  "inquiryAdminReplyLabel": "Admin-Antwort",
+  "inquiryAdminReplyEdit": "Antwort bearbeiten",
+  "inquirySaving": "Speichern...",
+  "inquirySubmitReply": "Antwort senden",
+  "inquiryPrevPage": "Vorherige Seite",
+  "inquiryNextPage": "Nächste Seite",
+  "inquiryPageOf": "Seite {current} / {total}",
+  "@inquiryPageOf": {
+    "placeholders": {
+      "current": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "inquiryUnpin": "Anheftung aufheben",
+  "inquiryPin": "Oben anheften",
+  "inquiryListTitle": "Anfragenliste",
+  "inquiryEmpty": "Noch keine Anfragen.",
+  "inquiryWriteTitle": "Anfrage schreiben",
+  "inquiryContentFieldLabel": "Inhalt",
+  "inquirySubmitting": "Senden...",
+  "inquirySubmitButton": "Senden"
 }

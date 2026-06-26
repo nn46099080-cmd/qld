@@ -1,4 +1,4 @@
-{
+﻿{
   "appTitle": "QLD 알림",
   "noBuyZone": "매수 금지 구간",
   "tapToViewStrategy": "전략 보기",
@@ -82,7 +82,7 @@
   "guide3": "✅ 장기 포지션 중심 유지",
   "guide4": "❌ 감정적 과매수 금지",
   "minus20Title": "-20% 전략",
-  "minus20Headline": "현금 1% 주간 TQQQ 적립 시작",
+  "minus20Headline": "전체 현금 1% 주간 TQQQ 적립 시작",
   "minus20OverviewTitle": "전략 개요",
   "minus20OverviewText": "이 구간은 QQQ 기준 10% 조정된 구간입니다.\n\n하락폭이 크지 않기 때문에 되도록 현금 보유를 해야 하는 구간입니다.",
   "minus20AllocationTitle": "추천 자산 배분",
@@ -169,11 +169,11 @@
   "noBuyNextTitle": "다음 준비",
   "noBuyNextText": "-20%에 도달하면 소수점 단위로 TQQQ 적립 매수를 시작할 준비를 합니다.",
   "minus20ActionTitle": "즉시 행동",
-  "minus20ActionText": "전체 현금의 1%만 사용해 일주일에 한 번 TQQQ를 소수점 단위로 적립 매수합니다. 큰 금액을 한 번에 넣지 않습니다.",
+  "minus20ActionText": "보유 현금의 1%씩 매주 TQQQ 적립 매수를 시작합니다.\n예) 현금 500달러 → 매주 5달러 매수",
   "minus20BuyRuleTitle": "목적",
   "minus20BuyRuleText": "-20% 구간부터 횡보장이 길어질 때 조금씩 수량을 모아 TQQQ 평단가를 낮추기 위한 설정입니다. 핵심은 수익을 바로 맞히는 것이 아니라 낮은 평균단가를 만드는 것입니다.",
   "minus20CashTitle": "현금 관리",
-  "minus20CashText": "대부분의 현금은 -30%, -40%, -50% 구간을 위해 남깁니다. -50%에서 계획된 현금을 모두 사용한 뒤에도 새로 생기는 현금은 주간 적립으로 평단을 계속 낮춥니다.",
+  "minus20CashText": "대부분의 현금은 -30%, -40%, -50% 구간을 위해 남깁니다. -50%에서 계획된 현금을 모두 사용한 뒤에도 새로 생기는 현금은 주간 적립으로 평단을 계속 낮춥니다.\n\n10주 이상 횡보가 이어지더라도 매주 1%씩 적립은 계속합니다. 횡보가 길어질수록 수량을 조금씩 늘려두는 것이 목적이며, 적립을 멈출 이유가 없습니다.\n\n이후 -30% 구간에 도달하면 그 시점에 남아 있는 현금의 20%를 한 번에 추가 매수합니다. 주간 적립은 중단하지 않고 -30% 전략과 함께 계속 이어갑니다. 적립 중단은 전고점을 회복하고 리밸런싱할 때 합니다.",
   "minus20AvoidTitle": "정리 기준",
   "minus20AvoidText": "이 구간에서 모은 TQQQ는 단기 반등마다 정리하지 않습니다. 이후 신고가를 경신하고 TQQQ를 정리하는 시점에 함께 정리하는 전략으로 봅니다.",
   "minus30ActionTitle": "즉시 행동",
@@ -249,6 +249,16 @@
   "holdAvoidText": "변동성 때문에 급하게 매도하거나, 회복을 확신해 충동적으로 추가 매수하지 않습니다.",
   "holdResetTitle": "전략 초기화",
   "holdResetText": "QLD가 전 고점까지 완전히 회복하면 이번 하락 사이클이 종료되고 전략은 첫 번째 매수 금지 상태로 돌아갑니다.",
+  "rebalanceTitle": "리밸런싱 구간",
+  "rebalanceHeadline": "TQQQ 정리 후 기본 포지션으로 복귀",
+  "rebalanceOverviewTitle": "전략 개요",
+  "rebalanceOverviewText": "전고점 회복은 위기 대응 단계가 종료되었음을 의미합니다. -20% 이하 구간에서 모은 TQQQ를 정리하고 기본 포지션(QLD 70%, 현금 30%)으로 복귀하기 위한 단계입니다.",
+  "rebalanceActionTitle": "즉시 행동",
+  "rebalanceActionText": "-20% 이하 구간에서 적립하거나 매수한 TQQQ를 정리합니다. 이후 보유 자산을 기본 포지션 비중에 맞게 조정합니다.",
+  "rebalanceCashTitle": "현금 기준",
+  "rebalanceCashText": "리밸런싱 후에는 QLD 70%, 현금 30% 비중을 유지합니다. 확보한 현금은 다음 하락 구간을 대비한 대기 자금으로 보관합니다.",
+  "rebalanceAvoidTitle": "금지 행동",
+  "rebalanceAvoidText": "전고점 회복 이후에도 TQQQ 적립을 계속 이어가지 않습니다. 위기 구간 대응을 위해 모은 물량은 이 단계에서 정리하고 기본 포지션으로 복귀합니다.",
   "investmentCalculatorTitle": "예상 수익률 계산기",
   "investmentCalculatorSubtitle": "QLD 과거 평균 기준 단순 복리 계산",
   "investmentCalculatorReturnRate": "10년 평균 수익률",
@@ -283,13 +293,23 @@
   "investmentCurrencyRussiaRub": "러시아 RUB",
   "contentTitle": "콘텐츠",
   "contentInquiry": "문의사항",
+  "contentInquirySubtitle": "익명 문의를 남기고 답변을 확인합니다.",
+  "contentInquiryBadge": "Q&A",
   "contentCloseGuess": "종가 맞추기",
   "contentStockQuote": "오늘의 주식 명언",
+  "contentStockQuoteSubtitle": "투자 감각을 다듬는 짧은 문장을 확인합니다.",
+  "contentStockQuoteBadge": "매일",
   "contentNumberGuess": "숫자 맞추기",
-  "contentBookReader": "책 읽기",
+  "contentNumberGuessSubtitle": "가볍게 즐기는 확률형 미니게임입니다.",
+  "contentNumberGuessBadge": "게임",
+  "contentBookReader": "칼럼",
+  "contentBookReaderSubtitle": "차분히 읽을 수 있는 공개 도메인 텍스트입니다.",
+  "contentBookReaderBadge": "읽기",
   "contentStockMeme": "주식 짤",
   "contentLottoNumbers": "로또번호 추천",
   "contentJumpDodge": "점프 장애물 피하기",
+  "contentJumpDodgeSubtitle": "짧게 집중해서 즐기는 점프 미니게임입니다.",
+  "contentJumpDodgeBadge": "액션",
   "stockQuoteTitle": "오늘의 주식 명언",
   "stockQuoteTapHint": "터치하면 다른 문구가 나옵니다.",
   "stockQuoteShuffle": "다른 명언 보기",
@@ -308,5 +328,86 @@
   "usageGuideQldTitle": "3. 매수 후 포트폴리오에 기록",
   "usageGuideQldBody": "표시된 전략과 금액을 참고해 개인이 사용하는 거래소에서 직접 매수합니다. 매수 후에는 앱의 포트폴리오에 수량, 평균단가, 현금을 기록해 다음 전략 기준을 확인합니다.",
   "usageGuideDisclaimer": "이 앱의 내용은 투자 참고용이며 수익을 보장하지 않습니다.",
-  "usageGuideConfirm": "확인"
+  "usageGuideConfirm": "확인",
+  "bookReadingTitle": "칼럼",
+  "bookReaderPageNumber": "{page}페이지",
+  "@bookReaderPageNumber": {
+    "placeholders": {
+      "page": { "type": "int" }
+    }
+  },
+  "numGuessPrompt": "1부터 1000 사이 숫자를 맞춰보세요.",
+  "numGuessInvalidInput": "1부터 1000 사이 숫자를 입력해 주세요.",
+  "numGuessCorrect": "정답입니다. {attempts}번 만에 맞췄어요.",
+  "@numGuessCorrect": {
+    "placeholders": {
+      "attempts": { "type": "int" }
+    }
+  },
+  "numGuessTooLow": "더 큰 숫자입니다.",
+  "numGuessTooHigh": "더 작은 숫자입니다.",
+  "numGuessAttemptsLabel": "시도 횟수 {count}",
+  "@numGuessAttemptsLabel": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "numGuessInputHint": "숫자 입력",
+  "numGuessConfirm": "확인",
+  "numGuessNewGame": "새 게임",
+  "numGuessRanking": "랭킹",
+  "numGuessNoRecords": "아직 기록이 없습니다.",
+  "numGuessAttemptCount": "{count}회",
+  "@numGuessAttemptCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "jumpLeaderboard": "전체 신기록",
+  "jumpScore": "점수",
+  "jumpPersonalBest": "내 신기록",
+  "jumpTapToRestart": "다시 시작하려면 탭",
+  "jumpTapToStart": "탭해서 시작",
+  "jumpInstruction": "화면을 탭해서 점프하고 장애물을 피하세요.",
+  "inquiryLoadError": "문의 목록을 불러오지 못했습니다.",
+  "inquiryAdminOnlyReply": "관리자만 답변을 등록할 수 있습니다.",
+  "inquiryReplyEmpty": "답변 내용을 입력해 주세요.",
+  "inquiryReplyError": "답변 등록에 실패했습니다. 잠시 후 다시 시도해 주세요.",
+  "inquiryAdminOnlyPin": "관리자만 고정할 수 있습니다.",
+  "inquiryPinError": "고정 상태를 저장하지 못했습니다.",
+  "inquiryAdminOnlyDelete": "관리자만 삭제할 수 있습니다.",
+  "inquiryDeleteTitle": "문의 삭제",
+  "inquiryDeleteConfirm": "이 문의를 삭제할까요?",
+  "inquiryCancel": "취소",
+  "inquiryDeleteAction": "삭제",
+  "inquiryDeleteError": "삭제에 실패했습니다. 잠시 후 다시 시도해 주세요.",
+  "inquiryContentEmpty": "문의 내용을 입력해 주세요.",
+  "inquirySubmitError": "문의 등록에 실패했습니다. 잠시 후 다시 시도해 주세요.",
+  "inquiryAdminLabel": "관리자",
+  "inquiryPasswordLabel": "비밀번호",
+  "inquiryPasswordWrong": "비밀번호가 맞지 않습니다.",
+  "inquiryAdminActivatedRegistered": "관리자 전환 완료 (기기 등록됨)",
+  "inquiryAdminActivatedFailed": "관리자 전환 완료 (기기 등록 실패)",
+  "inquiryContentDetailLabel": "문의 내용",
+  "inquiryAdminReplyLabel": "관리자 답변",
+  "inquiryAdminReplyEdit": "답변 수정",
+  "inquirySaving": "저장 중",
+  "inquirySubmitReply": "답변 등록",
+  "inquiryPrevPage": "이전 페이지",
+  "inquiryNextPage": "다음 페이지",
+  "inquiryPageOf": "{current}페이지 / {total}페이지",
+  "@inquiryPageOf": {
+    "placeholders": {
+      "current": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "inquiryUnpin": "상단 고정 해제",
+  "inquiryPin": "상단 고정",
+  "inquiryListTitle": "문의 리스트",
+  "inquiryEmpty": "아직 등록된 문의가 없습니다.",
+  "inquiryWriteTitle": "문의 작성",
+  "inquiryContentFieldLabel": "내용",
+  "inquirySubmitting": "등록 중",
+  "inquirySubmitButton": "등록"
 }

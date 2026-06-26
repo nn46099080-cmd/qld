@@ -1,9 +1,44 @@
 part of '../main.dart';
 
-class StrategyPage extends StatelessWidget {
-  const StrategyPage({
-    super.key,
-  });
+class StrategyPage extends StatefulWidget {
+  const StrategyPage({super.key});
+
+  @override
+  State<StrategyPage> createState() => _StrategyPageState();
+}
+
+class _StrategyPageState extends State<StrategyPage> {
+  static const _rebalanceCardDuration = Duration(hours: 48);
+
+  bool _isCardVisible(int triggeredAt) {
+    if (triggeredAt <= 0) return false;
+    final elapsed = DateTime.now().millisecondsSinceEpoch - triggeredAt;
+    return elapsed < _rebalanceCardDuration.inMilliseconds;
+  }
+
+  Future<void> _onCardTap(BuildContext ctx, int triggeredAt) async {
+    final isActive = _isCardVisible(triggeredAt);
+    if (isActive) {
+      final homeState = ctx.findAncestorStateOfType<_HomePageState>();
+      await homeState?.dismissRebalanceCard();
+    }
+
+    if (!ctx.mounted) return;
+    Navigator.push(
+      ctx,
+      MaterialPageRoute(
+        builder: (_) => const RebalancePage(),
+      ),
+    );
+  }
+
+  Future<void> _checkExpiry(int triggeredAt) async {
+    if (triggeredAt <= 0) return;
+    if (!_isCardVisible(triggeredAt)) {
+      final homeState = context.findAncestorStateOfType<_HomePageState>();
+      await homeState?.dismissRebalanceCard();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -31,50 +66,185 @@ class StrategyPage extends StatelessWidget {
           currentTab: NavTab.strategy,
         ),
       ),
-      body: ListView(
-        padding: const EdgeInsets.fromLTRB(18, 10, 18, 144),
-        children: [
-          buildStrategyCard(
-            context: context,
-            color: Colors.blueGrey,
-            icon: Icons.pause_circle_outline_rounded,
-            percent: '0% ~ -20%',
-            text: AppLocalizations.of(context)!.noBuyZone,
-            page: const NoBuyZonePage(),
+      body: ValueListenableBuilder<int>(
+        valueListenable: rebalanceCardTriggeredAt,
+        builder: (context, triggeredAt, _) {
+          _checkExpiry(triggeredAt);
+          final showCard = _isCardVisible(triggeredAt);
+          return ListView(
+            padding: const EdgeInsets.fromLTRB(18, 10, 18, 144),
+            children: [
+              _buildRebalanceCard(context, triggeredAt),
+              buildStrategyCard(
+                context: context,
+                color: Colors.blueGrey,
+                icon: Icons.pause_circle_outline_rounded,
+                percent: '0% ~ -20%',
+                text: AppLocalizations.of(context)!.noBuyZone,
+                page: const NoBuyZonePage(),
+              ),
+              buildStrategyCard(
+                context: context,
+                color: Colors.green,
+                icon: Icons.savings_outlined,
+                percent: '-20%',
+                text: AppLocalizations.of(context)!.minus20Headline,
+                page: const Minus20Page(),
+              ),
+              buildStrategyCard(
+                context: context,
+                color: Colors.orange,
+                icon: Icons.trending_down_rounded,
+                percent: '-30%',
+                text: AppLocalizations.of(context)!.minus30Headline,
+                page: const Minus30Page(),
+              ),
+              buildStrategyCard(
+                context: context,
+                color: Colors.red,
+                icon: Icons.warning_amber_rounded,
+                percent: '-40%',
+                text: AppLocalizations.of(context)!.minus40Headline,
+                page: const Minus40Page(),
+              ),
+              buildStrategyCard(
+                context: context,
+                color: Colors.purple,
+                icon: Icons.bolt_rounded,
+                percent: '-50%',
+                text: AppLocalizations.of(context)!.minus50Headline,
+                page: const Minus50Page(),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildRebalanceCard(BuildContext ctx, int triggeredAt) {
+    final l10n = AppLocalizations.of(ctx)!;
+    final whiteMode = isWhiteModeEnabled(ctx);
+    const goldColor = Color(0xFFD4A017);
+    const goldLight = Color(0xFFFFD700);
+    final surface = whiteMode ? const Color(0xFFFFFBEA) : const Color(0xFF1A1500);
+    final faintText = whiteMode ? const Color(0xFF94A3B8) : Colors.white38;
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 14),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(18),
+        onTap: () => _onCardTap(ctx, triggeredAt),
+        child: Container(
+          constraints: const BoxConstraints(minHeight: 112),
+          padding: const EdgeInsets.fromLTRB(14, 14, 12, 14),
+          decoration: BoxDecoration(
+            color: surface,
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(color: goldColor, width: 1.5),
+            boxShadow: whiteMode
+                ? [
+                    BoxShadow(
+                      color: goldColor.withValues(alpha: 0.14),
+                      blurRadius: 18,
+                      offset: const Offset(0, 9),
+                    ),
+                  ]
+                : null,
           ),
-          buildStrategyCard(
-            context: context,
-            color: Colors.green,
-            icon: Icons.savings_outlined,
-            percent: '-20%',
-            text: AppLocalizations.of(context)!.minus20Headline,
-            page: const Minus20Page(),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: goldColor.withValues(alpha: whiteMode ? 0.10 : 0.16),
+                  borderRadius: BorderRadius.circular(15),
+                  border: Border.all(
+                    color: goldColor.withValues(alpha: whiteMode ? 0.22 : 0.30),
+                  ),
+                ),
+                child: const Center(
+                  child: Text('🏆', style: TextStyle(fontSize: 22)),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 9,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: goldColor.withValues(
+                              alpha: whiteMode ? 0.10 : 0.14,
+                            ),
+                            borderRadius: BorderRadius.circular(999),
+                          ),
+                          child: Text(
+                            l10n.rebalanceTitle,
+                            style: TextStyle(
+                              color: goldColor,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w900,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            l10n.rebalanceActionTitle,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              color: goldColor,
+                              fontSize: 11.5,
+                              fontWeight: FontWeight.w900,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 9),
+                    Text(
+                      l10n.rebalanceHeadline,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w900,
+                        height: 1.25,
+                        color: whiteMode ? const Color(0xFF78500A) : goldLight,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 10),
+              Container(
+                width: 30,
+                height: 30,
+                decoration: BoxDecoration(
+                  color: whiteMode
+                      ? const Color(0xFFF8FAFC)
+                      : Colors.white.withValues(alpha: 0.04),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(
+                  Icons.chevron_right_rounded,
+                  color: faintText,
+                  size: 22,
+                ),
+              ),
+            ],
           ),
-          buildStrategyCard(
-            context: context,
-            color: Colors.orange,
-            icon: Icons.trending_down_rounded,
-            percent: '-30%',
-            text: AppLocalizations.of(context)!.minus30Headline,
-            page: const Minus30Page(),
-          ),
-          buildStrategyCard(
-            context: context,
-            color: Colors.red,
-            icon: Icons.warning_amber_rounded,
-            percent: '-40%',
-            text: AppLocalizations.of(context)!.minus40Headline,
-            page: const Minus40Page(),
-          ),
-          buildStrategyCard(
-            context: context,
-            color: Colors.purple,
-            icon: Icons.bolt_rounded,
-            percent: '-50%',
-            text: AppLocalizations.of(context)!.minus50Headline,
-            page: const Minus50Page(),
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -320,6 +490,8 @@ String localizedStrategyHeadline(
       return l10n.minus40Headline;
     case '-50%':
       return l10n.minus50Headline;
+    case '리밸런싱':
+      return l10n.rebalanceHeadline;
     default:
       return fallback;
   }
@@ -369,6 +541,13 @@ List<({String title, String text})> localizedStrategyActions(
         (title: l10n.minus50AfterTitle, text: l10n.minus50AfterText),
         (title: l10n.minus50AvoidTitle, text: l10n.minus50AvoidText),
       ];
+    case '리밸런싱':
+      return [
+        (title: l10n.rebalanceOverviewTitle, text: l10n.rebalanceOverviewText),
+        (title: l10n.rebalanceActionTitle, text: l10n.rebalanceActionText),
+        (title: l10n.rebalanceCashTitle, text: l10n.rebalanceCashText),
+        (title: l10n.rebalanceAvoidTitle, text: l10n.rebalanceAvoidText),
+      ];
     default:
       return fallback;
   }
@@ -382,6 +561,7 @@ Widget strategyActionPage({
   required Color accent,
   required IconData icon,
   required List<({String title, String text})> actions,
+  ScrollController? scrollController,
 }) {
   final l10n = AppLocalizations.of(context)!;
   final displayedHeadline = localizedStrategyHeadline(
@@ -414,10 +594,11 @@ Widget strategyActionPage({
     bottomNavigationBar: buildFixedAdBottomBar(
       buildPersistentBottomNav(
         context,
-        currentTab: NavTab.strategy,
+        currentTab: NavTab.strategyDetail,
       ),
     ),
     body: ListView(
+      controller: scrollController,
       padding: const EdgeInsets.fromLTRB(18, 10, 18, 144),
       children: [
         Container(
@@ -530,8 +711,57 @@ class NoBuyZonePage extends StatelessWidget {
   }
 }
 
-class Minus20Page extends StatelessWidget {
-  const Minus20Page({super.key});
+class RebalancePage extends StatelessWidget {
+  const RebalancePage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return strategyActionPage(
+      context: context,
+      appBarTitle: l10n.rebalanceTitle,
+      zone: '리밸런싱',
+      headline: l10n.rebalanceHeadline,
+      accent: const Color(0xFFD4A017),
+      icon: Icons.balance_rounded,
+      actions: const [],
+    );
+  }
+}
+
+class Minus20Page extends StatefulWidget {
+  const Minus20Page({super.key, this.scrollToAvoid = false});
+
+  final bool scrollToAvoid;
+
+  @override
+  State<Minus20Page> createState() => _Minus20PageState();
+}
+
+class _Minus20PageState extends State<Minus20Page> {
+  final _scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.scrollToAvoid) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (_scrollController.hasClients) {
+          _scrollController.animateTo(
+            _scrollController.position.maxScrollExtent,
+            duration: const Duration(milliseconds: 500),
+            curve: Curves.easeOut,
+          );
+        }
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -542,6 +772,7 @@ class Minus20Page extends StatelessWidget {
       headline: AppLocalizations.of(context)!.minus20Headline,
       accent: Colors.greenAccent,
       icon: Icons.savings_outlined,
+      scrollController: _scrollController,
       actions: const [
         (
           title: '筌앸맩????곕짗',

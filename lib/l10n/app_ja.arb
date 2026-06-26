@@ -1,4 +1,4 @@
-{
+﻿{
   "appTitle": "QLDアラート",
   "noBuyZone": "買付禁止ゾーン",
   "tapToViewStrategy": "戦略を見る",
@@ -82,7 +82,7 @@
   "guide3": "✅ 長期ポジション重視",
   "guide4": "❌ 感情的な過剰買付禁止",
   "minus20Title": "-20%戦略",
-  "minus20Headline": "現金1%で週1回TQQQ積立開始",
+  "minus20Headline": "総現金の1%で週1回TQQQ積立開始",
   "minus20OverviewTitle": "戦略概要",
   "minus20OverviewText": "このゾーンはQQQ基準で約10%の調整局面です。\n\nまだ下落幅は比較的小さいため、現金保有を優先する段階です。",
   "minus20AllocationTitle": "推奨資産配分",
@@ -169,11 +169,11 @@
   "noBuyNextTitle": "次の準備",
   "noBuyNextText": "-20%に到達したら、TQQQの少額積立買いを始める準備をします。",
   "minus20ActionTitle": "すぐに行うこと",
-  "minus20ActionText": "総現金の1%だけを使い、週に1回TQQQを端株で積み立てます。一度に大きな金額を入れません。",
+  "minus20ActionText": "保有現金の1%ずつ、毎週TQQQを積立買いします。\n例）現金500ドル → 毎週5ドル購入",
   "minus20BuyRuleTitle": "目的",
   "minus20BuyRuleText": "-20%ゾーンから始めることで、横ばいが続く場合でも少しずつ数量を増やし、TQQQの平均取得単価を下げるための設定です。すぐ利益を当てることではなく、低い平均単価を作ることが目的です。",
   "minus20CashTitle": "現金管理",
-  "minus20CashText": "大半の現金は-30%、-40%、-50%ゾーンに備えて残します。-50%で計画した現金を使い切った後も、新しい現金は週次積立で平均単価を下げ続けます。",
+  "minus20CashText": "大半の現金は-30%、-40%、-50%ゾーンに備えて残します。-50%で計画した現金を使い切った後も、新しい現金は週次積立で平均単価を下げ続けます。\n\n10週以上横ばいが続いても、毎週総現金の1%ずつ積立を続けます。横ばいが長引くほど数量が増え、積立を止める理由はありません。\n\n-30%ゾーンに到達したら、その時点で残っている現金の20%を一度に追加買い付けします。週次積立は止めずに-30%戦略と並行して続けます。積立の終了は前高値を回復してリバランスするときです。",
   "minus20AvoidTitle": "整理基準",
   "minus20AvoidText": "このゾーンで集めたTQQQは短期反発のたびに売りません。後に新高値を更新し、TQQQを整理するタイミングで一緒に整理する戦略として扱います。",
   "minus30ActionTitle": "すぐに行うこと",
@@ -249,6 +249,16 @@
   "holdAvoidText": "変動性を理由に急いで売却したり、回復を確信して衝動的に追加購入したりしないでください。",
   "holdResetTitle": "戦略のリセット",
   "holdResetText": "QLDが前回高値まで完全に回復すると、今回の下落サイクルは終了し、戦略は最初の購入禁止状態に戻ります。",
+  "rebalanceTitle": "リバランスゾーン",
+  "rebalanceHeadline": "TQQQを売却して基本ポジションに戻る",
+  "rebalanceOverviewTitle": "戦略概要",
+  "rebalanceOverviewText": "過去最高値の回復は危機対応フェーズの終了を意味します。-20%以下のゾーンで積み立てたTQQQを売却し、基本ポジション（QLD 70%、現金 30%）に戻る段階です。",
+  "rebalanceActionTitle": "即時行動",
+  "rebalanceActionText": "-20%以下のゾーンで積み立てまたは購入したTQQQをすべて売却します。その後、基本ポジションの配分に合わせて資産を調整します。",
+  "rebalanceCashTitle": "現金目標",
+  "rebalanceCashText": "リバランス後はQLD 70%、現金 30%の比率を維持します。確保した現金は次の下落局面に備えた待機資金として保管します。",
+  "rebalanceAvoidTitle": "避けるべきこと",
+  "rebalanceAvoidText": "過去最高値回復後もTQQQの積み立てを続けないでください。危機フェーズで積み立てたポジションはこの段階で売却し、基本ポジションに戻ります。",
   "investmentCalculatorTitle": "予想リターン計算機",
   "investmentCalculatorSubtitle": "QLDの過去平均に基づく単純な複利計算",
   "investmentCalculatorReturnRate": "10年平均リターン",
@@ -283,13 +293,23 @@
   "investmentCurrencyRussiaRub": "ロシア RUB",
   "contentTitle": "コンテンツ",
   "contentInquiry": "お問い合わせ",
+  "contentInquirySubtitle": "匿名でお問い合わせを送り、返答を確認します。",
+  "contentInquiryBadge": "Q&A",
   "contentCloseGuess": "終値予想",
   "contentStockQuote": "今日の投資格言",
+  "contentStockQuoteSubtitle": "投資感覚を磨く短い名言を確認します。",
+  "contentStockQuoteBadge": "毎日",
   "contentNumberGuess": "数字当て",
-  "contentBookReader": "本を読む",
+  "contentNumberGuessSubtitle": "気軽に楽しめる確率型ミニゲームです。",
+  "contentNumberGuessBadge": "ゲーム",
+  "contentBookReader": "コラム",
+  "contentBookReaderSubtitle": "ゆっくり読めるパブリックドメインのテキストです。",
+  "contentBookReaderBadge": "読書",
   "contentStockMeme": "株式ミーム",
   "contentLottoNumbers": "ロト番号おすすめ",
   "contentJumpDodge": "ジャンプ回避ゲーム",
+  "contentJumpDodgeSubtitle": "短時間集中して楽しむジャンプミニゲームです。",
+  "contentJumpDodgeBadge": "アクション",
   "stockQuoteTitle": "今日の投資格言",
   "stockQuoteTapHint": "タップすると別の言葉が表示されます。",
   "stockQuoteShuffle": "別の格言を見る",
@@ -308,5 +328,86 @@
   "usageGuideQldTitle": "3. 購入後はポートフォリオに記録",
   "usageGuideQldBody": "表示された戦略と金額を参考に、自分が使う証券会社で直接購入します。購入後はアプリのポートフォリオに数量、平均単価、現金を記録します。",
   "usageGuideDisclaimer": "このアプリの内容は投資の参考用であり、利益を保証するものではありません。",
-  "usageGuideConfirm": "OK"
+  "usageGuideConfirm": "OK",
+  "bookReadingTitle": "コラム",
+  "bookReaderPageNumber": "{page}ページ",
+  "@bookReaderPageNumber": {
+    "placeholders": {
+      "page": { "type": "int" }
+    }
+  },
+  "numGuessPrompt": "1から1000の数字を当ててください。",
+  "numGuessInvalidInput": "1から1000の数字を入力してください。",
+  "numGuessCorrect": "正解！{attempts}回で当てました。",
+  "@numGuessCorrect": {
+    "placeholders": {
+      "attempts": { "type": "int" }
+    }
+  },
+  "numGuessTooLow": "もっと大きい数字です。",
+  "numGuessTooHigh": "もっと小さい数字です。",
+  "numGuessAttemptsLabel": "試行回数: {count}",
+  "@numGuessAttemptsLabel": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "numGuessInputHint": "数字を入力",
+  "numGuessConfirm": "確認",
+  "numGuessNewGame": "新しいゲーム",
+  "numGuessRanking": "ランキング",
+  "numGuessNoRecords": "まだ記録がありません。",
+  "numGuessAttemptCount": "{count}回",
+  "@numGuessAttemptCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "jumpLeaderboard": "リーダーボード",
+  "jumpScore": "スコア",
+  "jumpPersonalBest": "自己ベスト",
+  "jumpTapToRestart": "タップして再開",
+  "jumpTapToStart": "タップして開始",
+  "jumpInstruction": "画面をタップしてジャンプし、障害物を避けてください。",
+  "inquiryLoadError": "お問い合わせの読み込みに失敗しました。",
+  "inquiryAdminOnlyReply": "管理者のみ返信できます。",
+  "inquiryReplyEmpty": "返信を入力してください。",
+  "inquiryReplyError": "返信の登録に失敗しました。しばらくしてから再試行してください。",
+  "inquiryAdminOnlyPin": "管理者のみ固定できます。",
+  "inquiryPinError": "固定状態の保存に失敗しました。",
+  "inquiryAdminOnlyDelete": "管理者のみ削除できます。",
+  "inquiryDeleteTitle": "問い合わせを削除",
+  "inquiryDeleteConfirm": "この問い合わせを削除しますか？",
+  "inquiryCancel": "キャンセル",
+  "inquiryDeleteAction": "削除",
+  "inquiryDeleteError": "削除に失敗しました。しばらくしてから再試行してください。",
+  "inquiryContentEmpty": "お問い合わせ内容を入力してください。",
+  "inquirySubmitError": "問い合わせの登録に失敗しました。しばらくしてから再試行してください。",
+  "inquiryAdminLabel": "管理者",
+  "inquiryPasswordLabel": "パスワード",
+  "inquiryPasswordWrong": "パスワードが正しくありません。",
+  "inquiryAdminActivatedRegistered": "管理者モード有効 (デバイス登録済み)",
+  "inquiryAdminActivatedFailed": "管理者モード有効 (デバイス登録失敗)",
+  "inquiryContentDetailLabel": "問い合わせ内容",
+  "inquiryAdminReplyLabel": "管理者の返信",
+  "inquiryAdminReplyEdit": "返信を編集",
+  "inquirySaving": "保存中...",
+  "inquirySubmitReply": "返信を登録",
+  "inquiryPrevPage": "前のページ",
+  "inquiryNextPage": "次のページ",
+  "inquiryPageOf": "{current}ページ / {total}ページ",
+  "@inquiryPageOf": {
+    "placeholders": {
+      "current": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "inquiryUnpin": "固定を解除",
+  "inquiryPin": "上部に固定",
+  "inquiryListTitle": "お問い合わせ一覧",
+  "inquiryEmpty": "まだ問い合わせがありません。",
+  "inquiryWriteTitle": "問い合わせを書く",
+  "inquiryContentFieldLabel": "内容",
+  "inquirySubmitting": "登録中...",
+  "inquirySubmitButton": "登録"
 }

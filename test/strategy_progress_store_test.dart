@@ -29,6 +29,8 @@ void main() {
         touchedMinus50: false,
         activeDropZone: 30,
         initialized: true,
+        rebalanceTouchedAnyZone: false,
+        rebalanceCardTriggeredAt: 0,
       ),
     );
 
@@ -51,6 +53,8 @@ void main() {
         touchedMinus50: false,
         activeDropZone: 0,
         initialized: true,
+        rebalanceTouchedAnyZone: false,
+        rebalanceCardTriggeredAt: 0,
       ),
     );
 

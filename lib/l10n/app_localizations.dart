@@ -614,7 +614,7 @@ abstract class AppLocalizations {
   /// No description provided for @minus20Headline.
   ///
   /// In en, this message translates to:
-  /// **'Start Weekly 1% Cash TQQQ Accumulation'**
+  /// **'Start Weekly 1% of Total Cash TQQQ Accumulation'**
   String get minus20Headline;
 
   /// No description provided for @minus20OverviewTitle.
@@ -1136,7 +1136,7 @@ abstract class AppLocalizations {
   /// No description provided for @minus20ActionText.
   ///
   /// In en, this message translates to:
-  /// **'Use only 1% of total cash once a week to accumulate fractional TQQQ shares. Do not put in a large amount at once.'**
+  /// **'Start buying TQQQ weekly at 1% of your cash holdings.\nEx) \$500 cash → buy \$5 per week'**
   String get minus20ActionText;
 
   /// No description provided for @minus20BuyRuleTitle.
@@ -1160,7 +1160,7 @@ abstract class AppLocalizations {
   /// No description provided for @minus20CashText.
   ///
   /// In en, this message translates to:
-  /// **'Most cash must remain available for the -30%, -40%, and -50% zones. Even after planned cash is fully used at -50%, new cash can keep lowering the average through weekly accumulation.'**
+  /// **'Most cash must remain available for the -30%, -40%, and -50% zones. Even after planned cash is fully used at -50%, new cash can keep lowering the average through weekly accumulation.\n\nEven if the market moves sideways for 10 or more weeks, continue accumulating 1% of total cash every week. The longer the sideways movement, the more shares you build up — there is no reason to stop.\n\nWhen the -30% zone is reached, make a single additional purchase using 20% of the remaining cash at that point. The weekly accumulation does not stop — it continues alongside the -30% strategy. Accumulation ends only when the previous high is recovered and rebalancing takes place.'**
   String get minus20CashText;
 
   /// No description provided for @minus20AvoidTitle.
@@ -1613,6 +1613,66 @@ abstract class AppLocalizations {
   /// **'When QLD fully recovers to the previous high, this decline cycle is complete and the strategy returns to the initial no-buy position.'**
   String get holdResetText;
 
+  /// No description provided for @rebalanceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Rebalancing Zone'**
+  String get rebalanceTitle;
+
+  /// No description provided for @rebalanceHeadline.
+  ///
+  /// In en, this message translates to:
+  /// **'Sell TQQQ and return to base position'**
+  String get rebalanceHeadline;
+
+  /// No description provided for @rebalanceOverviewTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Strategy Overview'**
+  String get rebalanceOverviewTitle;
+
+  /// No description provided for @rebalanceOverviewText.
+  ///
+  /// In en, this message translates to:
+  /// **'All-time high recovery signals the end of the crisis response phase. It is time to sell the TQQQ accumulated in the -20% or lower zones and return to the base position (QLD 70%, Cash 30%).'**
+  String get rebalanceOverviewText;
+
+  /// No description provided for @rebalanceActionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Immediate Action'**
+  String get rebalanceActionTitle;
+
+  /// No description provided for @rebalanceActionText.
+  ///
+  /// In en, this message translates to:
+  /// **'Sell all TQQQ accumulated or purchased in the -20% or lower zones. Then rebalance your assets according to the base position allocation.'**
+  String get rebalanceActionText;
+
+  /// No description provided for @rebalanceCashTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash Target'**
+  String get rebalanceCashTitle;
+
+  /// No description provided for @rebalanceCashText.
+  ///
+  /// In en, this message translates to:
+  /// **'After rebalancing, maintain QLD 70% and Cash 30%. Keep the secured cash as a reserve for the next downturn.'**
+  String get rebalanceCashText;
+
+  /// No description provided for @rebalanceAvoidTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'What to Avoid'**
+  String get rebalanceAvoidTitle;
+
+  /// No description provided for @rebalanceAvoidText.
+  ///
+  /// In en, this message translates to:
+  /// **'Do not continue TQQQ accumulation after the all-time high recovery. Sell the positions accumulated during the crisis phase at this stage and return to the base position.'**
+  String get rebalanceAvoidText;
+
   /// No description provided for @investmentCalculatorTitle.
   ///
   /// In en, this message translates to:
@@ -1817,6 +1877,18 @@ abstract class AppLocalizations {
   /// **'Inquiries'**
   String get contentInquiry;
 
+  /// No description provided for @contentInquirySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave an anonymous inquiry and check the reply.'**
+  String get contentInquirySubtitle;
+
+  /// No description provided for @contentInquiryBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'Q&A'**
+  String get contentInquiryBadge;
+
   /// No description provided for @contentCloseGuess.
   ///
   /// In en, this message translates to:
@@ -1829,17 +1901,53 @@ abstract class AppLocalizations {
   /// **'Stock Quotes'**
   String get contentStockQuote;
 
+  /// No description provided for @contentStockQuoteSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'A short quote to sharpen your investment instincts.'**
+  String get contentStockQuoteSubtitle;
+
+  /// No description provided for @contentStockQuoteBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily'**
+  String get contentStockQuoteBadge;
+
   /// No description provided for @contentNumberGuess.
   ///
   /// In en, this message translates to:
   /// **'Number Guess'**
   String get contentNumberGuess;
 
+  /// No description provided for @contentNumberGuessSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'A light probability mini-game to enjoy casually.'**
+  String get contentNumberGuessSubtitle;
+
+  /// No description provided for @contentNumberGuessBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'Game'**
+  String get contentNumberGuessBadge;
+
   /// No description provided for @contentBookReader.
   ///
   /// In en, this message translates to:
-  /// **'Book Reader'**
+  /// **'Column'**
   String get contentBookReader;
+
+  /// No description provided for @contentBookReaderSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Public-domain texts you can read at a relaxed pace.'**
+  String get contentBookReaderSubtitle;
+
+  /// No description provided for @contentBookReaderBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'Read'**
+  String get contentBookReaderBadge;
 
   /// No description provided for @contentStockMeme.
   ///
@@ -1858,6 +1966,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Jump Dodge Game'**
   String get contentJumpDodge;
+
+  /// No description provided for @contentJumpDodgeSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'A jump mini-game for short focused sessions.'**
+  String get contentJumpDodgeSubtitle;
+
+  /// No description provided for @contentJumpDodgeBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'Action'**
+  String get contentJumpDodgeBadge;
 
   /// No description provided for @stockQuoteTitle.
   ///
@@ -1972,6 +2092,336 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'OK'**
   String get usageGuideConfirm;
+
+  /// No description provided for @bookReadingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Column'**
+  String get bookReadingTitle;
+
+  /// No description provided for @bookReaderPageNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Page {page}'**
+  String bookReaderPageNumber(int page);
+
+  /// No description provided for @numGuessPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Guess a number between 1 and 1000.'**
+  String get numGuessPrompt;
+
+  /// No description provided for @numGuessInvalidInput.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a number between 1 and 1000.'**
+  String get numGuessInvalidInput;
+
+  /// No description provided for @numGuessCorrect.
+  ///
+  /// In en, this message translates to:
+  /// **'Correct! You got it in {attempts} tries.'**
+  String numGuessCorrect(int attempts);
+
+  /// No description provided for @numGuessTooLow.
+  ///
+  /// In en, this message translates to:
+  /// **'The number is higher.'**
+  String get numGuessTooLow;
+
+  /// No description provided for @numGuessTooHigh.
+  ///
+  /// In en, this message translates to:
+  /// **'The number is lower.'**
+  String get numGuessTooHigh;
+
+  /// No description provided for @numGuessAttemptsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Attempts: {count}'**
+  String numGuessAttemptsLabel(int count);
+
+  /// No description provided for @numGuessInputHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter number'**
+  String get numGuessInputHint;
+
+  /// No description provided for @numGuessConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm'**
+  String get numGuessConfirm;
+
+  /// No description provided for @numGuessNewGame.
+  ///
+  /// In en, this message translates to:
+  /// **'New Game'**
+  String get numGuessNewGame;
+
+  /// No description provided for @numGuessRanking.
+  ///
+  /// In en, this message translates to:
+  /// **'Ranking'**
+  String get numGuessRanking;
+
+  /// No description provided for @numGuessNoRecords.
+  ///
+  /// In en, this message translates to:
+  /// **'No records yet.'**
+  String get numGuessNoRecords;
+
+  /// No description provided for @numGuessAttemptCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} tries'**
+  String numGuessAttemptCount(int count);
+
+  /// No description provided for @jumpLeaderboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Leaderboard'**
+  String get jumpLeaderboard;
+
+  /// No description provided for @jumpScore.
+  ///
+  /// In en, this message translates to:
+  /// **'Score'**
+  String get jumpScore;
+
+  /// No description provided for @jumpPersonalBest.
+  ///
+  /// In en, this message translates to:
+  /// **'Personal Best'**
+  String get jumpPersonalBest;
+
+  /// No description provided for @jumpTapToRestart.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to restart'**
+  String get jumpTapToRestart;
+
+  /// No description provided for @jumpTapToStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to start'**
+  String get jumpTapToStart;
+
+  /// No description provided for @jumpInstruction.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap the screen to jump and avoid obstacles.'**
+  String get jumpInstruction;
+
+  /// No description provided for @inquiryLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load inquiries.'**
+  String get inquiryLoadError;
+
+  /// No description provided for @inquiryAdminOnlyReply.
+  ///
+  /// In en, this message translates to:
+  /// **'Only admins can submit replies.'**
+  String get inquiryAdminOnlyReply;
+
+  /// No description provided for @inquiryReplyEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a reply.'**
+  String get inquiryReplyEmpty;
+
+  /// No description provided for @inquiryReplyError.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to submit reply. Please try again later.'**
+  String get inquiryReplyError;
+
+  /// No description provided for @inquiryAdminOnlyPin.
+  ///
+  /// In en, this message translates to:
+  /// **'Only admins can pin.'**
+  String get inquiryAdminOnlyPin;
+
+  /// No description provided for @inquiryPinError.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to save pin status.'**
+  String get inquiryPinError;
+
+  /// No description provided for @inquiryAdminOnlyDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Only admins can delete.'**
+  String get inquiryAdminOnlyDelete;
+
+  /// No description provided for @inquiryDeleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Inquiry'**
+  String get inquiryDeleteTitle;
+
+  /// No description provided for @inquiryDeleteConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this inquiry?'**
+  String get inquiryDeleteConfirm;
+
+  /// No description provided for @inquiryCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get inquiryCancel;
+
+  /// No description provided for @inquiryDeleteAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get inquiryDeleteAction;
+
+  /// No description provided for @inquiryDeleteError.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to delete. Please try again later.'**
+  String get inquiryDeleteError;
+
+  /// No description provided for @inquiryContentEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter your inquiry.'**
+  String get inquiryContentEmpty;
+
+  /// No description provided for @inquirySubmitError.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to submit inquiry. Please try again later.'**
+  String get inquirySubmitError;
+
+  /// No description provided for @inquiryAdminLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Admin'**
+  String get inquiryAdminLabel;
+
+  /// No description provided for @inquiryPasswordLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Password'**
+  String get inquiryPasswordLabel;
+
+  /// No description provided for @inquiryPasswordWrong.
+  ///
+  /// In en, this message translates to:
+  /// **'Incorrect password.'**
+  String get inquiryPasswordWrong;
+
+  /// No description provided for @inquiryAdminActivatedRegistered.
+  ///
+  /// In en, this message translates to:
+  /// **'Admin mode enabled (device registered)'**
+  String get inquiryAdminActivatedRegistered;
+
+  /// No description provided for @inquiryAdminActivatedFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Admin mode enabled (device registration failed)'**
+  String get inquiryAdminActivatedFailed;
+
+  /// No description provided for @inquiryContentDetailLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Inquiry'**
+  String get inquiryContentDetailLabel;
+
+  /// No description provided for @inquiryAdminReplyLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Admin Reply'**
+  String get inquiryAdminReplyLabel;
+
+  /// No description provided for @inquiryAdminReplyEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Reply'**
+  String get inquiryAdminReplyEdit;
+
+  /// No description provided for @inquirySaving.
+  ///
+  /// In en, this message translates to:
+  /// **'Saving...'**
+  String get inquirySaving;
+
+  /// No description provided for @inquirySubmitReply.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit Reply'**
+  String get inquirySubmitReply;
+
+  /// No description provided for @inquiryPrevPage.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous page'**
+  String get inquiryPrevPage;
+
+  /// No description provided for @inquiryNextPage.
+  ///
+  /// In en, this message translates to:
+  /// **'Next page'**
+  String get inquiryNextPage;
+
+  /// No description provided for @inquiryPageOf.
+  ///
+  /// In en, this message translates to:
+  /// **'Page {current} / {total}'**
+  String inquiryPageOf(int current, int total);
+
+  /// No description provided for @inquiryUnpin.
+  ///
+  /// In en, this message translates to:
+  /// **'Unpin'**
+  String get inquiryUnpin;
+
+  /// No description provided for @inquiryPin.
+  ///
+  /// In en, this message translates to:
+  /// **'Pin to top'**
+  String get inquiryPin;
+
+  /// No description provided for @inquiryListTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Inquiry List'**
+  String get inquiryListTitle;
+
+  /// No description provided for @inquiryEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No inquiries yet.'**
+  String get inquiryEmpty;
+
+  /// No description provided for @inquiryWriteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Write Inquiry'**
+  String get inquiryWriteTitle;
+
+  /// No description provided for @inquiryContentFieldLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Content'**
+  String get inquiryContentFieldLabel;
+
+  /// No description provided for @inquirySubmitting.
+  ///
+  /// In en, this message translates to:
+  /// **'Submitting...'**
+  String get inquirySubmitting;
+
+  /// No description provided for @inquirySubmitButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit'**
+  String get inquirySubmitButton;
 }
 
 class _AppLocalizationsDelegate

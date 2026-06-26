@@ -270,7 +270,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get minus20Title => '-20% 策略';
 
   @override
-  String get minus20Headline => '每周用1%现金开始定投TQQQ';
+  String get minus20Headline => '每周用总现金的1%开始定投TQQQ';
 
   @override
   String get minus20OverviewTitle => 'Strategy Overview';
@@ -554,7 +554,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get minus20ActionTitle => '立即行动';
 
   @override
-  String get minus20ActionText => '每周只使用总现金的1%，以零股方式定投TQQQ。不要一次投入大额资金。';
+  String get minus20ActionText => '每周用持有现金的1%定投TQQQ。\n例）现金500美元 → 每周买入5美元';
 
   @override
   String get minus20BuyRuleTitle => '目的';
@@ -568,7 +568,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get minus20CashText =>
-      '大部分现金仍要保留给-30%、-40%、-50%区间。即使在-50%时用完计划现金，之后新增现金也通过每周定投继续降低平均成本。';
+      '大部分现金仍要保留给-30%、-40%、-50%区间。即使在-50%时用完计划现金，之后新增现金也通过每周定投继续降低平均成本。\n\n即使市场横盘超过10周，也要继续每周定投总现金的1%。横盘越久，累积的份额越多，没有理由停止。\n\n到达-30%区间时，将当时剩余现金的20%一次性追加买入。每周定投不停止，与-30%策略同步继续。定投的结束时机是前高点收复并进行再平衡时。';
 
   @override
   String get minus20AvoidTitle => '卖出标准';
@@ -805,6 +805,38 @@ class AppLocalizationsZh extends AppLocalizations {
   String get holdResetText => '当QLD完全恢复至前高时，本轮下跌周期结束，策略将回到最初的禁止买入状态。';
 
   @override
+  String get rebalanceTitle => '再平衡区间';
+
+  @override
+  String get rebalanceHeadline => '卖出TQQQ并回归基础仓位';
+
+  @override
+  String get rebalanceOverviewTitle => '策略概述';
+
+  @override
+  String get rebalanceOverviewText =>
+      '历史新高的收复意味着危机应对阶段已结束。现在是卖出在-20%及以下区间积累的TQQQ，并回归基础仓位（QLD 70%，现金 30%）的时候了。';
+
+  @override
+  String get rebalanceActionTitle => '立即行动';
+
+  @override
+  String get rebalanceActionText => '卖出所有在-20%及以下区间积累或购买的TQQQ。然后按照基础仓位配置调整资产。';
+
+  @override
+  String get rebalanceCashTitle => '现金目标';
+
+  @override
+  String get rebalanceCashText =>
+      '再平衡后维持QLD 70%、现金 30%的比例。将获得的现金作为下次下跌区间的备用资金保管。';
+
+  @override
+  String get rebalanceAvoidTitle => '需要避免的行为';
+
+  @override
+  String get rebalanceAvoidText => '历史新高收复后不要继续积累TQQQ。在此阶段卖出危机阶段积累的仓位，回归基础仓位。';
+
+  @override
   String get investmentCalculatorTitle => '预期收益率计算器';
 
   @override
@@ -907,16 +939,40 @@ class AppLocalizationsZh extends AppLocalizations {
   String get contentInquiry => '咨询';
 
   @override
+  String get contentInquirySubtitle => '留下匿名问题并查看回复。';
+
+  @override
+  String get contentInquiryBadge => 'Q&A';
+
+  @override
   String get contentCloseGuess => '收盘价竞猜';
 
   @override
   String get contentStockQuote => '今日股票名言';
 
   @override
+  String get contentStockQuoteSubtitle => '磨砺投资直觉的简短名言。';
+
+  @override
+  String get contentStockQuoteBadge => '每日';
+
+  @override
   String get contentNumberGuess => '猜数字';
 
   @override
-  String get contentBookReader => '阅读书籍';
+  String get contentNumberGuessSubtitle => '轻松享受的概率小游戏。';
+
+  @override
+  String get contentNumberGuessBadge => '游戏';
+
+  @override
+  String get contentBookReader => '专栏';
+
+  @override
+  String get contentBookReaderSubtitle => '可以从容阅读的公共领域文本。';
+
+  @override
+  String get contentBookReaderBadge => '阅读';
 
   @override
   String get contentStockMeme => '股票梗图';
@@ -926,6 +982,12 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get contentJumpDodge => '跳跃躲避游戏';
+
+  @override
+  String get contentJumpDodgeSubtitle => '短暂专注享受的跳跃小游戏。';
+
+  @override
+  String get contentJumpDodgeBadge => '动作';
 
   @override
   String get stockQuoteTitle => '今日股票名言';
@@ -988,6 +1050,181 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get usageGuideConfirm => '确定';
+
+  @override
+  String get bookReadingTitle => '专栏';
+
+  @override
+  String bookReaderPageNumber(int page) {
+    return '第$page页';
+  }
+
+  @override
+  String get numGuessPrompt => '猜一个1到1000之间的数字。';
+
+  @override
+  String get numGuessInvalidInput => '请输入1到1000之间的数字。';
+
+  @override
+  String numGuessCorrect(int attempts) {
+    return '正确！您用了$attempts次猜对了。';
+  }
+
+  @override
+  String get numGuessTooLow => '数字更大。';
+
+  @override
+  String get numGuessTooHigh => '数字更小。';
+
+  @override
+  String numGuessAttemptsLabel(int count) {
+    return '尝试次数: $count';
+  }
+
+  @override
+  String get numGuessInputHint => '输入数字';
+
+  @override
+  String get numGuessConfirm => '确认';
+
+  @override
+  String get numGuessNewGame => '新游戏';
+
+  @override
+  String get numGuessRanking => '排名';
+
+  @override
+  String get numGuessNoRecords => '暂无记录。';
+
+  @override
+  String numGuessAttemptCount(int count) {
+    return '$count次';
+  }
+
+  @override
+  String get jumpLeaderboard => '排行榜';
+
+  @override
+  String get jumpScore => '分数';
+
+  @override
+  String get jumpPersonalBest => '个人最佳';
+
+  @override
+  String get jumpTapToRestart => '点击重新开始';
+
+  @override
+  String get jumpTapToStart => '点击开始';
+
+  @override
+  String get jumpInstruction => '点击屏幕跳跃并躲避障碍物。';
+
+  @override
+  String get inquiryLoadError => '无法加载问题列表。';
+
+  @override
+  String get inquiryAdminOnlyReply => '只有管理员可以回复。';
+
+  @override
+  String get inquiryReplyEmpty => '请输入回复内容。';
+
+  @override
+  String get inquiryReplyError => '提交回复失败，请稍后重试。';
+
+  @override
+  String get inquiryAdminOnlyPin => '只有管理员可以置顶。';
+
+  @override
+  String get inquiryPinError => '无法保存置顶状态。';
+
+  @override
+  String get inquiryAdminOnlyDelete => '只有管理员可以删除。';
+
+  @override
+  String get inquiryDeleteTitle => '删除问题';
+
+  @override
+  String get inquiryDeleteConfirm => '删除此问题吗？';
+
+  @override
+  String get inquiryCancel => '取消';
+
+  @override
+  String get inquiryDeleteAction => '删除';
+
+  @override
+  String get inquiryDeleteError => '删除失败，请稍后重试。';
+
+  @override
+  String get inquiryContentEmpty => '请输入问题内容。';
+
+  @override
+  String get inquirySubmitError => '提交问题失败，请稍后重试。';
+
+  @override
+  String get inquiryAdminLabel => '管理员';
+
+  @override
+  String get inquiryPasswordLabel => '密码';
+
+  @override
+  String get inquiryPasswordWrong => '密码不正确。';
+
+  @override
+  String get inquiryAdminActivatedRegistered => '管理员模式已启用（设备已注册）';
+
+  @override
+  String get inquiryAdminActivatedFailed => '管理员模式已启用（设备注册失败）';
+
+  @override
+  String get inquiryContentDetailLabel => '问题内容';
+
+  @override
+  String get inquiryAdminReplyLabel => '管理员回复';
+
+  @override
+  String get inquiryAdminReplyEdit => '编辑回复';
+
+  @override
+  String get inquirySaving => '保存中...';
+
+  @override
+  String get inquirySubmitReply => '提交回复';
+
+  @override
+  String get inquiryPrevPage => '上一页';
+
+  @override
+  String get inquiryNextPage => '下一页';
+
+  @override
+  String inquiryPageOf(int current, int total) {
+    return '第$current页 / 共$total页';
+  }
+
+  @override
+  String get inquiryUnpin => '取消置顶';
+
+  @override
+  String get inquiryPin => '置顶';
+
+  @override
+  String get inquiryListTitle => '问题列表';
+
+  @override
+  String get inquiryEmpty => '暂无问题。';
+
+  @override
+  String get inquiryWriteTitle => '写问题';
+
+  @override
+  String get inquiryContentFieldLabel => '内容';
+
+  @override
+  String get inquirySubmitting => '提交中...';
+
+  @override
+  String get inquirySubmitButton => '提交';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).
@@ -1256,7 +1493,7 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get minus20Title => '-20% 策略';
 
   @override
-  String get minus20Headline => '每週用1%現金開始定投TQQQ';
+  String get minus20Headline => '每週用總現金的1%開始定投TQQQ';
 
   @override
   String get minus20OverviewTitle => 'Strategy Overview';
@@ -1540,7 +1777,7 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get minus20ActionTitle => '立即行动';
 
   @override
-  String get minus20ActionText => '每週只使用總現金的1%，以零股方式定投TQQQ。不要一次投入大額資金。';
+  String get minus20ActionText => '每週用持有現金的1%定投TQQQ。\n例）現金500美元 → 每週買入5美元';
 
   @override
   String get minus20BuyRuleTitle => '目的';
@@ -1554,7 +1791,7 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get minus20CashText =>
-      '大部分現金仍要保留給-30%、-40%、-50%區間。即使在-50%時用完計畫現金，之後新增現金也透過每週定投繼續降低平均成本。';
+      '大部分現金仍要保留給-30%、-40%、-50%區間。即使在-50%時用完計畫現金，之後新增現金也透過每週定投繼續降低平均成本。\n\n即使市場橫盤超過10週，也要繼續每週定投總現金的1%。橫盤越久，累積的份額越多，沒有理由停止。\n\n到達-30%區間時，將當時剩餘現金的20%一次性追加買入。每週定投不停止，與-30%策略同步繼續。定投的結束時機是前高點收復並進行再平衡時。';
 
   @override
   String get minus20AvoidTitle => '賣出標準';
@@ -1791,6 +2028,38 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get holdResetText => '當QLD完全復甦至前高時，本輪下跌週期結束，策略將回到最初的禁止買入狀態。';
 
   @override
+  String get rebalanceTitle => '再平衡區間';
+
+  @override
+  String get rebalanceHeadline => '賣出TQQQ並回歸基礎倉位';
+
+  @override
+  String get rebalanceOverviewTitle => '策略概述';
+
+  @override
+  String get rebalanceOverviewText =>
+      '歷史新高的收復意味著危機應對階段已結束。現在是賣出在-20%及以下區間積累的TQQQ，並回歸基礎倉位（QLD 70%，現金 30%）的時候了。';
+
+  @override
+  String get rebalanceActionTitle => '立即行動';
+
+  @override
+  String get rebalanceActionText => '賣出所有在-20%及以下區間積累或購買的TQQQ。然後按照基礎倉位配置調整資產。';
+
+  @override
+  String get rebalanceCashTitle => '現金目標';
+
+  @override
+  String get rebalanceCashText =>
+      '再平衡後維持QLD 70%、現金 30%的比例。將獲得的現金作為下次下跌區間的備用資金保管。';
+
+  @override
+  String get rebalanceAvoidTitle => '需要避免的行為';
+
+  @override
+  String get rebalanceAvoidText => '歷史新高收復後不要繼續積累TQQQ。在此階段賣出危機階段積累的倉位，回歸基礎倉位。';
+
+  @override
   String get investmentCalculatorTitle => '預期報酬率計算器';
 
   @override
@@ -1893,16 +2162,40 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get contentInquiry => '諮詢';
 
   @override
+  String get contentInquirySubtitle => '留下匿名問題並查看回覆。';
+
+  @override
+  String get contentInquiryBadge => 'Q&A';
+
+  @override
   String get contentCloseGuess => '收盤價猜測';
 
   @override
   String get contentStockQuote => '今日股票名言';
 
   @override
+  String get contentStockQuoteSubtitle => '磨練投資直覺的簡短名言。';
+
+  @override
+  String get contentStockQuoteBadge => '每日';
+
+  @override
   String get contentNumberGuess => '猜數字';
 
   @override
-  String get contentBookReader => '閱讀書籍';
+  String get contentNumberGuessSubtitle => '輕鬆享受的機率小遊戲。';
+
+  @override
+  String get contentNumberGuessBadge => '遊戲';
+
+  @override
+  String get contentBookReader => '專欄';
+
+  @override
+  String get contentBookReaderSubtitle => '可以從容閱讀的公共領域文本。';
+
+  @override
+  String get contentBookReaderBadge => '閱讀';
 
   @override
   String get contentStockMeme => '股票迷因';
@@ -1912,6 +2205,12 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get contentJumpDodge => '跳躍閃避遊戲';
+
+  @override
+  String get contentJumpDodgeSubtitle => '短暫專注享受的跳躍小遊戲。';
+
+  @override
+  String get contentJumpDodgeBadge => '動作';
 
   @override
   String get stockQuoteTitle => '今日股票名言';
@@ -1974,4 +2273,179 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get usageGuideConfirm => '確定';
+
+  @override
+  String get bookReadingTitle => '專欄';
+
+  @override
+  String bookReaderPageNumber(int page) {
+    return '第$page頁';
+  }
+
+  @override
+  String get numGuessPrompt => '猜一個1到1000之間的數字。';
+
+  @override
+  String get numGuessInvalidInput => '請輸入1到1000之間的數字。';
+
+  @override
+  String numGuessCorrect(int attempts) {
+    return '正確！您用了$attempts次猜對了。';
+  }
+
+  @override
+  String get numGuessTooLow => '數字更大。';
+
+  @override
+  String get numGuessTooHigh => '數字更小。';
+
+  @override
+  String numGuessAttemptsLabel(int count) {
+    return '嘗試次數: $count';
+  }
+
+  @override
+  String get numGuessInputHint => '輸入數字';
+
+  @override
+  String get numGuessConfirm => '確認';
+
+  @override
+  String get numGuessNewGame => '新遊戲';
+
+  @override
+  String get numGuessRanking => '排名';
+
+  @override
+  String get numGuessNoRecords => '暫無記錄。';
+
+  @override
+  String numGuessAttemptCount(int count) {
+    return '$count次';
+  }
+
+  @override
+  String get jumpLeaderboard => '排行榜';
+
+  @override
+  String get jumpScore => '分數';
+
+  @override
+  String get jumpPersonalBest => '個人最佳';
+
+  @override
+  String get jumpTapToRestart => '點擊重新開始';
+
+  @override
+  String get jumpTapToStart => '點擊開始';
+
+  @override
+  String get jumpInstruction => '點擊螢幕跳躍並躲避障礙物。';
+
+  @override
+  String get inquiryLoadError => '無法載入問題列表。';
+
+  @override
+  String get inquiryAdminOnlyReply => '只有管理員可以回覆。';
+
+  @override
+  String get inquiryReplyEmpty => '請輸入回覆內容。';
+
+  @override
+  String get inquiryReplyError => '提交回覆失敗，請稍後重試。';
+
+  @override
+  String get inquiryAdminOnlyPin => '只有管理員可以置頂。';
+
+  @override
+  String get inquiryPinError => '無法儲存置頂狀態。';
+
+  @override
+  String get inquiryAdminOnlyDelete => '只有管理員可以刪除。';
+
+  @override
+  String get inquiryDeleteTitle => '刪除問題';
+
+  @override
+  String get inquiryDeleteConfirm => '刪除此問題嗎？';
+
+  @override
+  String get inquiryCancel => '取消';
+
+  @override
+  String get inquiryDeleteAction => '刪除';
+
+  @override
+  String get inquiryDeleteError => '刪除失敗，請稍後重試。';
+
+  @override
+  String get inquiryContentEmpty => '請輸入問題內容。';
+
+  @override
+  String get inquirySubmitError => '提交問題失敗，請稍後重試。';
+
+  @override
+  String get inquiryAdminLabel => '管理員';
+
+  @override
+  String get inquiryPasswordLabel => '密碼';
+
+  @override
+  String get inquiryPasswordWrong => '密碼不正確。';
+
+  @override
+  String get inquiryAdminActivatedRegistered => '管理員模式已啟用（裝置已註冊）';
+
+  @override
+  String get inquiryAdminActivatedFailed => '管理員模式已啟用（裝置註冊失敗）';
+
+  @override
+  String get inquiryContentDetailLabel => '問題內容';
+
+  @override
+  String get inquiryAdminReplyLabel => '管理員回覆';
+
+  @override
+  String get inquiryAdminReplyEdit => '編輯回覆';
+
+  @override
+  String get inquirySaving => '儲存中...';
+
+  @override
+  String get inquirySubmitReply => '提交回覆';
+
+  @override
+  String get inquiryPrevPage => '上一頁';
+
+  @override
+  String get inquiryNextPage => '下一頁';
+
+  @override
+  String inquiryPageOf(int current, int total) {
+    return '第$current頁 / 共$total頁';
+  }
+
+  @override
+  String get inquiryUnpin => '取消置頂';
+
+  @override
+  String get inquiryPin => '置頂';
+
+  @override
+  String get inquiryListTitle => '問題列表';
+
+  @override
+  String get inquiryEmpty => '暫無問題。';
+
+  @override
+  String get inquiryWriteTitle => '寫問題';
+
+  @override
+  String get inquiryContentFieldLabel => '內容';
+
+  @override
+  String get inquirySubmitting => '提交中...';
+
+  @override
+  String get inquirySubmitButton => '提交';
 }

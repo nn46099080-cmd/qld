@@ -8,6 +8,8 @@ class StrategyProgress {
     required this.touchedMinus50,
     required this.activeDropZone,
     required this.initialized,
+    required this.rebalanceTouchedAnyZone,
+    required this.rebalanceCardTriggeredAt,
   });
 
   final bool touchedMinus20;
@@ -16,6 +18,8 @@ class StrategyProgress {
   final bool touchedMinus50;
   final int activeDropZone;
   final bool initialized;
+  final bool rebalanceTouchedAnyZone;
+  final int rebalanceCardTriggeredAt; // ms epoch, 0 = not triggered
 }
 
 class StrategyProgressStore {
@@ -27,6 +31,8 @@ class StrategyProgressStore {
   static const _touchedMinus50Key = 'strategyTouchedMinus50';
   static const _activeDropZoneKey = 'strategyActiveDropZone';
   static const _initializedKey = 'strategyDropAlertInitialized';
+  static const _rebalanceTouchedAnyZoneKey = 'rebalanceTouchedAnyZone';
+  static const _rebalanceCardTriggeredAtKey = 'rebalanceCardTriggeredAt';
 
   Future<StrategyProgress> load() async {
     final prefs = await SharedPreferences.getInstance();
@@ -38,6 +44,10 @@ class StrategyProgressStore {
       touchedMinus50: prefs.getBool(_touchedMinus50Key) ?? false,
       activeDropZone: prefs.getInt(_activeDropZoneKey) ?? 0,
       initialized: prefs.getBool(_initializedKey) ?? false,
+      rebalanceTouchedAnyZone:
+          prefs.getBool(_rebalanceTouchedAnyZoneKey) ?? false,
+      rebalanceCardTriggeredAt:
+          prefs.getInt(_rebalanceCardTriggeredAtKey) ?? 0,
     );
   }
 
@@ -51,6 +61,10 @@ class StrategyProgressStore {
       prefs.setBool(_touchedMinus50Key, progress.touchedMinus50),
       prefs.setInt(_activeDropZoneKey, progress.activeDropZone),
       prefs.setBool(_initializedKey, progress.initialized),
+      prefs.setBool(
+          _rebalanceTouchedAnyZoneKey, progress.rebalanceTouchedAnyZone),
+      prefs.setInt(
+          _rebalanceCardTriggeredAtKey, progress.rebalanceCardTriggeredAt),
     ]);
   }
 }

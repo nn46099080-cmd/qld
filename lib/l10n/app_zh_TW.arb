@@ -1,4 +1,4 @@
-{
+﻿{
   "appTitle": "QLD 提醒",
   "noBuyZone": "禁止買入區間",
   "tapToViewStrategy": "點擊查看策略",
@@ -82,7 +82,7 @@
   "guide3": "✅ Focus on long-term positioning",
   "guide4": "❌ Avoid emotional overbuying",
   "minus20Title": "-20% 策略",
-  "minus20Headline": "每週用1%現金開始定投TQQQ",
+  "minus20Headline": "每週用總現金的1%開始定投TQQQ",
   "minus20OverviewTitle": "Strategy Overview",
   "minus20OverviewText": "This zone represents approximately a 10% correction in QQQ.\n\nSince the decline is still relatively moderate, maintaining cash reserves remains important.",
   "minus20AllocationTitle": "Suggested Allocation",
@@ -169,11 +169,11 @@
   "noBuyNextTitle": "下一步",
   "noBuyNextText": "到达-20%后，准备开始小额分批定投TQQQ。",
   "minus20ActionTitle": "立即行动",
-  "minus20ActionText": "每週只使用總現金的1%，以零股方式定投TQQQ。不要一次投入大額資金。",
+  "minus20ActionText": "每週用持有現金的1%定投TQQQ。\n例）現金500美元 → 每週買入5美元",
   "minus20BuyRuleTitle": "目的",
   "minus20BuyRuleText": "從-20%區間開始設定，是為了在市場橫盤時也能少量累積，逐步降低TQQQ平均成本。重點不是馬上抓到獲利，而是建立更低的平均成本。",
   "minus20CashTitle": "现金管理",
-  "minus20CashText": "大部分現金仍要保留給-30%、-40%、-50%區間。即使在-50%時用完計畫現金，之後新增現金也透過每週定投繼續降低平均成本。",
+  "minus20CashText": "大部分現金仍要保留給-30%、-40%、-50%區間。即使在-50%時用完計畫現金，之後新增現金也透過每週定投繼續降低平均成本。\n\n即使市場橫盤超過10週，也要繼續每週定投總現金的1%。橫盤越久，累積的份額越多，沒有理由停止。\n\n到達-30%區間時，將當時剩餘現金的20%一次性追加買入。每週定投不停止，與-30%策略同步繼續。定投的結束時機是前高點收復並進行再平衡時。",
   "minus20AvoidTitle": "賣出標準",
   "minus20AvoidText": "這個區間累積的TQQQ不在每次短線反彈時賣出。應視為之後創新高並整理TQQQ部位時一起處理的部分。",
   "minus30ActionTitle": "立即行动",
@@ -249,6 +249,16 @@
   "holdAvoidText": "不要因波動而匆忙賣出，也不要因確信會復甦而衝動追加買入。",
   "holdResetTitle": "策略重設",
   "holdResetText": "當QLD完全復甦至前高時，本輪下跌週期結束，策略將回到最初的禁止買入狀態。",
+  "rebalanceTitle": "再平衡區間",
+  "rebalanceHeadline": "賣出TQQQ並回歸基礎倉位",
+  "rebalanceOverviewTitle": "策略概述",
+  "rebalanceOverviewText": "歷史新高的收復意味著危機應對階段已結束。現在是賣出在-20%及以下區間積累的TQQQ，並回歸基礎倉位（QLD 70%，現金 30%）的時候了。",
+  "rebalanceActionTitle": "立即行動",
+  "rebalanceActionText": "賣出所有在-20%及以下區間積累或購買的TQQQ。然後按照基礎倉位配置調整資產。",
+  "rebalanceCashTitle": "現金目標",
+  "rebalanceCashText": "再平衡後維持QLD 70%、現金 30%的比例。將獲得的現金作為下次下跌區間的備用資金保管。",
+  "rebalanceAvoidTitle": "需要避免的行為",
+  "rebalanceAvoidText": "歷史新高收復後不要繼續積累TQQQ。在此階段賣出危機階段積累的倉位，回歸基礎倉位。",
   "investmentCalculatorTitle": "預期報酬率計算器",
   "investmentCalculatorSubtitle": "依QLD過去平均進行簡單複利計算",
   "investmentCalculatorReturnRate": "10年平均報酬率",
@@ -283,13 +293,23 @@
   "investmentCurrencyRussiaRub": "俄羅斯 RUB",
   "contentTitle": "內容",
   "contentInquiry": "諮詢",
+  "contentInquirySubtitle": "留下匿名問題並查看回覆。",
+  "contentInquiryBadge": "Q&A",
   "contentCloseGuess": "收盤價猜測",
   "contentStockQuote": "今日股票名言",
+  "contentStockQuoteSubtitle": "磨練投資直覺的簡短名言。",
+  "contentStockQuoteBadge": "每日",
   "contentNumberGuess": "猜數字",
-  "contentBookReader": "閱讀書籍",
+  "contentNumberGuessSubtitle": "輕鬆享受的機率小遊戲。",
+  "contentNumberGuessBadge": "遊戲",
+  "contentBookReader": "專欄",
+  "contentBookReaderSubtitle": "可以從容閱讀的公共領域文本。",
+  "contentBookReaderBadge": "閱讀",
   "contentStockMeme": "股票迷因",
   "contentLottoNumbers": "樂透號碼推薦",
   "contentJumpDodge": "跳躍閃避遊戲",
+  "contentJumpDodgeSubtitle": "短暫專注享受的跳躍小遊戲。",
+  "contentJumpDodgeBadge": "動作",
   "stockQuoteTitle": "今日股票名言",
   "stockQuoteTapHint": "點一下可查看另一句話。",
   "stockQuoteShuffle": "查看另一句名言",
@@ -308,5 +328,86 @@
   "usageGuideQldTitle": "3. 買入後記錄到投資組合",
   "usageGuideQldBody": "參考顯示的策略和金額，在自己使用的券商買入。買入後，在 App 的投資組合中記錄數量、平均價格和現金。",
   "usageGuideDisclaimer": "本 App 內容僅供投資參考，不保證收益。",
-  "usageGuideConfirm": "確定"
+  "usageGuideConfirm": "確定",
+  "bookReadingTitle": "專欄",
+  "bookReaderPageNumber": "第{page}頁",
+  "@bookReaderPageNumber": {
+    "placeholders": {
+      "page": { "type": "int" }
+    }
+  },
+  "numGuessPrompt": "猜一個1到1000之間的數字。",
+  "numGuessInvalidInput": "請輸入1到1000之間的數字。",
+  "numGuessCorrect": "正確！您用了{attempts}次猜對了。",
+  "@numGuessCorrect": {
+    "placeholders": {
+      "attempts": { "type": "int" }
+    }
+  },
+  "numGuessTooLow": "數字更大。",
+  "numGuessTooHigh": "數字更小。",
+  "numGuessAttemptsLabel": "嘗試次數: {count}",
+  "@numGuessAttemptsLabel": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "numGuessInputHint": "輸入數字",
+  "numGuessConfirm": "確認",
+  "numGuessNewGame": "新遊戲",
+  "numGuessRanking": "排名",
+  "numGuessNoRecords": "暫無記錄。",
+  "numGuessAttemptCount": "{count}次",
+  "@numGuessAttemptCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "jumpLeaderboard": "排行榜",
+  "jumpScore": "分數",
+  "jumpPersonalBest": "個人最佳",
+  "jumpTapToRestart": "點擊重新開始",
+  "jumpTapToStart": "點擊開始",
+  "jumpInstruction": "點擊螢幕跳躍並躲避障礙物。",
+  "inquiryLoadError": "無法載入問題列表。",
+  "inquiryAdminOnlyReply": "只有管理員可以回覆。",
+  "inquiryReplyEmpty": "請輸入回覆內容。",
+  "inquiryReplyError": "提交回覆失敗，請稍後重試。",
+  "inquiryAdminOnlyPin": "只有管理員可以置頂。",
+  "inquiryPinError": "無法儲存置頂狀態。",
+  "inquiryAdminOnlyDelete": "只有管理員可以刪除。",
+  "inquiryDeleteTitle": "刪除問題",
+  "inquiryDeleteConfirm": "刪除此問題嗎？",
+  "inquiryCancel": "取消",
+  "inquiryDeleteAction": "刪除",
+  "inquiryDeleteError": "刪除失敗，請稍後重試。",
+  "inquiryContentEmpty": "請輸入問題內容。",
+  "inquirySubmitError": "提交問題失敗，請稍後重試。",
+  "inquiryAdminLabel": "管理員",
+  "inquiryPasswordLabel": "密碼",
+  "inquiryPasswordWrong": "密碼不正確。",
+  "inquiryAdminActivatedRegistered": "管理員模式已啟用（裝置已註冊）",
+  "inquiryAdminActivatedFailed": "管理員模式已啟用（裝置註冊失敗）",
+  "inquiryContentDetailLabel": "問題內容",
+  "inquiryAdminReplyLabel": "管理員回覆",
+  "inquiryAdminReplyEdit": "編輯回覆",
+  "inquirySaving": "儲存中...",
+  "inquirySubmitReply": "提交回覆",
+  "inquiryPrevPage": "上一頁",
+  "inquiryNextPage": "下一頁",
+  "inquiryPageOf": "第{current}頁 / 共{total}頁",
+  "@inquiryPageOf": {
+    "placeholders": {
+      "current": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "inquiryUnpin": "取消置頂",
+  "inquiryPin": "置頂",
+  "inquiryListTitle": "問題列表",
+  "inquiryEmpty": "暫無問題。",
+  "inquiryWriteTitle": "寫問題",
+  "inquiryContentFieldLabel": "內容",
+  "inquirySubmitting": "提交中...",
+  "inquirySubmitButton": "提交"
 }

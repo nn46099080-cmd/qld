@@ -1,4 +1,4 @@
-{
+﻿{
   "appTitle": "QLD 提醒",
   "noBuyZone": "禁止买入区间",
   "tapToViewStrategy": "点击查看策略",
@@ -82,7 +82,7 @@
   "guide3": "✅ Focus on long-term positioning",
   "guide4": "❌ Avoid emotional overbuying",
   "minus20Title": "-20% 策略",
-  "minus20Headline": "每周用1%现金开始定投TQQQ",
+  "minus20Headline": "每周用总现金的1%开始定投TQQQ",
   "minus20OverviewTitle": "Strategy Overview",
   "minus20OverviewText": "This zone represents approximately a 10% correction in QQQ.\n\nSince the decline is still relatively moderate, maintaining cash reserves remains important.",
   "minus20AllocationTitle": "Suggested Allocation",
@@ -169,11 +169,11 @@
   "noBuyNextTitle": "下一步",
   "noBuyNextText": "到达-20%后，准备开始小额分批定投TQQQ。",
   "minus20ActionTitle": "立即行动",
-  "minus20ActionText": "每周只使用总现金的1%，以零股方式定投TQQQ。不要一次投入大额资金。",
+  "minus20ActionText": "每周用持有现金的1%定投TQQQ。\n例）现金500美元 → 每周买入5美元",
   "minus20BuyRuleTitle": "目的",
   "minus20BuyRuleText": "从-20%区间开始设置，是为了在市场横盘时也能少量累积，逐步降低TQQQ平均成本。重点不是马上抓到利润，而是建立更低的平均成本。",
   "minus20CashTitle": "现金管理",
-  "minus20CashText": "大部分现金仍要保留给-30%、-40%、-50%区间。即使在-50%时用完计划现金，之后新增现金也通过每周定投继续降低平均成本。",
+  "minus20CashText": "大部分现金仍要保留给-30%、-40%、-50%区间。即使在-50%时用完计划现金，之后新增现金也通过每周定投继续降低平均成本。\n\n即使市场横盘超过10周，也要继续每周定投总现金的1%。横盘越久，累积的份额越多，没有理由停止。\n\n到达-30%区间时，将当时剩余现金的20%一次性追加买入。每周定投不停止，与-30%策略同步继续。定投的结束时机是前高点收复并进行再平衡时。",
   "minus20AvoidTitle": "卖出标准",
   "minus20AvoidText": "这个区间累积的TQQQ不在每次短线反弹时卖出。应视为以后创出新高并整理TQQQ仓位时一起处理的部分。",
   "minus30ActionTitle": "立即行动",
@@ -249,6 +249,16 @@
   "holdAvoidText": "不要因波动而匆忙卖出，也不要因确信会恢复而冲动追加买入。",
   "holdResetTitle": "策略重置",
   "holdResetText": "当QLD完全恢复至前高时，本轮下跌周期结束，策略将回到最初的禁止买入状态。",
+  "rebalanceTitle": "再平衡区间",
+  "rebalanceHeadline": "卖出TQQQ并回归基础仓位",
+  "rebalanceOverviewTitle": "策略概述",
+  "rebalanceOverviewText": "历史新高的收复意味着危机应对阶段已结束。现在是卖出在-20%及以下区间积累的TQQQ，并回归基础仓位（QLD 70%，现金 30%）的时候了。",
+  "rebalanceActionTitle": "立即行动",
+  "rebalanceActionText": "卖出所有在-20%及以下区间积累或购买的TQQQ。然后按照基础仓位配置调整资产。",
+  "rebalanceCashTitle": "现金目标",
+  "rebalanceCashText": "再平衡后维持QLD 70%、现金 30%的比例。将获得的现金作为下次下跌区间的备用资金保管。",
+  "rebalanceAvoidTitle": "需要避免的行为",
+  "rebalanceAvoidText": "历史新高收复后不要继续积累TQQQ。在此阶段卖出危机阶段积累的仓位，回归基础仓位。",
   "investmentCalculatorTitle": "预期收益率计算器",
   "investmentCalculatorSubtitle": "基于QLD过去平均值的简单复利计算",
   "investmentCalculatorReturnRate": "10年平均收益率",
@@ -283,13 +293,23 @@
   "investmentCurrencyRussiaRub": "俄罗斯 RUB",
   "contentTitle": "内容",
   "contentInquiry": "咨询",
+  "contentInquirySubtitle": "留下匿名问题并查看回复。",
+  "contentInquiryBadge": "Q&A",
   "contentCloseGuess": "收盘价竞猜",
   "contentStockQuote": "今日股票名言",
+  "contentStockQuoteSubtitle": "磨砺投资直觉的简短名言。",
+  "contentStockQuoteBadge": "每日",
   "contentNumberGuess": "猜数字",
-  "contentBookReader": "阅读书籍",
+  "contentNumberGuessSubtitle": "轻松享受的概率小游戏。",
+  "contentNumberGuessBadge": "游戏",
+  "contentBookReader": "专栏",
+  "contentBookReaderSubtitle": "可以从容阅读的公共领域文本。",
+  "contentBookReaderBadge": "阅读",
   "contentStockMeme": "股票梗图",
   "contentLottoNumbers": "彩票号码推荐",
   "contentJumpDodge": "跳跃躲避游戏",
+  "contentJumpDodgeSubtitle": "短暂专注享受的跳跃小游戏。",
+  "contentJumpDodgeBadge": "动作",
   "stockQuoteTitle": "今日股票名言",
   "stockQuoteTapHint": "点击可查看另一句话。",
   "stockQuoteShuffle": "查看另一句名言",
@@ -308,5 +328,86 @@
   "usageGuideQldTitle": "3. 买入后记录到投资组合",
   "usageGuideQldBody": "参考显示的策略和金额，在自己使用的券商买入。买入后，在应用的投资组合中记录数量、平均价格和现金。",
   "usageGuideDisclaimer": "本应用内容仅供投资参考，不保证收益。",
-  "usageGuideConfirm": "确定"
+  "usageGuideConfirm": "确定",
+  "bookReadingTitle": "专栏",
+  "bookReaderPageNumber": "第{page}页",
+  "@bookReaderPageNumber": {
+    "placeholders": {
+      "page": { "type": "int" }
+    }
+  },
+  "numGuessPrompt": "猜一个1到1000之间的数字。",
+  "numGuessInvalidInput": "请输入1到1000之间的数字。",
+  "numGuessCorrect": "正确！您用了{attempts}次猜对了。",
+  "@numGuessCorrect": {
+    "placeholders": {
+      "attempts": { "type": "int" }
+    }
+  },
+  "numGuessTooLow": "数字更大。",
+  "numGuessTooHigh": "数字更小。",
+  "numGuessAttemptsLabel": "尝试次数: {count}",
+  "@numGuessAttemptsLabel": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "numGuessInputHint": "输入数字",
+  "numGuessConfirm": "确认",
+  "numGuessNewGame": "新游戏",
+  "numGuessRanking": "排名",
+  "numGuessNoRecords": "暂无记录。",
+  "numGuessAttemptCount": "{count}次",
+  "@numGuessAttemptCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "jumpLeaderboard": "排行榜",
+  "jumpScore": "分数",
+  "jumpPersonalBest": "个人最佳",
+  "jumpTapToRestart": "点击重新开始",
+  "jumpTapToStart": "点击开始",
+  "jumpInstruction": "点击屏幕跳跃并躲避障碍物。",
+  "inquiryLoadError": "无法加载问题列表。",
+  "inquiryAdminOnlyReply": "只有管理员可以回复。",
+  "inquiryReplyEmpty": "请输入回复内容。",
+  "inquiryReplyError": "提交回复失败，请稍后重试。",
+  "inquiryAdminOnlyPin": "只有管理员可以置顶。",
+  "inquiryPinError": "无法保存置顶状态。",
+  "inquiryAdminOnlyDelete": "只有管理员可以删除。",
+  "inquiryDeleteTitle": "删除问题",
+  "inquiryDeleteConfirm": "删除此问题吗？",
+  "inquiryCancel": "取消",
+  "inquiryDeleteAction": "删除",
+  "inquiryDeleteError": "删除失败，请稍后重试。",
+  "inquiryContentEmpty": "请输入问题内容。",
+  "inquirySubmitError": "提交问题失败，请稍后重试。",
+  "inquiryAdminLabel": "管理员",
+  "inquiryPasswordLabel": "密码",
+  "inquiryPasswordWrong": "密码不正确。",
+  "inquiryAdminActivatedRegistered": "管理员模式已启用（设备已注册）",
+  "inquiryAdminActivatedFailed": "管理员模式已启用（设备注册失败）",
+  "inquiryContentDetailLabel": "问题内容",
+  "inquiryAdminReplyLabel": "管理员回复",
+  "inquiryAdminReplyEdit": "编辑回复",
+  "inquirySaving": "保存中...",
+  "inquirySubmitReply": "提交回复",
+  "inquiryPrevPage": "上一页",
+  "inquiryNextPage": "下一页",
+  "inquiryPageOf": "第{current}页 / 共{total}页",
+  "@inquiryPageOf": {
+    "placeholders": {
+      "current": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "inquiryUnpin": "取消置顶",
+  "inquiryPin": "置顶",
+  "inquiryListTitle": "问题列表",
+  "inquiryEmpty": "暂无问题。",
+  "inquiryWriteTitle": "写问题",
+  "inquiryContentFieldLabel": "内容",
+  "inquirySubmitting": "提交中...",
+  "inquirySubmitButton": "提交"
 }

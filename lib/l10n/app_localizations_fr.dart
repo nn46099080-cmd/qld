@@ -278,7 +278,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get minus20Headline =>
-      'Commencer l’accumulation hebdomadaire de TQQQ avec 1 % du cash';
+      'Commencer l’accumulation hebdomadaire de TQQQ avec 1 % du cash total';
 
   @override
   String get minus20OverviewTitle => 'Strategy Overview';
@@ -573,7 +573,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get minus20ActionText =>
-      'Utilisez seulement 1 % du cash total une fois par semaine pour accumuler des fractions de TQQQ. N’investissez pas une grosse somme d’un coup.';
+      'Achetez du TQQQ chaque semaine à hauteur de 1% de votre trésorerie.\nEx.) 500 \$ en cash → 5 \$ par semaine';
 
   @override
   String get minus20BuyRuleTitle => 'Objectif';
@@ -587,7 +587,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get minus20CashText =>
-      'La majorité des liquidités doit rester disponible pour les zones -30 %, -40 % et -50 %. Même après l’utilisation du cash prévu à -50 %, le nouveau cash peut continuer à abaisser le prix moyen par accumulation hebdomadaire.';
+      'La majorité des liquidités doit rester disponible pour les zones -30 %, -40 % et -50 %. Même après l’utilisation du cash prévu à -50 %, le nouveau cash peut continuer à abaisser le prix moyen par accumulation hebdomadaire.\n\nMême si le marché évolue latéralement pendant 10 semaines ou plus, continuez à accumuler 1 % du cash total chaque semaine. Plus la phase latérale dure, plus vous accumulez de parts — il n’y a aucune raison de s’arrêter.\n\nLorsque la zone -30 % est atteinte, effectuez un achat supplémentaire unique en utilisant 20 % du cash restant à ce moment. L’accumulation hebdomadaire ne s’arrête pas — elle se poursuit en parallèle de la stratégie -30 %. L’accumulation prend fin uniquement lorsque le sommet précédent est récupéré et que le rééquilibrage a lieu.';
 
   @override
   String get minus20AvoidTitle => 'Plan de sortie';
@@ -856,6 +856,41 @@ class AppLocalizationsFr extends AppLocalizations {
       'Lorsque QLD retrouve complètement son précédent sommet, ce cycle de baisse se termine et la stratégie revient à la position initiale sans achat.';
 
   @override
+  String get rebalanceTitle => 'Zone de rééquilibrage';
+
+  @override
+  String get rebalanceHeadline =>
+      'Vendre TQQQ et revenir à la position de base';
+
+  @override
+  String get rebalanceOverviewTitle => 'Aperçu de la stratégie';
+
+  @override
+  String get rebalanceOverviewText =>
+      'Le retour aux plus hauts historiques signale la fin de la phase de réponse à la crise. Il est temps de vendre le TQQQ accumulé dans les zones -20% ou inférieures et de revenir à la position de base (QLD 70%, Liquidités 30%).';
+
+  @override
+  String get rebalanceActionTitle => 'Action immédiate';
+
+  @override
+  String get rebalanceActionText =>
+      'Vendez tout le TQQQ accumulé ou acheté dans les zones -20% ou inférieures. Rééquilibrez ensuite vos actifs selon la répartition de la position de base.';
+
+  @override
+  String get rebalanceCashTitle => 'Objectif de liquidités';
+
+  @override
+  String get rebalanceCashText =>
+      'Après le rééquilibrage, maintenir QLD 70% et Liquidités 30%. Conserver les liquidités sécurisées comme réserve pour la prochaine baisse.';
+
+  @override
+  String get rebalanceAvoidTitle => 'À éviter';
+
+  @override
+  String get rebalanceAvoidText =>
+      'Ne continuez pas à accumuler du TQQQ après la reprise des plus hauts historiques. Vendez les positions accumulées pendant la phase de crise et revenez à la position de base.';
+
+  @override
   String get investmentCalculatorTitle => 'Calculateur de rendement attendu';
 
   @override
@@ -963,16 +998,44 @@ class AppLocalizationsFr extends AppLocalizations {
   String get contentInquiry => 'Demandes';
 
   @override
+  String get contentInquirySubtitle =>
+      'Envoyez une question anonyme et consultez la réponse.';
+
+  @override
+  String get contentInquiryBadge => 'Q&A';
+
+  @override
   String get contentCloseGuess => 'Deviner la cloture';
 
   @override
   String get contentStockQuote => 'Citations boursieres';
 
   @override
+  String get contentStockQuoteSubtitle =>
+      'Citations courtes pour affiner votre instinct d investissement.';
+
+  @override
+  String get contentStockQuoteBadge => 'Quotidien';
+
+  @override
   String get contentNumberGuess => 'Deviner le nombre';
 
   @override
-  String get contentBookReader => 'Lecteur de livres';
+  String get contentNumberGuessSubtitle =>
+      'Mini-jeu de probabilité à apprécier sans prise de tête.';
+
+  @override
+  String get contentNumberGuessBadge => 'Jeu';
+
+  @override
+  String get contentBookReader => 'Colonne';
+
+  @override
+  String get contentBookReaderSubtitle =>
+      'Textes du domaine public à lire tranquillement.';
+
+  @override
+  String get contentBookReaderBadge => 'Lecture';
 
   @override
   String get contentStockMeme => 'Meme boursier';
@@ -982,6 +1045,13 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get contentJumpDodge => 'Jeu de saut et esquive';
+
+  @override
+  String get contentJumpDodgeSubtitle =>
+      'Mini-jeu de saut pour des sessions courtes et concentrées.';
+
+  @override
+  String get contentJumpDodgeBadge => 'Action';
 
   @override
   String get stockQuoteTitle => 'Citations boursieres';
@@ -1050,4 +1120,189 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get usageGuideConfirm => 'OK';
+
+  @override
+  String get bookReadingTitle => 'Colonne';
+
+  @override
+  String bookReaderPageNumber(int page) {
+    return 'Page $page';
+  }
+
+  @override
+  String get numGuessPrompt => 'Devinez un nombre entre 1 et 1000.';
+
+  @override
+  String get numGuessInvalidInput =>
+      'Veuillez entrer un nombre entre 1 et 1000.';
+
+  @override
+  String numGuessCorrect(int attempts) {
+    return 'Correct ! Vous avez trouvé en $attempts essais.';
+  }
+
+  @override
+  String get numGuessTooLow => 'Le nombre est plus grand.';
+
+  @override
+  String get numGuessTooHigh => 'Le nombre est plus petit.';
+
+  @override
+  String numGuessAttemptsLabel(int count) {
+    return 'Essais : $count';
+  }
+
+  @override
+  String get numGuessInputHint => 'Saisir un nombre';
+
+  @override
+  String get numGuessConfirm => 'Confirmer';
+
+  @override
+  String get numGuessNewGame => 'Nouveau jeu';
+
+  @override
+  String get numGuessRanking => 'Classement';
+
+  @override
+  String get numGuessNoRecords => 'Aucun résultat pour l\'instant.';
+
+  @override
+  String numGuessAttemptCount(int count) {
+    return '$count essais';
+  }
+
+  @override
+  String get jumpLeaderboard => 'Classement';
+
+  @override
+  String get jumpScore => 'Score';
+
+  @override
+  String get jumpPersonalBest => 'Meilleur score';
+
+  @override
+  String get jumpTapToRestart => 'Appuyez pour recommencer';
+
+  @override
+  String get jumpTapToStart => 'Appuyez pour commencer';
+
+  @override
+  String get jumpInstruction => 'Appuyez pour sauter et éviter les obstacles.';
+
+  @override
+  String get inquiryLoadError => 'Impossible de charger les demandes.';
+
+  @override
+  String get inquiryAdminOnlyReply =>
+      'Seuls les administrateurs peuvent répondre.';
+
+  @override
+  String get inquiryReplyEmpty => 'Veuillez saisir une réponse.';
+
+  @override
+  String get inquiryReplyError =>
+      'Échec de l\'envoi de la réponse. Veuillez réessayer plus tard.';
+
+  @override
+  String get inquiryAdminOnlyPin =>
+      'Seuls les administrateurs peuvent épingler.';
+
+  @override
+  String get inquiryPinError =>
+      'Impossible de sauvegarder l\'état d\'épinglage.';
+
+  @override
+  String get inquiryAdminOnlyDelete =>
+      'Seuls les administrateurs peuvent supprimer.';
+
+  @override
+  String get inquiryDeleteTitle => 'Supprimer la demande';
+
+  @override
+  String get inquiryDeleteConfirm => 'Supprimer cette demande ?';
+
+  @override
+  String get inquiryCancel => 'Annuler';
+
+  @override
+  String get inquiryDeleteAction => 'Supprimer';
+
+  @override
+  String get inquiryDeleteError =>
+      'Échec de la suppression. Veuillez réessayer plus tard.';
+
+  @override
+  String get inquiryContentEmpty => 'Veuillez saisir votre demande.';
+
+  @override
+  String get inquirySubmitError =>
+      'Échec de l\'envoi de la demande. Veuillez réessayer plus tard.';
+
+  @override
+  String get inquiryAdminLabel => 'Administrateur';
+
+  @override
+  String get inquiryPasswordLabel => 'Mot de passe';
+
+  @override
+  String get inquiryPasswordWrong => 'Mot de passe incorrect.';
+
+  @override
+  String get inquiryAdminActivatedRegistered =>
+      'Mode admin activé (appareil enregistré)';
+
+  @override
+  String get inquiryAdminActivatedFailed =>
+      'Mode admin activé (enregistrement de l\'appareil échoué)';
+
+  @override
+  String get inquiryContentDetailLabel => 'Demande';
+
+  @override
+  String get inquiryAdminReplyLabel => 'Réponse de l\'administrateur';
+
+  @override
+  String get inquiryAdminReplyEdit => 'Modifier la réponse';
+
+  @override
+  String get inquirySaving => 'Enregistrement...';
+
+  @override
+  String get inquirySubmitReply => 'Envoyer la réponse';
+
+  @override
+  String get inquiryPrevPage => 'Page précédente';
+
+  @override
+  String get inquiryNextPage => 'Page suivante';
+
+  @override
+  String inquiryPageOf(int current, int total) {
+    return 'Page $current / $total';
+  }
+
+  @override
+  String get inquiryUnpin => 'Désépingler';
+
+  @override
+  String get inquiryPin => 'Épingler en haut';
+
+  @override
+  String get inquiryListTitle => 'Liste des demandes';
+
+  @override
+  String get inquiryEmpty => 'Aucune demande pour l\'instant.';
+
+  @override
+  String get inquiryWriteTitle => 'Écrire une demande';
+
+  @override
+  String get inquiryContentFieldLabel => 'Contenu';
+
+  @override
+  String get inquirySubmitting => 'Envoi...';
+
+  @override
+  String get inquirySubmitButton => 'Envoyer';
 }

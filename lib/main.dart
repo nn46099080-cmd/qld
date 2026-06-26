@@ -1,4 +1,4 @@
-import 'package:firebase_core/firebase_core.dart';
+﻿import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -34,6 +34,11 @@ part 'market/chart_page.dart';
 part 'market/exchange_page.dart';
 part 'alerts/alert_pages.dart';
 part 'fear_greed/fear_greed_page.dart';
+part 'books/book_list_page.dart';
+part 'books/long_form_book_reader.dart';
+part 'books/book_reader_base.dart';
+part 'books/investment_principles_book.dart';
+part 'books/intelligent_investor_book.dart';
 
 const AndroidNotificationChannel _qldAlertChannel = AndroidNotificationChannel(
   'qld_alerts',
@@ -81,7 +86,7 @@ const _ownerAdminUid = 'qld-admin-179204';
 const _ownerAdminPassword = '0610aa!!';
 const _tradingViewInstallUrl =
     'https://play.google.com/store/apps/details?id=com.tradingview.tradingviewapp&utm_source=chatgpt.com';
-const _currentAppVersionCode = 50;
+const _currentAppVersionCode = 55;
 const _androidPackageName = 'com.qldalert.app';
 const _releaseAdMobBottomBannerUnitId =
     'ca-app-pub-8561157852710726/9908440913';
@@ -126,6 +131,8 @@ const _fearGreedProxyUrl =
     'https://billowing-band-06cd.nn46099080.workers.dev/fear-greed';
 const _paidEntitlementRegisterUrl =
     'https://billowing-band-06cd.nn46099080.workers.dev/paid-entitlement/register';
+const _deviceRegisterUrl =
+    'https://billowing-band-06cd.nn46099080.workers.dev/device/register';
 const _privacyPolicyUrl =
     'https://billowing-band-06cd.nn46099080.workers.dev/privacy';
 const _financialDisclaimerUrl =
@@ -1088,6 +1095,7 @@ class QldMiniCandle {
     required this.close,
     required this.ma20,
     required this.ma200,
+    required this.rsi,
   });
 
   final double open;
@@ -1096,6 +1104,7 @@ class QldMiniCandle {
   final double close;
   final double? ma20;
   final double? ma200;
+  final double? rsi;
 }
 
 List<QldMiniCandle> _qldMiniCandlesWithRealtimeClose(
@@ -1113,8 +1122,103 @@ List<QldMiniCandle> _qldMiniCandlesWithRealtimeClose(
     close: price,
     ma20: last.ma20,
     ma200: last.ma200,
+    rsi: last.rsi,
   );
   return nextCandles;
+}
+
+class _RsiSubChartPainter extends CustomPainter {
+  const _RsiSubChartPainter({
+    required this.rsiValues,
+    required this.lineColor,
+    required this.overboughtColor,
+    required this.oversoldColor,
+    required this.gridColor,
+  });
+
+  final List<double?> rsiValues;
+  final Color lineColor;
+  final Color overboughtColor;
+  final Color oversoldColor;
+  final Color gridColor;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (rsiValues.isEmpty) return;
+
+    const double minRsi = 0;
+    const double maxRsi = 100;
+
+    double rsiToY(double rsi) =>
+        size.height - ((rsi - minRsi) / (maxRsi - minRsi)) * size.height;
+
+    // 70 / 30 dashed lines
+    final dashPaint = Paint()
+      ..strokeWidth = 0.8
+      ..style = PaintingStyle.stroke;
+
+    void drawDashedHLine(double y, Color color) {
+      dashPaint.color = color;
+      const dashWidth = 4.0;
+      const dashGap = 3.0;
+      double x = 0;
+      while (x < size.width) {
+        canvas.drawLine(Offset(x, y), Offset(x + dashWidth, y), dashPaint);
+        x += dashWidth + dashGap;
+      }
+    }
+
+    drawDashedHLine(rsiToY(70), overboughtColor.withValues(alpha: 0.55));
+    drawDashedHLine(rsiToY(30), oversoldColor.withValues(alpha: 0.55));
+
+    // 70 / 30 level labels
+    void drawLevelLabel(String text, double rsiLevel, Color color) {
+      final tp = TextPainter(
+        text: TextSpan(
+          text: text,
+          style: TextStyle(
+            color: color.withValues(alpha: 0.85),
+            fontSize: 8.5,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+        textDirection: ui.TextDirection.ltr,
+      )..layout();
+      final y = rsiToY(rsiLevel);
+      tp.paint(canvas, Offset(4, y - tp.height - 1));
+    }
+
+    drawLevelLabel('70', 70, overboughtColor);
+    drawLevelLabel('30', 30, oversoldColor);
+
+    // RSI line
+    final linePaint = Paint()
+      ..color = lineColor
+      ..strokeWidth = 1.4
+      ..style = PaintingStyle.stroke
+      ..strokeJoin = StrokeJoin.round;
+
+    final path = Path();
+    bool started = false;
+    final n = rsiValues.length;
+    for (int i = 0; i < n; i++) {
+      final rsi = rsiValues[i];
+      if (rsi == null) continue;
+      final x = (i / (n - 1).clamp(1, double.infinity)) * size.width;
+      final y = rsiToY(rsi.clamp(0, 100));
+      if (!started) {
+        path.moveTo(x, y);
+        started = true;
+      } else {
+        path.lineTo(x, y);
+      }
+    }
+    canvas.drawPath(path, linePaint);
+  }
+
+  @override
+  bool shouldRepaint(covariant _RsiSubChartPainter oldDelegate) =>
+      oldDelegate.rsiValues != rsiValues;
 }
 
 class _QldMiniCandlePainter extends CustomPainter {
@@ -1593,6 +1697,37 @@ Future<void> syncAlertLanguageTopicSafely(String languageCode) async {
   } catch (error) {
     debugPrint('Alert language topic sync failed: $error');
   }
+}
+
+Future<bool> registerDeviceSafely(
+  String fcmToken,
+  String uid,
+  String languageCode,
+) async {
+  if (fcmToken.isEmpty || uid.isEmpty) return false;
+  try {
+    await http
+        .post(
+          Uri.parse(_deviceRegisterUrl),
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode({
+            'uid': uid,
+            'fcmToken': fcmToken,
+            'language': languageCode,
+          }),
+        )
+        .timeout(const Duration(seconds: 10));
+    return true;
+  } catch (error) {
+    debugPrint('Device registration failed: $error');
+    return false;
+  }
+}
+
+Future<void> _registerDeviceWithCurrentIdentity(String fcmToken) async {
+  final lang = await savedLanguageCode();
+  final identity = await ensureAnonymousUserIdentity();
+  await registerDeviceSafely(fcmToken, identity.uid, lang);
 }
 
 String localeLanguageCode(Locale locale) {
@@ -3974,10 +4109,13 @@ enum NavTab {
   fearGreed,
   alert,
   strategy,
+  strategyDetail,
 }
 
 const _unreadAlertCountKey = 'unreadAlertCount';
 final ValueNotifier<int> alertBadgeCount = ValueNotifier<int>(0);
+// 0 = not triggered, >0 = triggered timestamp (ms epoch)
+final ValueNotifier<int> rebalanceCardTriggeredAt = ValueNotifier<int>(0);
 
 Future<void> loadAlertBadgeCount() async {
   final prefs = await SharedPreferences.getInstance();
@@ -4452,6 +4590,7 @@ class _HomePageState extends State<HomePage>
   bool touchedMinus50 = false;
   int activeDropZone = 0;
   bool dropAlertInitialized = false;
+  bool rebalanceTouchedAnyZone = false;
   final strategyProgressStore = const StrategyProgressStore();
   late final Future<void> strategyProgressReady;
   String lastMarketOpenAlertDate = '';
@@ -4486,8 +4625,10 @@ class _HomePageState extends State<HomePage>
   bool quoteStreamConnected = false;
   bool isApplyingStreamQuote = false;
   int lastAppliedQuoteTimestamp = 0;
-  bool showContentWidgetButton = false;
+  bool showContentWidgetButton = true;
   Timer? contentWidgetHideTimer;
+  double contentWidgetButtonX = -1;
+  double contentWidgetButtonY = -1;
 
   @override
   void initState() {
@@ -4495,6 +4636,12 @@ class _HomePageState extends State<HomePage>
     WidgetsBinding.instance.addObserver(this);
     _activeHomeScrollController = homeScrollController;
     homeScrollController.addListener(showContentWidgetButtonTemporarily);
+    contentWidgetHideTimer = Timer(const Duration(seconds: 5), () {
+      if (!mounted) return;
+      setState(() {
+        showContentWidgetButton = false;
+      });
+    });
     _preloadExitDialogBannerAd();
     _loadSavedMajorUsSchedules().then((_) {
       if (mounted) setState(() {});
@@ -4520,6 +4667,9 @@ class _HomePageState extends State<HomePage>
         setState(() {
           fcmToken = token ?? '';
         });
+        if (token != null && token.isNotEmpty) {
+          unawaited(_registerDeviceWithCurrentIdentity(token));
+        }
       });
       FirebaseMessaging.instance.onTokenRefresh.listen((token) {
         if (mounted) {
@@ -4528,6 +4678,8 @@ class _HomePageState extends State<HomePage>
           });
         }
         unawaited(restoreCoreAlertPurchase(showPending: false));
+        unawaited(savedLanguageCode().then(syncAlertLanguageTopicSafely));
+        unawaited(_registerDeviceWithCurrentIdentity(token));
       });
 
       FirebaseMessaging.onMessage.listen((message) async {
@@ -5297,6 +5449,8 @@ class _HomePageState extends State<HomePage>
     touchedMinus50 = progress.touchedMinus50;
     activeDropZone = progress.activeDropZone;
     dropAlertInitialized = progress.initialized;
+    rebalanceTouchedAnyZone = progress.rebalanceTouchedAnyZone;
+    rebalanceCardTriggeredAt.value = progress.rebalanceCardTriggeredAt;
 
     if (mounted) {
       setState(() {});
@@ -5312,8 +5466,16 @@ class _HomePageState extends State<HomePage>
         touchedMinus50: touchedMinus50,
         activeDropZone: activeDropZone,
         initialized: dropAlertInitialized,
+        rebalanceTouchedAnyZone: rebalanceTouchedAnyZone,
+        rebalanceCardTriggeredAt: rebalanceCardTriggeredAt.value,
       ),
     );
+  }
+
+  Future<void> dismissRebalanceCard() async {
+    rebalanceTouchedAnyZone = false;
+    rebalanceCardTriggeredAt.value = 0;
+    await saveStrategyProgress();
   }
 
   Future<void> fetchHomeFearGreed() async {
@@ -7193,12 +7355,11 @@ class _HomePageState extends State<HomePage>
   }
 
   Future<void> evaluateDropAlerts(double dropPercent) async {
-    if (!shouldEvaluateCloseBasedAlertsNow()) return;
-
     await strategyProgressReady;
     if (!mounted) return;
 
     final nextZone = dropZoneForPercent(dropPercent);
+    final canSendAlert = shouldEvaluateCloseBasedAlertsNow();
 
     if (!dropAlertInitialized) {
       activeDropZone = nextZone;
@@ -7229,7 +7390,8 @@ class _HomePageState extends State<HomePage>
     if (nextZone > activeDropZone) {
       if (activeDropZone < 20 && nextZone >= 20) {
         touchedMinus20 = true;
-        if (strategyAlertEnabled) {
+        rebalanceTouchedAnyZone = true;
+        if (canSendAlert && strategyAlertEnabled) {
           showZoneAlert(
             AppLocalizations.of(context)!.minus20Headline,
             Colors.green,
@@ -7240,7 +7402,7 @@ class _HomePageState extends State<HomePage>
 
       if (activeDropZone < 30 && nextZone >= 30) {
         touchedMinus30 = true;
-        if (strategyAlertEnabled) {
+        if (canSendAlert && strategyAlertEnabled) {
           showZoneAlert(
             AppLocalizations.of(context)!.minus30Headline,
             Colors.orange,
@@ -7251,7 +7413,7 @@ class _HomePageState extends State<HomePage>
 
       if (activeDropZone < 40 && nextZone >= 40) {
         touchedMinus40 = true;
-        if (strategyAlertEnabled) {
+        if (canSendAlert && strategyAlertEnabled) {
           showZoneAlert(
             AppLocalizations.of(context)!.minus40Headline,
             Colors.red,
@@ -7262,7 +7424,7 @@ class _HomePageState extends State<HomePage>
 
       if (activeDropZone < 50 && nextZone >= 50) {
         touchedMinus50 = true;
-        if (strategyAlertEnabled) {
+        if (canSendAlert && strategyAlertEnabled) {
           showZoneAlert(
             AppLocalizations.of(context)!.minus50Headline,
             Colors.purple,
@@ -7271,7 +7433,7 @@ class _HomePageState extends State<HomePage>
         }
       }
     } else {
-      if (strategyAlertEnabled && activeDropZone >= 50 && nextZone < 50) {
+      if (canSendAlert && strategyAlertEnabled && activeDropZone >= 50 && nextZone < 50) {
         showZoneAlert(
           AppLocalizations.of(context)!.alertRecovery10,
           Colors.purple,
@@ -7279,7 +7441,7 @@ class _HomePageState extends State<HomePage>
         );
       }
 
-      if (strategyAlertEnabled && activeDropZone >= 40 && nextZone < 40) {
+      if (canSendAlert && strategyAlertEnabled && activeDropZone >= 40 && nextZone < 40) {
         showZoneAlert(
           AppLocalizations.of(context)!.alertRecovery10,
           Colors.red,
@@ -7287,7 +7449,7 @@ class _HomePageState extends State<HomePage>
         );
       }
 
-      if (strategyAlertEnabled && activeDropZone >= 30 && nextZone < 30) {
+      if (canSendAlert && strategyAlertEnabled && activeDropZone >= 30 && nextZone < 30) {
         showZoneAlert(
           AppLocalizations.of(context)!.alertRecovery10,
           Colors.orange,
@@ -7295,7 +7457,7 @@ class _HomePageState extends State<HomePage>
         );
       }
 
-      if (strategyAlertEnabled && activeDropZone >= 20 && nextZone < 20) {
+      if (canSendAlert && strategyAlertEnabled && activeDropZone >= 20 && nextZone < 20) {
         showZoneAlert(
           AppLocalizations.of(context)!.alertRecovery10,
           Colors.green,
@@ -8113,6 +8275,11 @@ class _HomePageState extends State<HomePage>
 
     if (!isNewHigh) return;
 
+    if (rebalanceTouchedAnyZone && rebalanceCardTriggeredAt.value == 0) {
+      rebalanceCardTriggeredAt.value = DateTime.now().millisecondsSinceEpoch;
+      await saveStrategyProgress();
+    }
+
     final savedHighAlertDate =
         prefs.getString('lastHighAlertDate') ?? lastHighAlertDate;
 
@@ -8133,6 +8300,7 @@ class _HomePageState extends State<HomePage>
     required List? highs,
     required List? lows,
     required List? closes,
+    List? adjCloses,
   }) {
     if (opens == null ||
         highs == null ||
@@ -8144,6 +8312,10 @@ class _HomePageState extends State<HomePage>
 
     final validCandles = <QldMiniCandle>[];
     final rollingCloses = <double>[];
+    const rsiPeriod = 14;
+    double rsiAvgGain = 0;
+    double rsiAvgLoss = 0;
+    double? rsiValue;
     final length = math
         .min(
           math.min(opens.length, highs.length),
@@ -8156,12 +8328,17 @@ class _HomePageState extends State<HomePage>
       final high = _numberToDouble(highs[i]);
       final low = _numberToDouble(lows[i]);
       final close = _numberToDouble(closes[i]);
+      final adjClose = (adjCloses != null && i < adjCloses.length)
+          ? _numberToDouble(adjCloses[i])
+          : 0.0;
+      // adjclose 사용 가능하면 RSI 계산에 사용 (주식분할/배당 반영)
+      final rsiClose = adjClose > 0 ? adjClose : close;
 
       if (open <= 0 || high <= 0 || low <= 0 || close <= 0) {
         continue;
       }
 
-      rollingCloses.add(close);
+      rollingCloses.add(rsiClose);
       final ma20 = rollingCloses.length >= 20
           ? rollingCloses
                   .skip(rollingCloses.length - 20)
@@ -8175,6 +8352,33 @@ class _HomePageState extends State<HomePage>
               200
           : null;
 
+      // Wilder RSI(14)
+      final idx = rollingCloses.length - 1;
+      if (idx > 0) {
+        final diff = rollingCloses[idx] - rollingCloses[idx - 1];
+        final gain = diff > 0 ? diff : 0.0;
+        final loss = diff < 0 ? -diff : 0.0;
+        if (idx == rsiPeriod) {
+          // seed: simple average of first 14 changes
+          double sumGain = 0, sumLoss = 0;
+          for (int k = 1; k <= rsiPeriod; k++) {
+            final d = rollingCloses[k] - rollingCloses[k - 1];
+            sumGain += d > 0 ? d : 0.0;
+            sumLoss += d < 0 ? -d : 0.0;
+          }
+          rsiAvgGain = sumGain / rsiPeriod;
+          rsiAvgLoss = sumLoss / rsiPeriod;
+        } else if (idx > rsiPeriod) {
+          rsiAvgGain = (rsiAvgGain * (rsiPeriod - 1) + gain) / rsiPeriod;
+          rsiAvgLoss = (rsiAvgLoss * (rsiPeriod - 1) + loss) / rsiPeriod;
+        }
+        if (idx >= rsiPeriod) {
+          rsiValue = rsiAvgLoss == 0
+              ? 100.0
+              : 100.0 - 100.0 / (1 + rsiAvgGain / rsiAvgLoss);
+        }
+      }
+
       validCandles.add(
         QldMiniCandle(
           open: open,
@@ -8183,6 +8387,7 @@ class _HomePageState extends State<HomePage>
           close: close,
           ma20: ma20,
           ma200: ma200,
+          rsi: rsiValue,
         ),
       );
     }
@@ -8228,11 +8433,17 @@ class _HomePageState extends State<HomePage>
       final highs = quote?['high'] as List?;
       final lows = quote?['low'] as List?;
       final closes = quote?['close'] as List?;
+      final adjCloseList = indicators?['adjclose'] as List?;
+      final adjCloseMap = adjCloseList != null && adjCloseList.isNotEmpty
+          ? adjCloseList.first as Map<String, dynamic>?
+          : null;
+      final adjCloses = adjCloseMap?['adjclose'] as List?;
       final miniCandles = buildQldMiniCandles(
         opens: opens,
         highs: highs,
         lows: lows,
         closes: closes,
+        adjCloses: adjCloses,
       );
 
       if (timestamps == null || highs == null || highs.isEmpty) {
@@ -9034,20 +9245,7 @@ class _HomePageState extends State<HomePage>
         bottomNavigationBar: buildFixedAdBottomBar(
           _buildBottomNav(dropPercent),
         ),
-        floatingActionButtonLocation: FloatingActionButtonLocation.startFloat,
-        floatingActionButton: Padding(
-          padding: const EdgeInsets.only(left: 16, bottom: 4),
-          child: IgnorePointer(
-            ignoring: !showContentWidgetButton,
-            child: AnimatedOpacity(
-              opacity: showContentWidgetButton ? 1 : 0,
-              duration: const Duration(milliseconds: 650),
-              curve: Curves.easeInOutCubic,
-              child: buildCloseGuessRankingCard(),
-            ),
-          ),
-        ),
-        body: Container(
+        body: Stack(children: [Container(
           decoration: BoxDecoration(
             color: whiteMode ? _lightAppBg : _appBg,
           ),
@@ -9626,7 +9824,43 @@ class _HomePageState extends State<HomePage>
                   ),
                 ),
         ),
+      _buildDraggableContentButton(),
+    ]),
       ),
+    );
+  }
+
+  Widget _buildDraggableContentButton() {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final maxX = constraints.maxWidth - 64;
+        final maxY = constraints.maxHeight - 58;
+        if (contentWidgetButtonX < 0) contentWidgetButtonX = 16;
+        if (contentWidgetButtonY < 0) contentWidgetButtonY = maxY - 80;
+        return Stack(
+          children: [
+            Positioned(
+              left: contentWidgetButtonX.clamp(0, maxX),
+              top: contentWidgetButtonY.clamp(0, maxY),
+              child: GestureDetector(
+                onPanUpdate: (details) {
+                  setState(() {
+                    contentWidgetButtonX = (contentWidgetButtonX + details.delta.dx).clamp(0, maxX);
+                    contentWidgetButtonY = (contentWidgetButtonY + details.delta.dy).clamp(0, maxY);
+                  });
+                  showContentWidgetButtonTemporarily();
+                },
+                child: AnimatedOpacity(
+                  opacity: showContentWidgetButton ? 1.0 : 0.50,
+                  duration: const Duration(milliseconds: 650),
+                  curve: Curves.easeInOutCubic,
+                  child: buildCloseGuessRankingCard(),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -10116,133 +10350,363 @@ class _HomePageState extends State<HomePage>
         ),
     ];
 
+    // RSI data for sub-chart
+    final rsiValues = qldMiniCandles.map((c) => c.rsi).toList();
+    final latestRsi = qldMiniCandles.reversed
+        .map((c) => c.rsi)
+        .firstWhere((r) => r != null, orElse: () => null);
+
+    final rsiColor = whiteMode
+        ? const Color(0xFF7C3AED)
+        : const Color(0xFFA78BFA);
+    final rsiOverboughtColor = whiteMode
+        ? const Color(0xFFEF4444)
+        : Colors.redAccent;
+    final rsiOversoldColor = whiteMode
+        ? const Color(0xFF16A34A)
+        : const Color(0xFF4ADE80);
+
+    String rsiZoneLabel = '정상 범위';
+    String rsiStatusLabel = '중립';
+    Color rsiStatusColor = chartSubText;
+    if (latestRsi != null) {
+      if (latestRsi >= 70) {
+        rsiZoneLabel = '과매수 구간';
+        rsiStatusLabel = '과매수';
+        rsiStatusColor = rsiOverboughtColor;
+      } else if (latestRsi <= 30) {
+        rsiZoneLabel = '과매도 구간';
+        rsiStatusLabel = '과매도';
+        rsiStatusColor = rsiOversoldColor;
+      }
+    }
+
     return GestureDetector(
       onTap: openTradingView,
       behavior: HitTestBehavior.opaque,
       child: Container(
         width: double.infinity,
-        height: 220,
         decoration: BoxDecoration(
           color: chartBg,
           borderRadius: BorderRadius.circular(18),
           border: Border.all(color: chartLine),
         ),
         clipBehavior: Clip.antiAlias,
-        child: Stack(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Positioned.fill(
-              child: CustomPaint(
-                painter: _QldMiniCandlePainter(
-                  candles: qldMiniCandles,
-                  minY: paddedMinY,
-                  maxY: paddedMaxY,
-                  gridColor: whiteMode
-                      ? const Color(0xFFE2E8F0)
-                      : _darkLineSoft.withValues(alpha: 0.78),
-                  labelTextColor: chartSubText,
-                  labelBackgroundColor: whiteMode
-                      ? Colors.white.withValues(alpha: 0.86)
-                      : const Color(0xE60B1623),
-                  upColor: chartUp,
-                  downColor: chartDown,
-                  markerColor: chartMarker,
-                  currentPrice: currentChartPrice,
-                  currentPriceColor: chartAccent,
-                  currentPriceStrokeColor: whiteMode
-                      ? _lightSurface
-                      : Colors.white.withValues(alpha: 0.9),
-                ),
-              ),
-            ),
-            Positioned.fill(
-              child: LineChart(
-                LineChartData(
-                  minX: 0,
-                  maxX: lastX + 3,
-                  minY: paddedMinY,
-                  maxY: paddedMaxY,
-                  gridData: const FlGridData(show: false),
-                  titlesData: const FlTitlesData(show: false),
-                  borderData: FlBorderData(show: false),
-                  lineTouchData: const LineTouchData(enabled: false),
-                  lineBarsData: lineBars,
-                ),
-              ),
-            ),
-            Positioned.fill(
-              child: CustomPaint(
-                painter: _QldMiniCurrentPricePainter(
-                  candleCount: qldMiniCandles.length,
-                  minY: paddedMinY,
-                  maxY: paddedMaxY,
-                  currentPrice: currentChartPrice,
-                  color: chartAccent,
-                  strokeColor: whiteMode
-                      ? _lightSurface
-                      : Colors.white.withValues(alpha: 0.9),
-                ),
-              ),
-            ),
-            Positioned(
-              left: 10,
-              top: 8,
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
+            // ─── 메인 캔들 차트 ───
+            SizedBox(
+              height: 220,
+              child: Stack(
                 children: [
-                  Text(
-                    'QLD 3M',
-                    style: TextStyle(
-                      color: chartText,
-                      fontSize: 10,
-                      fontWeight: FontWeight.w700,
+                  Positioned.fill(
+                    child: CustomPaint(
+                      painter: _QldMiniCandlePainter(
+                        candles: qldMiniCandles,
+                        minY: paddedMinY,
+                        maxY: paddedMaxY,
+                        gridColor: whiteMode
+                            ? const Color(0xFFE2E8F0)
+                            : _darkLineSoft.withValues(alpha: 0.78),
+                        labelTextColor: chartSubText,
+                        labelBackgroundColor: whiteMode
+                            ? Colors.white.withValues(alpha: 0.86)
+                            : const Color(0xE60B1623),
+                        upColor: chartUp,
+                        downColor: chartDown,
+                        markerColor: chartMarker,
+                        currentPrice: currentChartPrice,
+                        currentPriceColor: chartAccent,
+                        currentPriceStrokeColor: whiteMode
+                            ? _lightSurface
+                            : Colors.white.withValues(alpha: 0.9),
+                      ),
                     ),
                   ),
-                  if (ma20Spots.length >= 2) ...[
-                    const SizedBox(width: 8),
-                    Container(
-                      width: 16,
-                      height: 2,
-                      color: chartAccent.withValues(alpha: 0.72),
+                  Positioned.fill(
+                    child: LineChart(
+                      LineChartData(
+                        minX: 0,
+                        maxX: lastX + 3,
+                        minY: paddedMinY,
+                        maxY: paddedMaxY,
+                        gridData: const FlGridData(show: false),
+                        titlesData: const FlTitlesData(show: false),
+                        borderData: FlBorderData(show: false),
+                        lineTouchData: const LineTouchData(enabled: false),
+                        lineBarsData: lineBars,
+                      ),
                     ),
-                    const SizedBox(width: 4),
-                    Text(
-                      '20D',
+                  ),
+                  Positioned.fill(
+                    child: CustomPaint(
+                      painter: _QldMiniCurrentPricePainter(
+                        candleCount: qldMiniCandles.length,
+                        minY: paddedMinY,
+                        maxY: paddedMaxY,
+                        currentPrice: currentChartPrice,
+                        color: chartAccent,
+                        strokeColor: whiteMode
+                            ? _lightSurface
+                            : Colors.white.withValues(alpha: 0.9),
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    left: 10,
+                    top: 8,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          'QLD 3M',
+                          style: TextStyle(
+                            color: chartText,
+                            fontSize: 10,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        if (ma20Spots.length >= 2) ...[
+                          const SizedBox(width: 8),
+                          Container(
+                            width: 16,
+                            height: 2,
+                            color: chartAccent.withValues(alpha: 0.72),
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            '20D',
+                            style: TextStyle(
+                              color: chartSubText,
+                              fontSize: 9,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ],
+                        if (ma200Spots.length >= 2) ...[
+                          const SizedBox(width: 8),
+                          Container(
+                            width: 16,
+                            height: 2,
+                            color: Colors.amberAccent.withValues(alpha: 0.72),
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            '200D',
+                            style: TextStyle(
+                              color: chartSubText,
+                              fontSize: 9,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                  Positioned(
+                    right: 28,
+                    top: currentPriceLabelTop,
+                    child: Text(
+                      '\$${currentChartPrice.toStringAsFixed(2)}',
                       style: TextStyle(
-                        color: chartSubText,
-                        fontSize: 9,
+                        color: chartAccent,
+                        fontSize: 10,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
-                  ],
-                  if (ma200Spots.length >= 2) ...[
-                    const SizedBox(width: 8),
-                    Container(
-                      width: 16,
-                      height: 2,
-                      color: Colors.amberAccent.withValues(alpha: 0.72),
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      '200D',
-                      style: TextStyle(
-                        color: chartSubText,
-                        fontSize: 9,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ],
+                  ),
                 ],
               ),
             ),
-            Positioned(
-              right: 28,
-              top: currentPriceLabelTop,
-              child: Text(
-                '\$${currentChartPrice.toStringAsFixed(2)}',
-                style: TextStyle(
-                  color: chartAccent,
-                  fontSize: 10,
-                  fontWeight: FontWeight.w700,
+            // ─── 구분선 ───
+            Container(height: 1, color: chartLine),
+            // ─── RSI 서브차트 ───
+            Padding(
+              padding: const EdgeInsets.only(left: 10, top: 5, bottom: 2),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 14,
+                      height: 2,
+                      color: rsiColor.withValues(alpha: 0.8),
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      'RSI(14)',
+                      style: TextStyle(
+                        color: chartSubText,
+                        fontSize: 9,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            SizedBox(
+              height: 60,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4),
+                child: CustomPaint(
+                  size: const Size(double.infinity, 60),
+                  painter: _RsiSubChartPainter(
+                    rsiValues: rsiValues,
+                    lineColor: rsiColor,
+                    overboughtColor: rsiOverboughtColor,
+                    oversoldColor: rsiOversoldColor,
+                    gridColor: chartLine,
+                  ),
+                ),
+              ),
+            ),
+            // ─── RSI 정보 2칸 ───
+            Container(
+              height: 1,
+              color: chartLine,
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
+              child: IntrinsicHeight(
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () {
+                          showDialog<void>(
+                            context: context,
+                            builder: (dialogContext) {
+                              final wm = isWhiteModeEnabled(dialogContext);
+                              final bg = wm ? _lightSurface : _darkSurface;
+                              final pt = wm ? _lightText : _darkText;
+                              final st = wm ? _lightMuted : _darkMuted;
+                              return AlertDialog(
+                                backgroundColor: bg,
+                                title: Text(
+                                  'RSI(14)란?',
+                                  style: TextStyle(
+                                    color: pt,
+                                    fontWeight: FontWeight.w900,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                                content: Text(
+                                  'RSI(Relative Strength Index)는 최근 14일간의 상승폭과 하락폭을 비교해 현재 주가의 과열·침체 여부를 0~100으로 나타내는 지표입니다.\n\n'
+                                  '• 70 이상 → 과매수 구간\n'
+                                  '  단기 급등으로 조정 가능성이 높습니다.\n\n'
+                                  '• 30 이하 → 과매도 구간\n'
+                                  '  단기 급락으로 반등 가능성이 있습니다.\n\n'
+                                  '• 30~70 → 정상 범위\n'
+                                  '  과열·침체 신호 없음.',
+                                  style: TextStyle(
+                                    color: st,
+                                    fontSize: 13,
+                                    height: 1.55,
+                                  ),
+                                ),
+                                actions: [
+                                  FilledButton(
+                                    onPressed: () =>
+                                        Navigator.pop(dialogContext),
+                                    child: const Text('확인'),
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                        },
+                        behavior: HitTestBehavior.opaque,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 10),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Row(
+                                children: [
+                                  Text(
+                                    'RSI(14)',
+                                    style: TextStyle(
+                                      color: chartSubText,
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 3),
+                                  Icon(
+                                    Icons.chevron_right_rounded,
+                                    size: 13,
+                                    color: chartSubText,
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 2),
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.baseline,
+                                textBaseline: TextBaseline.alphabetic,
+                                children: [
+                                  Text(
+                                    latestRsi != null
+                                        ? latestRsi.toStringAsFixed(1)
+                                        : '--',
+                                    style: TextStyle(
+                                      color: chartText,
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w800,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    rsiStatusLabel,
+                                    style: TextStyle(
+                                      color: rsiStatusColor,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    VerticalDivider(
+                        width: 1, thickness: 1, color: chartLine),
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 10),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              '과매수 / 과매도',
+                              style: TextStyle(
+                                color: chartSubText,
+                                fontSize: 10,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              rsiZoneLabel,
+                              style: TextStyle(
+                                color: rsiStatusColor,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -10885,7 +11349,7 @@ class _HomePageState extends State<HomePage>
         ),
         child: InkWell(
           onTap: () {
-            openContentListPageFromContext(context, closeGuessReferenceClose());
+            openContentListPageFromContext(context);
           },
           borderRadius: BorderRadius.circular(10),
           child: Center(
@@ -11653,15 +12117,164 @@ class _HomePageState extends State<HomePage>
   }
 
   Widget buildAlertCard(double dropPercent) {
-    final whiteMode = isWhiteModeEnabled(context);
-    Color color;
-    IconData icon;
-    String title;
-    String subtitle;
-    Widget page;
-    bool useStrongAccent = true;
+    return ValueListenableBuilder<int>(
+      valueListenable: rebalanceCardTriggeredAt,
+      builder: (context, triggeredAt, _) {
+        final rebalanceActive = triggeredAt > 0 &&
+            DateTime.now().millisecondsSinceEpoch - triggeredAt <
+                const Duration(hours: 48).inMilliseconds;
+        final hoursLeft = rebalanceActive
+            ? (const Duration(hours: 48) -
+                    Duration(
+                        milliseconds: DateTime.now().millisecondsSinceEpoch -
+                            triggeredAt))
+                .inHours
+            : 0;
 
-    if (dropPercent <= -50) {
+        if (rebalanceActive) {
+          final whiteMode = isWhiteModeEnabled(context);
+          const goldColor = Color(0xFFD4A017);
+          const goldLight = Color(0xFFFFD700);
+          final surface = whiteMode
+              ? const Color(0xFFFFFBEA)
+              : const Color(0xFF1A1500);
+          return GestureDetector(
+            onTap: () async {
+              await dismissRebalanceCard();
+              if (context.mounted) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const RebalancePage(),
+                  ),
+                );
+              }
+            },
+            child: Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(
+                horizontal: 18,
+                vertical: 15,
+              ),
+              decoration: BoxDecoration(
+                color: surface,
+                borderRadius: BorderRadius.circular(24),
+                border: Border.all(color: goldColor, width: 1.5),
+                boxShadow: [
+                  BoxShadow(
+                    color: goldColor.withValues(alpha: 0.18),
+                    blurRadius: 18,
+                    offset: const Offset(0, 8),
+                  ),
+                ],
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    width: 52,
+                    height: 52,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: goldColor.withValues(alpha: 0.15),
+                      border: Border.all(
+                        color: goldColor.withValues(alpha: 0.35),
+                      ),
+                    ),
+                    child: const Center(
+                      child: Text('🏆', style: TextStyle(fontSize: 24)),
+                    ),
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        FittedBox(
+                          fit: BoxFit.scaleDown,
+                          alignment: Alignment.centerLeft,
+                          child: RichText(
+                            text: TextSpan(
+                              children: [
+                                TextSpan(
+                                  text:
+                                      '${AppLocalizations.of(context)!.from10yHigh} ',
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    color: whiteMode
+                                        ? _lightMuted
+                                        : _darkMuted,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                TextSpan(
+                                  text:
+                                      '${dropPercent.toStringAsFixed(2)}%',
+                                  style: const TextStyle(
+                                    fontSize: 18,
+                                    color: Colors.redAccent,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 7),
+                        Row(
+                          children: [
+                            Text(
+                              '리밸런싱 구간',
+                              style: TextStyle(
+                                color: goldLight,
+                                fontSize: 15,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                            const Spacer(),
+                            Text(
+                              '${hoursLeft}h',
+                              style: TextStyle(
+                                color: goldColor.withValues(alpha: 0.7),
+                                fontSize: 12,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'TQQQ 정리 및 기본 포지션 복귀',
+                          style: TextStyle(
+                            color: whiteMode
+                                ? const Color(0xFF78500A)
+                                : const Color(0xFFD4A017)
+                                    .withValues(alpha: 0.85),
+                            fontSize: 12,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Icon(
+                    Icons.chevron_right_rounded,
+                    color: goldColor.withValues(alpha: 0.6),
+                      size: 24,
+                    ),
+                  ],
+                ),
+              ),
+            );
+        }
+
+        final whiteMode = isWhiteModeEnabled(context);
+        Color color;
+        IconData icon;
+        String title;
+        String subtitle;
+        Widget page;
+        bool useStrongAccent = true;
+
+        if (dropPercent <= -50) {
       color = Colors.purple;
       icon = Icons.bolt_rounded;
       title = AppLocalizations.of(context)!.minus50Headline;
@@ -11854,6 +12467,8 @@ class _HomePageState extends State<HomePage>
           ],
         ),
       ),
+    );
+      },
     );
   }
 
@@ -12263,35 +12878,18 @@ void openFearGreedPage(BuildContext context) {
   );
 }
 
-void openCloseGuessRankingPage(double initialClose) {
+void openContentListPage() {
   appNavigatorKey.currentState?.push(
     MaterialPageRoute(
-      builder: (_) => CloseGuessRankingPage(
-        initialClose: initialClose,
-      ),
+      builder: (_) => const ContentListPage(),
     ),
   );
 }
 
-void openContentListPage(double initialClose) {
-  appNavigatorKey.currentState?.push(
-    MaterialPageRoute(
-      builder: (_) => ContentListPage(
-        initialClose: initialClose,
-      ),
-    ),
-  );
-}
-
-void openContentListPageFromContext(
-  BuildContext context,
-  double initialClose,
-) {
+void openContentListPageFromContext(BuildContext context) {
   Navigator.of(context, rootNavigator: true).push(
     MaterialPageRoute(
-      builder: (_) => ContentListPage(
-        initialClose: initialClose,
-      ),
+      builder: (_) => const ContentListPage(),
     ),
   );
 }
@@ -12601,12 +13199,7 @@ class _NicknameSettingsCardState extends State<NicknameSettingsCard> {
 }
 
 class ContentListPage extends StatelessWidget {
-  const ContentListPage({
-    super.key,
-    required this.initialClose,
-  });
-
-  final double initialClose;
+  const ContentListPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -12614,6 +13207,7 @@ class ContentListPage extends StatelessWidget {
     final pageBg = whiteMode ? _lightAppBg : _appBg;
     final primaryText = whiteMode ? _lightText : _darkText;
     final secondaryText = whiteMode ? _lightMuted : _darkMuted;
+    final l10n = AppLocalizations.of(context)!;
 
     Widget item({
       required int number,
@@ -12753,7 +13347,7 @@ class ContentListPage extends StatelessWidget {
       backgroundColor: pageBg,
       bottomNavigationBar: buildAdOnlyBottomBar(),
       appBar: AppBar(
-        title: const Text('콘텐츠'),
+        title: Text(l10n.contentTitle),
         foregroundColor: primaryText,
         backgroundColor: pageBg,
         elevation: 0,
@@ -12770,10 +13364,10 @@ class ContentListPage extends StatelessWidget {
               item(
                 number: 1,
                 icon: Icons.help_outline_rounded,
-                title: '문의사항',
-                subtitle: '익명 문의를 남기고 답변을 확인합니다.',
+                title: l10n.contentInquiry,
+                subtitle: l10n.contentInquirySubtitle,
                 color: const Color(0xFF2563EB),
-                badge: 'Q&A',
+                badge: l10n.contentInquiryBadge,
                 onTap: () {
                   Navigator.push(
                     context,
@@ -12786,18 +13380,16 @@ class ContentListPage extends StatelessWidget {
               gap(),
               item(
                 number: 2,
-                icon: Icons.emoji_events_rounded,
-                title: '종가맞추기',
-                subtitle: 'QLD 기준 종가를 예측하고 랭킹을 겨룹니다.',
-                color: const Color(0xFFD97706),
-                badge: '랭킹',
+                icon: Icons.menu_book_rounded,
+                title: l10n.contentBookReader,
+                subtitle: l10n.contentBookReaderSubtitle,
+                color: const Color(0xFF0F766E),
+                badge: l10n.contentBookReaderBadge,
                 onTap: () {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (_) => CloseGuessRankingPage(
-                        initialClose: initialClose,
-                      ),
+                      builder: (_) => const BookListPage(),
                     ),
                   );
                 },
@@ -12806,10 +13398,10 @@ class ContentListPage extends StatelessWidget {
               item(
                 number: 3,
                 icon: Icons.format_quote_rounded,
-                title: '오늘의 주식 명언',
-                subtitle: '투자 감각을 다듬는 짧은 문장을 확인합니다.',
+                title: l10n.contentStockQuote,
+                subtitle: l10n.contentStockQuoteSubtitle,
                 color: const Color(0xFF059669),
-                badge: '매일',
+                badge: l10n.contentStockQuoteBadge,
                 onTap: () {
                   Navigator.push(
                     context,
@@ -12823,10 +13415,10 @@ class ContentListPage extends StatelessWidget {
               item(
                 number: 4,
                 icon: Icons.casino_rounded,
-                title: '숫자 맞추기',
-                subtitle: '가볍게 즐기는 확률형 미니게임입니다.',
+                title: l10n.contentNumberGuess,
+                subtitle: l10n.contentNumberGuessSubtitle,
                 color: const Color(0xFF7C3AED),
-                badge: '게임',
+                badge: l10n.contentNumberGuessBadge,
                 onTap: () {
                   Navigator.push(
                     context,
@@ -12839,62 +13431,11 @@ class ContentListPage extends StatelessWidget {
               gap(),
               item(
                 number: 5,
-                icon: Icons.menu_book_rounded,
-                title: '책 읽기',
-                subtitle: '차분히 읽을 수 있는 공개 도메인 텍스트입니다.',
-                color: const Color(0xFF0F766E),
-                badge: '읽기',
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => const LongFormBookReaderPage(),
-                    ),
-                  );
-                },
-              ),
-              gap(),
-              item(
-                number: 6,
-                icon: Icons.theater_comedy_rounded,
-                title: '주식 짤',
-                subtitle: '투자자가 공감할 만한 짧은 유머 모음입니다.',
-                color: const Color(0xFFE11D48),
-                badge: '유머',
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => const StockMemePage(),
-                    ),
-                  );
-                },
-              ),
-              gap(),
-              item(
-                number: 7,
-                icon: Icons.confirmation_number_rounded,
-                title: '로또번호 추천',
-                subtitle: '부담 없이 뽑아보는 랜덤 번호 추천입니다.',
-                color: const Color(0xFF0891B2),
-                badge: '랜덤',
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => const LottoNumberPage(),
-                    ),
-                  );
-                },
-              ),
-              gap(),
-              item(
-                number: 8,
                 icon: Icons.directions_run_rounded,
-                title: '점프 장애물 피하기',
-                subtitle: '짧게 집중해서 즐기는 점프 미니게임입니다.',
+                title: l10n.contentJumpDodge,
+                subtitle: l10n.contentJumpDodgeSubtitle,
                 color: const Color(0xFFEA580C),
-                badge: '액션',
+                badge: l10n.contentJumpDodgeBadge,
                 onTap: () {
                   Navigator.push(
                     context,
@@ -13464,12 +14005,13 @@ class _StockQuotePageState extends State<StockQuotePage> {
     final primaryText = whiteMode ? _lightText : _darkText;
     final secondaryText = whiteMode ? _lightMuted : _darkMuted;
     final accent = whiteMode ? _lightBlue : _cyan;
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: pageBg,
       bottomNavigationBar: buildAdOnlyBottomBar(),
       appBar: AppBar(
-        title: const Text('오늘의 주식 명언'),
+        title: Text(l10n.contentStockQuote),
         foregroundColor: primaryText,
         backgroundColor: pageBg,
         elevation: 0,
@@ -13549,7 +14091,7 @@ class _StockQuotePageState extends State<StockQuotePage> {
                         ),
                         const SizedBox(height: 22),
                         Text(
-                          '탭하면 다른 문구가 나옵니다.',
+                          l10n.stockQuoteTapHint,
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             color: secondaryText,
@@ -13572,7 +14114,7 @@ class _StockQuotePageState extends State<StockQuotePage> {
                 child: FilledButton.icon(
                   onPressed: showRandomQuote,
                   icon: const Icon(Icons.shuffle_rounded, size: 18),
-                  label: const Text('다른 명언 보기'),
+                  label: Text(l10n.stockQuoteShuffle),
                   style: FilledButton.styleFrom(
                     backgroundColor: accent,
                     foregroundColor: Colors.white,
@@ -13590,1311 +14132,6 @@ class _StockQuotePageState extends State<StockQuotePage> {
   }
 }
 
-class LottoNumberPage extends StatefulWidget {
-  const LottoNumberPage({super.key});
-
-  @override
-  State<LottoNumberPage> createState() => _LottoNumberPageState();
-}
-
-class _LottoNumberPageState extends State<LottoNumberPage> {
-  final random = math.Random();
-  List<int> numbers = [];
-
-  @override
-  void initState() {
-    super.initState();
-    generateNumbers();
-  }
-
-  void generateNumbers() {
-    final pool = List<int>.generate(45, (index) => index + 1);
-    pool.shuffle(random);
-    setState(() {
-      numbers = pool.take(6).toList()..sort();
-    });
-  }
-
-  Color ballColor(int number) {
-    if (number <= 10) return const Color(0xFFF59E0B);
-    if (number <= 20) return const Color(0xFF2563EB);
-    if (number <= 30) return const Color(0xFFEF4444);
-    if (number <= 40) return const Color(0xFF6B7280);
-    return const Color(0xFF10B981);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final whiteMode = isWhiteModeEnabled(context);
-    final pageBg = whiteMode ? _lightAppBg : _appBg;
-    final cardBg = whiteMode ? _lightSurface : _darkSurface;
-    final cardLine = whiteMode ? _lightLine : _darkLineSoft;
-    final primaryText = whiteMode ? _lightText : _darkText;
-    final secondaryText = whiteMode ? _lightMuted : _darkMuted;
-    final accent = whiteMode ? _lightBlue : _cyan;
-
-    return Scaffold(
-      backgroundColor: pageBg,
-      bottomNavigationBar: buildAdOnlyBottomBar(),
-      appBar: AppBar(
-        title: const Text('로또번호 추천'),
-        foregroundColor: primaryText,
-        backgroundColor: pageBg,
-        elevation: 0,
-        actions: [
-          buildWhiteModeButton(context),
-        ],
-      ),
-      body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.fromLTRB(16, 10, 16, 88),
-          children: [
-            Container(
-              padding: const EdgeInsets.all(18),
-              decoration: BoxDecoration(
-                color: cardBg,
-                borderRadius: BorderRadius.circular(18),
-                border: Border.all(color: cardLine),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Container(
-                        width: 42,
-                        height: 42,
-                        decoration: BoxDecoration(
-                          color: accent.withValues(
-                            alpha: whiteMode ? 0.10 : 0.16,
-                          ),
-                          borderRadius: BorderRadius.circular(13),
-                        ),
-                        child: Icon(
-                          Icons.confirmation_number_rounded,
-                          color: accent,
-                          size: 24,
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              '오늘의 추천 번호',
-                              style: TextStyle(
-                                color: primaryText,
-                                fontSize: 18,
-                                fontWeight: FontWeight.w900,
-                              ),
-                            ),
-                            const SizedBox(height: 3),
-                            Text(
-                              '1부터 45까지 중복 없이 6개',
-                              style: TextStyle(
-                                color: secondaryText,
-                                fontSize: 12,
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 18),
-                  Wrap(
-                    spacing: 9,
-                    runSpacing: 9,
-                    alignment: WrapAlignment.center,
-                    children: numbers.map((number) {
-                      final color = ballColor(number);
-                      return Container(
-                        width: 48,
-                        height: 48,
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                          color: color,
-                          shape: BoxShape.circle,
-                          boxShadow: [
-                            BoxShadow(
-                              color: color.withValues(alpha: 0.28),
-                              blurRadius: 10,
-                              offset: const Offset(0, 5),
-                            ),
-                          ],
-                        ),
-                        child: Text(
-                          '$number',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 17,
-                            fontWeight: FontWeight.w900,
-                          ),
-                        ),
-                      );
-                    }).toList(),
-                  ),
-                  const SizedBox(height: 18),
-                  SizedBox(
-                    width: double.infinity,
-                    height: 44,
-                    child: FilledButton.icon(
-                      style: FilledButton.styleFrom(
-                        backgroundColor: accent,
-                        foregroundColor: whiteMode ? Colors.white : _appBg,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                      ),
-                      onPressed: generateNumbers,
-                      icon: const Icon(Icons.refresh_rounded, size: 18),
-                      label: const Text(
-                        '새로 추천',
-                        style: TextStyle(fontWeight: FontWeight.w900),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class StockMemePage extends StatefulWidget {
-  const StockMemePage({super.key});
-
-  @override
-  State<StockMemePage> createState() => _StockMemePageState();
-}
-
-class _StockMemePageState extends State<StockMemePage> {
-  final controller = PageController(viewportFraction: 0.9);
-  int currentIndex = 0;
-
-  static const memes = <_StockMeme>[
-    _StockMeme(
-      title: 'STONKS',
-      caption: '이유는 모르겠지만 올라감',
-      punchline: '분석 끝. 매수 완료.',
-      icon: Icons.trending_up_rounded,
-      color: Color(0xFF2563EB),
-    ),
-    _StockMeme(
-      title: '고점 매수 저점 매도',
-      caption: '내가 사면 조정, 내가 팔면 반등',
-      punchline: '시장 타이밍의 반대 교과서',
-      icon: Icons.swap_vert_rounded,
-      color: Color(0xFFEF4444),
-    ),
-    _StockMeme(
-      title: '다이아몬드 손',
-      caption: '계좌는 흔들려도 손은 안 흔들림',
-      punchline: '버티는 중인지 묶인 건지는 비밀',
-      icon: Icons.diamond_rounded,
-      color: Color(0xFF06B6D4),
-    ),
-    _StockMeme(
-      title: '종이 손',
-      caption: '-1% 보고 바로 탈출',
-      punchline: '손절은 빠르고 후회는 길다',
-      icon: Icons.description_rounded,
-      color: Color(0xFFF59E0B),
-    ),
-    _StockMeme(
-      title: '물타기 장인',
-      caption: '평단은 낮아졌는데 비중은 커짐',
-      punchline: '계획이었는지 습관이었는지',
-      icon: Icons.water_drop_rounded,
-      color: Color(0xFF0EA5E9),
-    ),
-    _StockMeme(
-      title: '가방 보유자',
-      caption: '잠깐 들고 있으려던 포지션',
-      punchline: '어느새 장기투자자가 됨',
-      icon: Icons.work_rounded,
-      color: Color(0xFF7C3AED),
-    ),
-    _StockMeme(
-      title: 'FOMO 진입',
-      caption: '다들 돈 번다길래 늦게 탑승',
-      punchline: '내 좌석은 꼭 꼭대기에 있음',
-      icon: Icons.rocket_launch_rounded,
-      color: Color(0xFFEC4899),
-    ),
-    _StockMeme(
-      title: '공포의 빨간불',
-      caption: '뉴스 보기 전에는 괜찮았는데',
-      punchline: '헤드라인이 손절 버튼을 누름',
-      icon: Icons.warning_amber_rounded,
-      color: Color(0xFFDC2626),
-    ),
-    _StockMeme(
-      title: '이번엔 다르다',
-      caption: '가장 비싼 문장',
-      punchline: '차트는 조용히 예전 일을 반복함',
-      icon: Icons.history_rounded,
-      color: Color(0xFF14B8A6),
-    ),
-    _StockMeme(
-      title: '달나라 간다',
-      caption: '목표가는 우주, 손절가는 지하',
-      punchline: '연료는 희망과 댓글',
-      icon: Icons.nightlight_round,
-      color: Color(0xFF6366F1),
-    ),
-  ];
-
-  @override
-  void dispose() {
-    controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final whiteMode = isWhiteModeEnabled(context);
-    final pageBg = whiteMode ? _lightAppBg : _appBg;
-    final cardBg = whiteMode ? _lightSurface : _darkSurface;
-    final cardLine = whiteMode ? _lightLine : _darkLineSoft;
-    final primaryText = whiteMode ? _lightText : _darkText;
-    final secondaryText = whiteMode ? _lightMuted : _darkMuted;
-
-    return Scaffold(
-      backgroundColor: pageBg,
-      bottomNavigationBar: buildAdOnlyBottomBar(),
-      appBar: AppBar(
-        title: const Text('주식 짤'),
-        foregroundColor: primaryText,
-        backgroundColor: pageBg,
-        elevation: 0,
-        actions: [
-          buildWhiteModeButton(context),
-        ],
-      ),
-      body: SafeArea(
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-              child: Text(
-                '좌우로 넘겨서 보기',
-                style: TextStyle(
-                  color: secondaryText,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-            ),
-            Expanded(
-              child: PageView.builder(
-                controller: controller,
-                itemCount: memes.length,
-                onPageChanged: (index) {
-                  setState(() {
-                    currentIndex = index;
-                  });
-                },
-                itemBuilder: (context, index) {
-                  final meme = memes[index];
-                  return Padding(
-                    padding: const EdgeInsets.fromLTRB(6, 8, 6, 22),
-                    child: _StockMemeCard(
-                      meme: meme,
-                      number: index + 1,
-                      cardBg: cardBg,
-                      cardLine: cardLine,
-                      primaryText: primaryText,
-                      secondaryText: secondaryText,
-                      whiteMode: whiteMode,
-                    ),
-                  );
-                },
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 88),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: List.generate(memes.length, (index) {
-                  final selected = index == currentIndex;
-                  return AnimatedContainer(
-                    duration: const Duration(milliseconds: 180),
-                    width: selected ? 18 : 7,
-                    height: 7,
-                    margin: const EdgeInsets.symmetric(horizontal: 3),
-                    decoration: BoxDecoration(
-                      color: selected
-                          ? memes[currentIndex].color
-                          : secondaryText.withValues(alpha: 0.35),
-                      borderRadius: BorderRadius.circular(99),
-                    ),
-                  );
-                }),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _StockMeme {
-  const _StockMeme({
-    required this.title,
-    required this.caption,
-    required this.punchline,
-    required this.icon,
-    required this.color,
-  });
-
-  final String title;
-  final String caption;
-  final String punchline;
-  final IconData icon;
-  final Color color;
-}
-
-class _StockMemeCard extends StatelessWidget {
-  const _StockMemeCard({
-    required this.meme,
-    required this.number,
-    required this.cardBg,
-    required this.cardLine,
-    required this.primaryText,
-    required this.secondaryText,
-    required this.whiteMode,
-  });
-
-  final _StockMeme meme;
-  final int number;
-  final Color cardBg;
-  final Color cardLine;
-  final Color primaryText;
-  final Color secondaryText;
-  final bool whiteMode;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: cardBg,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: cardLine),
-      ),
-      child: Column(
-        children: [
-          Align(
-            alignment: Alignment.centerLeft,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-              decoration: BoxDecoration(
-                color: meme.color.withValues(alpha: whiteMode ? 0.10 : 0.16),
-                borderRadius: BorderRadius.circular(99),
-              ),
-              child: Text(
-                '주식 밈 #$number',
-                style: TextStyle(
-                  color: meme.color,
-                  fontSize: 11,
-                  fontWeight: FontWeight.w900,
-                ),
-              ),
-            ),
-          ),
-          const Spacer(),
-          Container(
-            width: 92,
-            height: 92,
-            decoration: BoxDecoration(
-              color: meme.color.withValues(alpha: whiteMode ? 0.12 : 0.18),
-              borderRadius: BorderRadius.circular(28),
-              border: Border.all(color: meme.color.withValues(alpha: 0.24)),
-            ),
-            child: Icon(
-              meme.icon,
-              color: meme.color,
-              size: 48,
-            ),
-          ),
-          const SizedBox(height: 22),
-          Text(
-            meme.title,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              color: primaryText,
-              fontSize: 27,
-              fontWeight: FontWeight.w900,
-            ),
-          ),
-          const SizedBox(height: 12),
-          Text(
-            meme.caption,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              color: primaryText,
-              fontSize: 17,
-              height: 1.35,
-              fontWeight: FontWeight.w800,
-            ),
-          ),
-          const SizedBox(height: 10),
-          Text(
-            meme.punchline,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              color: secondaryText,
-              fontSize: 13,
-              height: 1.35,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-          const Spacer(),
-        ],
-      ),
-    );
-  }
-}
-
-class LongFormBookReaderPage extends StatefulWidget {
-  const LongFormBookReaderPage({super.key});
-
-  @override
-  State<LongFormBookReaderPage> createState() => _LongFormBookReaderPageState();
-}
-
-class _LongFormBookReaderPageState extends State<LongFormBookReaderPage> {
-  static const _bookReaderPagePrefsKey = 'long_form_book_reader_page';
-  static const _bookReaderLanguagePrefsKey = 'long_form_book_reader_language';
-
-  final pageController = PageController();
-  int currentPage = 0;
-  bool showEnglish = false;
-
-  static const koreanPages = <_BookChapter>[
-    _BookChapter(
-      title: '원서 소개',
-      body: '''
-Reminiscences of a Stock Operator
-Edwin Lefevre
-
-이 독서판은 영어 원서의 흐름을 따라 한국어로 읽기 쉽게 옮긴 번역형 본문입니다. 원문을 한 문장씩 그대로 옮긴 완역본은 아니지만, 책의 이야기 전개와 핵심 장면을 따라가며 긴 글로 읽을 수 있도록 구성했습니다.
-
-이 책의 주인공은 어린 시절 증권 중개 사무실에서 시세판을 기록하던 소년으로 시작합니다. 그는 숫자가 움직이는 방식에 매혹되고, 사람들이 왜 사고파는지보다 가격이 어떻게 움직이는지에 먼저 관심을 갖습니다. 누군가는 그를 투기꾼이라 부르고, 누군가는 천재적인 시세 읽기의 소유자라 말합니다. 그러나 이 책이 보여주는 것은 화려한 성공담만이 아닙니다.
-
-그는 여러 번 큰돈을 벌고, 여러 번 거의 모든 것을 잃습니다. 시장을 맞힌 순간에도 사람은 무너질 수 있고, 틀렸다는 사실을 빨리 인정하지 못하면 작은 실수는 순식간에 인생을 흔드는 손실이 됩니다. 그래서 이 책은 돈을 버는 법보다, 시장 앞에서 사람이 어떻게 흔들리는지를 더 오래 보여줍니다.
-''',
-    ),
-    _BookChapter(
-      title: '1. 시세판 앞의 소년',
-      body: '''
-나는 아주 어릴 때부터 숫자가 움직이는 모습을 지켜보았다. 사무실 한쪽에는 시세가 적힌 판이 있었고, 사람들은 그 숫자 하나하나에 얼굴빛이 달라졌다. 어떤 사람은 가격이 조금만 올라가도 세상을 얻은 듯 웃었고, 어떤 사람은 몇 포인트 빠졌다는 말에 금세 말수가 줄었다.
-
-처음에는 그저 일을 빨리 처리하는 소년일 뿐이었다. 누가 무슨 종목을 불러주면 받아 적고, 전신으로 들어오는 가격을 판에 옮겼다. 하지만 같은 일을 매일 반복하다 보니 이상한 것이 보이기 시작했다. 가격은 아무렇게나 움직이는 듯했지만, 어떤 때에는 오르려는 힘이 분명했고, 어떤 때에는 아무리 버티려 해도 아래로 밀리는 힘이 느껴졌다.
-
-나는 사람들이 떠드는 이유보다 숫자의 움직임을 더 믿게 되었다. 사무실 안의 어른들은 늘 이유를 말했다. 회사가 좋다, 소문이 있다, 누군가가 산다, 곧 오른다. 그러나 가격은 그들의 말과 다르게 움직일 때가 많았다. 그때부터 나는 생각했다. 시장에서 중요한 것은 말이 아니라 실제 거래되는 가격이라고.
-
-그 깨달음은 어린 나에게는 놀이처럼 시작되었다. 그러나 시간이 지나면서 그것은 내 인생을 바꾸는 기술이 되었다. 나는 가격이 올라갈 것인지 내려갈 것인지 맞히는 것보다, 가격이 움직이기 시작하는 순간을 알아차리는 일에 빠져들었다.
-''',
-    ),
-    _BookChapter(
-      title: '2. 처음 배운 승리',
-      body: '''
-처음 돈을 걸었을 때 나는 내가 특별한 사람이라고 생각하지 않았다. 다만 시세판을 오래 보았기 때문에 남들보다 조금 더 빨리 알아차릴 수 있다고 믿었다. 가격이 어떤 식으로 움직이는지, 사람들이 흥분할 때 숫자가 어떻게 반응하는지, 조용한 종목이 갑자기 살아날 때 어떤 모습이 나타나는지 눈에 익었다.
-
-초기의 승리는 위험했다. 돈을 벌면 사람은 자신의 판단이 옳았다는 증거를 얻었다고 느낀다. 나 역시 그랬다. 몇 번의 성공은 나에게 자신감을 주었고, 그 자신감은 곧 더 크게 베팅하고 싶은 마음으로 바뀌었다. 시장은 처음에는 친절한 선생처럼 보였다. 내가 맞히면 돈을 주었고, 나는 그 돈이 내 실력의 대가라고 생각했다.
-
-그러나 시장은 사람을 가르칠 때 늘 부드럽게 가르치지 않는다. 처음에 쉽게 번 돈은 사람을 조심스럽게 만들지 않는다. 오히려 더 대담하게 만든다. 대담함은 때로 필요하지만, 준비되지 않은 대담함은 손실을 부르는 지름길이다.
-
-나는 이 사실을 나중에 여러 번 배웠다. 이상하게도 시장에서 가장 비싼 수업료는 항상 같은 교훈을 다시 배우는 데 쓰인다. 사람은 이미 알고 있다고 생각하는 것을 실제로 지키지 못할 때 가장 크게 다친다.
-''',
-    ),
-    _BookChapter(
-      title: '3. 시장은 설명을 기다려주지 않는다',
-      body: '''
-사람들은 가격이 움직인 뒤에 이유를 찾는 것을 좋아한다. 주가가 오르면 좋은 소식 때문이라고 하고, 빠지면 나쁜 소문 때문이라고 말한다. 하지만 내가 시세판 앞에서 배운 것은 달랐다. 가격은 종종 뉴스보다 먼저 움직이고, 설명은 나중에 붙는다.
-
-나는 이유를 모른 채 매수하거나 매도하는 일이 불안하지 않았다. 불안한 것은 오히려 가격이 분명히 말하고 있는데도, 내 생각과 다르다는 이유로 듣지 않는 일이었다. 시장은 친절하게 설명하지 않는다. 다만 움직일 뿐이다. 그 움직임을 인정할 것인지, 아니면 내 의견을 붙잡을 것인지는 투자자의 선택이다.
-
-초보자는 흔히 의견을 거래한다. 좋은 회사니까 오른다, 많이 빠졌으니까 오른다, 누구나 좋다고 하니까 오른다. 그러나 시장은 의견에 보상하지 않는다. 시장이 보상하는 것은 옳은 시점에 옳은 방향으로 서 있는 사람이다. 그리고 틀렸을 때 빨리 물러나는 사람이다.
-
-나는 점점 더 말을 줄이고 가격을 보게 되었다. 누가 무엇을 말했는지보다, 실제로 돈이 어느 방향으로 움직이고 있는지가 중요했다. 시장에서 말은 많고 돈은 조용하다. 그러나 결국 가격을 움직이는 것은 말이 아니라 돈이다.
-''',
-    ),
-    _BookChapter(
-      title: '4. 빨리 맞히는 것과 크게 버는 것은 다르다',
-      body: '''
-나는 어린 시절부터 단기 움직임을 잘 맞히는 편이었다. 가격이 몇 포인트 움직일 방향을 잡아내는 일은 나에게 자연스럽게 느껴졌다. 그러나 시장에서 오래 살아보니, 빨리 맞히는 능력과 크게 버는 능력은 전혀 다른 문제였다.
-
-작은 움직임을 자주 맞히면 사람은 바빠진다. 계속 사고팔고, 작은 이익을 챙기고, 다시 들어간다. 겉보기에는 매우 능숙해 보인다. 하지만 큰 추세가 시작될 때도 같은 방식으로 행동하면, 정작 가장 큰 돈이 걸린 구간을 놓치게 된다.
-
-큰돈은 자주 움직이는 손에서 나오지 않았다. 큰돈은 옳은 자리에 앉은 뒤, 시장이 충분히 움직일 때까지 버티는 데서 나왔다. 이것은 말로는 쉽지만 실제로는 어렵다. 가격은 절대 한 방향으로만 가지 않는다. 좋은 포지션도 중간에 흔들리고, 흔들림은 사람의 마음을 시험한다.
-
-나는 여러 번 너무 일찍 팔았다. 맞혔지만 크게 벌지 못했다. 그때마다 깨달았다. 시장에서 중요한 것은 단지 방향을 맞히는 것이 아니라, 맞았을 때 충분히 얻을 수 있는 마음과 규칙을 갖는 것이다.
-''',
-    ),
-    _BookChapter(
-      title: '5. 틀렸을 때 작아지는 기술',
-      body: '''
-시장에서는 누구나 틀린다. 문제는 틀렸다는 사실 자체가 아니라, 틀렸을 때 어떻게 행동하느냐다. 작은 손실은 투자자에게 보내는 시장의 짧은 경고다. 그 경고를 무시하면 시장은 더 큰 목소리로 말한다. 그때는 이미 손실이 커져 있다.
-
-나는 여러 번 손실을 키웠다. 처음에는 조금만 기다리면 돌아올 것 같았다. 그 다음에는 여기서 팔면 너무 억울하다고 생각했다. 더 지나면 손실이 너무 커져서 판단이 흐려졌다. 그 순간부터 투자자는 시장을 보는 것이 아니라 자신의 손실만 보게 된다.
-
-손실을 작게 자르는 일은 차가운 기술처럼 보이지만, 사실은 가장 감정적인 훈련이다. 자존심을 내려놓아야 하고, 내가 틀렸다는 사실을 인정해야 하며, 방금 전까지 믿었던 생각을 버릴 수 있어야 한다. 많은 사람이 이것을 하지 못해 시장에서 사라진다.
-
-나는 결국 배웠다. 손실은 투자자의 적이 아니라 관리해야 할 비용이다. 작은 손실은 다음 기회를 살려두는 비용이다. 큰 손실은 다음 기회에 참여할 능력 자체를 빼앗아간다.
-''',
-    ),
-    _BookChapter(
-      title: '6. 소문은 사람을 움직이고 가격은 돈을 움직인다',
-      body: '''
-월스트리트에는 늘 소문이 있었다. 어떤 회사가 좋아진다, 누군가 대량으로 산다, 곧 발표가 있다, 큰손이 움직인다. 사람들은 이런 말을 좋아한다. 소문은 이야기가 있고, 이야기는 사람의 마음을 쉽게 붙잡는다.
-
-그러나 소문으로 산 주식은 마음을 약하게 만든다. 내가 왜 샀는지 내 안에 분명한 이유가 없기 때문이다. 남의 말을 믿고 들어간 포지션은 문제가 생겼을 때 다시 그 사람의 말을 기다리게 한다. 시장은 이미 틀렸다고 말하는데, 투자자는 아직 누군가의 안심시키는 말을 기다린다.
-
-나는 정보가 나쁘다고 말하는 것이 아니다. 시장에는 정보가 필요하다. 하지만 정보는 판단의 재료일 뿐, 판단 그 자체가 되어서는 안 된다. 누군가의 확신이 내 확신을 대신하면 안 된다.
-
-시장에서 자기 생각이 없는 사람은 운 좋게 돈을 벌 수는 있다. 하지만 오래 지키기는 어렵다. 왜냐하면 돈을 벌게 해준 이유를 모르기 때문에, 돈을 잃기 시작했을 때 빠져나올 이유도 모르기 때문이다.
-''',
-    ),
-    _BookChapter(
-      title: '7. 추세가 시작될 때의 고요함',
-      body: '''
-큰 움직임은 항상 큰 소리와 함께 시작되지 않는다. 때로는 조용히 시작된다. 사람들은 아직 의심하고, 뉴스는 뚜렷하지 않고, 가격은 천천히 그러나 꾸준히 한쪽으로 기울어진다. 그때 시장은 이미 준비하고 있는 경우가 많다.
-
-나는 시세판을 볼 때 가격 자체보다 가격의 태도를 보려 했다. 오르다가 밀려도 다시 살아나는지, 빠질 듯하다가도 매수가 들어오는지, 사람들이 무관심한 사이에 거래가 쌓이는지. 이런 것들은 말보다 먼저 나타나는 신호였다.
-
-추세를 타는 일은 용기가 필요하다. 그러나 그 용기는 무작정 뛰어드는 용기가 아니다. 시장이 보여주는 증거를 기다리고, 그 증거가 충분할 때 행동하는 용기다. 너무 빨리 들어가면 흔들림에 지치고, 너무 늦게 들어가면 위험이 커진다.
-
-결국 추세 매매는 시장을 앞서가려는 일이 아니라, 시장이 이미 가고 있는 길에 올라타는 일이다. 이 차이를 이해하지 못하면 사람은 늘 예측에 취하고, 예측이 빗나갈 때 크게 다친다.
-''',
-    ),
-    _BookChapter(
-      title: '8. 너무 많이 아는 사람의 함정',
-      body: '''
-시장에는 똑똑한 사람이 많다. 회사의 재무를 잘 아는 사람, 경제를 잘 아는 사람, 정치와 금리를 읽는 사람, 산업을 깊게 파는 사람이 있다. 그러나 많이 안다는 것이 항상 돈을 벌게 해주지는 않는다.
-
-문제는 지식이 많아질수록 자기 생각을 버리기 어려워진다는 데 있다. 어떤 사람이 한 회사에 대해 너무 많이 알면, 가격이 반대로 움직여도 자신이 모르는 무언가가 있다고 생각하기보다 시장이 틀렸다고 믿기 쉽다. 그는 사실을 보고 있다고 생각하지만, 실제로는 자신의 결론을 지키고 있을 수 있다.
-
-나는 시장에서 겸손이 필요하다는 것을 늦게 배웠다. 겸손은 아무것도 모른다고 말하는 태도가 아니다. 겸손은 내가 많이 알고 있어도 틀릴 수 있다는 사실을 인정하는 태도다. 이것이 없으면 지식은 무기가 아니라 짐이 된다.
-
-가격이 내 생각과 다르게 움직일 때는 화를 낼 일이 아니다. 그때는 질문해야 한다. 내가 무엇을 놓쳤는가. 그리고 더 중요한 질문을 해야 한다. 이 포지션을 계속 유지할 이유가 아직 남아 있는가.
-''',
-    ),
-    _BookChapter(
-      title: '9. 돈을 벌고 나서 더 위험해지는 이유',
-      body: '''
-손실 뒤에는 조심스러워지는 사람이 많다. 그러나 큰 수익 뒤에는 오히려 더 위험해지는 사람이 많다. 돈을 벌면 사람은 자신의 판단이 특별하다고 느낀다. 시장이 나를 인정했다고 착각한다.
-
-나 역시 큰 수익을 얻은 뒤에는 마음이 커졌다. 같은 금액을 걸어도 작아 보였고, 전보다 더 큰 포지션을 잡아도 괜찮을 것 같았다. 이전의 성공이 다음 거래의 안전을 보장해주는 것처럼 느껴졌다. 그러나 시장은 과거의 수익을 보고 다음 손실을 줄여주지 않는다.
-
-수익 뒤의 가장 큰 위험은 규칙이 느슨해지는 것이다. 원래는 기다렸을 자리에서 서두르고, 원래는 줄였을 손실을 버티고, 원래는 확인했을 신호를 대충 넘긴다. 자신감이 판단을 대신하기 시작하면 위험은 조용히 커진다.
-
-시장에서 돈을 벌었을 때 가장 먼저 해야 할 일은 축하가 아니라 다시 작아지는 것이다. 마음을 작게 만들고, 규칙을 다시 확인하고, 이번 수익이 다음 거래를 망치지 않도록 해야 한다.
-''',
-    ),
-    _BookChapter(
-      title: '10. 쉬는 것도 포지션이다',
-      body: '''
-사람들은 시장에 참여하지 않는 시간을 낭비라고 생각한다. 그러나 나는 시간이 지나면서 쉬는 것도 하나의 포지션이라는 사실을 알게 되었다. 현금을 들고 기다리는 사람은 아무것도 하지 않는 사람이 아니다. 그는 다음 기회를 살 수 있는 권리를 들고 있는 사람이다.
-
-매일 매매하려는 욕구는 강하다. 시세판은 계속 움직이고, 움직임은 사람을 유혹한다. 그러나 모든 움직임이 기회는 아니다. 어떤 움직임은 그저 소음이고, 어떤 움직임은 사람의 인내심을 빼앗기 위해 존재하는 것처럼 보인다.
-
-좋은 투기자는 늘 행동하는 사람이 아니다. 좋은 투기자는 행동해야 할 때와 하지 말아야 할 때를 구분하는 사람이다. 이 구분이 없으면 에너지는 작은 거래에 흩어지고, 큰 기회가 왔을 때 이미 마음과 돈이 지쳐 있다.
-
-나는 여러 번 쉬지 못해서 손해를 보았다. 시장이 나를 부르는 것 같았지만, 실제로는 내가 시장을 붙잡고 있었을 뿐이었다. 쉬는 법을 배우는 것은 매수와 매도만큼이나 중요한 기술이다.
-''',
-    ),
-    _BookChapter(
-      title: '11. 물타기가 위험해지는 순간',
-      body: '''
-가격이 내려갈수록 더 사면 평균 매입 단가는 낮아진다. 이 계산은 너무 단순해서 사람을 안심시킨다. 그러나 시장에서 단순한 계산이 항상 좋은 판단은 아니다. 가격이 내려가는 데에는 이유가 있을 수 있고, 그 이유를 모른 채 더 사는 것은 손실을 키우는 행동이 될 수 있다.
-
-나는 손실이 난 포지션을 더 키우는 일이 얼마나 위험한지 배웠다. 처음에는 좋은 가격이라고 생각한다. 조금 더 빠지면 더 좋은 가격이라고 생각한다. 하지만 어느 순간부터 그것은 좋은 가격이 아니라 잘못된 판단을 인정하지 않으려는 행동이 된다.
-
-물타기가 항상 나쁜 것은 아니다. 그러나 계획 없는 물타기는 대개 위험하다. 처음부터 어느 구간에서 얼마를 더 살지, 어디까지 틀리면 멈출지 정해두지 않았다면, 추가 매수는 전략이 아니라 감정의 방어가 된다.
-
-시장은 투자자가 억울해하는지 관심이 없다. 평균 단가가 낮아졌다는 사실도 시장에는 중요하지 않다. 중요한 것은 지금 포지션이 여전히 좋은 판단인지, 아니면 손실을 숨기기 위한 변명인지다.
-''',
-    ),
-    _BookChapter(
-      title: '12. 군중은 늘 늦게 확신한다',
-      body: '''
-시장에는 군중의 감정이 있다. 처음에는 아무도 믿지 않는다. 조금 오르면 의심하고, 더 오르면 관심을 갖고, 크게 오르면 확신한다. 그리고 가장 늦게 확신한 사람들이 가장 비싼 가격을 지불하는 경우가 많다.
-
-하락도 비슷하다. 처음에는 일시적인 조정이라고 말한다. 더 빠지면 좋은 매수 기회라고 말한다. 훨씬 더 빠지면 두려움이 퍼지고, 마지막에는 더 이상 견디지 못한 사람들이 팔기 시작한다. 그때가 지나고 나서야 시장은 바닥을 만들기도 한다.
-
-군중을 비웃기는 쉽다. 그러나 누구나 군중의 일부가 될 수 있다. 나 역시 그랬다. 사람은 혼자 있을 때보다 함께 흥분할 때 더 쉽게 판단을 잃는다. 모두가 같은 말을 할 때, 그 말은 더 그럴듯하게 들린다.
-
-그래서 투자자는 시장의 분위기를 보되, 분위기에 휩쓸리지 않아야 한다. 다수가 틀렸다는 뜻이 아니다. 다만 다수의 확신이 너무 뜨거워질 때, 위험도 함께 뜨거워질 수 있다는 사실을 기억해야 한다.
-''',
-    ),
-    _BookChapter(
-      title: '13. 레버리지는 마음을 확대한다',
-      body: '''
-레버리지는 수익과 손실만 키우는 것이 아니다. 사람의 마음도 키운다. 작은 상승은 큰 기쁨이 되고, 작은 하락은 큰 두려움이 된다. 같은 가격 움직임이라도 레버리지를 쓰면 전혀 다른 감정으로 다가온다.
-
-나는 큰 포지션을 들고 있을 때 사람이 얼마나 쉽게 변하는지 보았다. 평소라면 차분히 볼 수 있는 흔들림도 견디기 어려워진다. 잠깐의 반등에 안도하고, 잠깐의 하락에 불안해진다. 결국 투자자는 시장이 아니라 자신의 감정과 싸우게 된다.
-
-레버리지를 쓰는 사람에게 가장 필요한 것은 대담함보다 규율이다. 언제 줄일지, 언제 멈출지, 어느 정도 손실을 감당할지 미리 정하지 않으면 레버리지는 사람을 빠르게 몰아붙인다.
-
-큰돈을 벌고 싶은 마음은 이해할 수 있다. 그러나 시장은 욕심이 큰 사람에게 더 친절하지 않다. 오히려 욕심이 큰 사람일수록 작은 흔들림에도 더 크게 흔들리도록 만든다.
-''',
-    ),
-    _BookChapter(
-      title: '14. 기다림은 고통스럽다',
-      body: '''
-좋은 기회를 기다리는 일은 생각보다 고통스럽다. 사람은 눈앞에서 가격이 움직이면 무언가 해야 할 것 같은 압박을 느낀다. 아무것도 하지 않는 시간은 뒤처지는 시간처럼 느껴지고, 다른 사람이 돈을 벌고 있다는 이야기는 마음을 더욱 조급하게 만든다.
-
-그러나 시장에서 기다림은 빈 시간이 아니다. 기다림은 판단을 아끼는 시간이고, 돈을 지키는 시간이며, 다음 행동의 질을 높이는 시간이다. 아무 때나 들어가는 사람은 늘 빠져나올 이유를 찾게 된다. 기다린 사람은 들어가기 전부터 이유가 분명하다.
-
-나는 좋은 기회를 기다리지 못해 여러 번 손해를 보았다. 대충 괜찮아 보이는 자리에서 들어가면, 시장은 대개 나를 시험했다. 확신이 약한 포지션은 작은 흔들림에도 마음이 흔들린다. 결국 좋은 매매는 좋은 기다림에서 시작된다.
-
-기다림이 어려운 이유는 결과가 즉시 보이지 않기 때문이다. 하지만 시장에서 보이지 않는 준비가 보이는 수익을 만든다. 기다릴 줄 아는 사람은 모든 날을 자신의 날로 만들려 하지 않는다.
-''',
-    ),
-    _BookChapter(
-      title: '15. 시장은 복수를 허락하지 않는다',
-      body: '''
-손실을 본 뒤 바로 되찾고 싶은 마음은 강하다. 사람은 잃은 돈을 숫자로만 보지 않는다. 자존심, 억울함, 분노가 함께 붙는다. 그래서 손실 뒤의 거래는 위험하다. 그 거래는 시장을 보려는 거래가 아니라 마음을 회복하려는 거래가 되기 쉽다.
-
-나는 복수 거래의 위험을 잘 안다. 방금 잃었기 때문에 더 크게 걸고 싶어진다. 이번에는 맞혀야 한다고 생각한다. 그러나 시장은 내가 방금 손실을 보았는지 알지 못하고, 알고 있다 해도 신경 쓰지 않는다.
-
-손실 뒤에는 쉬어야 한다. 적어도 마음이 다시 시장을 볼 수 있을 때까지는 기다려야 한다. 손실을 되찾는 가장 좋은 방법은 곧바로 더 큰 거래를 하는 것이 아니라, 다음에 더 좋은 판단을 하는 것이다.
-
-복수심은 시장에서 가장 비싼 감정 중 하나다. 분노는 방향을 보지 못하게 하고, 조급함은 규모를 키우게 하며, 억울함은 손절을 늦춘다. 시장은 이런 감정을 가진 사람에게서 천천히 돈을 가져간다.
-''',
-    ),
-    _BookChapter(
-      title: '16. 좋은 판단은 기록에서 나온다',
-      body: '''
-기억은 투자자에게 믿을 만한 도구가 아니다. 사람은 자신이 맞힌 거래를 더 선명하게 기억하고, 틀린 거래는 그럴 만한 이유가 있었다고 포장한다. 시간이 지나면 실수는 흐려지고 성공은 커진다.
-
-그래서 기록이 필요하다. 내가 왜 샀는지, 어떤 신호를 보았는지, 어디서 틀렸다고 인정할 것인지, 실제로 어떻게 행동했는지 적어두면 자기 자신을 속이기 어려워진다. 시장에서 가장 어려운 상대는 때로 시장이 아니라 자기 합리화다.
-
-기록은 단순한 일지가 아니다. 기록은 반복되는 실수를 보여준다. 어떤 사람은 늘 너무 빨리 산다. 어떤 사람은 늘 너무 늦게 판다. 어떤 사람은 손실 뒤에 무리한다. 기록이 없으면 이런 습관은 성격처럼 느껴지고, 고치기 어렵다.
-
-나는 시장을 배우는 일이 결국 자신을 배우는 일이라는 사실을 알게 되었다. 숫자는 밖에 있지만, 실수의 뿌리는 안에 있다. 기록은 그 뿌리를 보게 해준다.
-''',
-    ),
-    _BookChapter(
-      title: '17. 큰 흐름과 작은 소음',
-      body: '''
-시장은 매일 흔들린다. 그 흔들림을 모두 의미 있는 신호로 받아들이면 투자자는 금세 지친다. 어떤 움직임은 중요한 변화의 시작이지만, 어떤 움직임은 그저 하루의 소음일 뿐이다.
-
-큰 흐름을 보는 사람은 작은 흔들림에 덜 휘둘린다. 그러나 큰 흐름을 핑계로 명백한 위험 신호를 무시하면 안 된다. 이것이 어렵다. 투자자는 버텨야 할 조정과 피해야 할 전환을 구분해야 한다.
-
-이 구분은 한 번에 배워지지 않는다. 차트를 오래 본다고 자동으로 생기는 것도 아니다. 중요한 것은 미리 기준을 세우는 것이다. 어떤 조건이 유지되면 버틸 것인지, 어떤 조건이 깨지면 나올 것인지 정해두어야 한다.
-
-기준이 없는 사람은 매일 흔들린다. 가격이 오르면 희망을 키우고, 가격이 빠지면 공포에 빠진다. 기준이 있는 사람도 흔들리지만, 돌아갈 자리가 있다. 그 차이가 오래 버티는 힘이 된다.
-''',
-    ),
-    _BookChapter(
-      title: '18. 성공한 거래도 다시 검토해야 한다',
-      body: '''
-사람들은 손실 거래만 복기하려 한다. 그러나 성공한 거래도 다시 보아야 한다. 돈을 벌었다고 해서 판단이 모두 옳았던 것은 아니다. 운이 좋았을 수도 있고, 위험을 과하게 감수했는데 결과만 좋았을 수도 있다.
-
-성공한 거래를 검토하지 않으면 위험한 습관이 강화된다. 무리하게 들어갔는데 돈을 벌면, 다음에도 그렇게 해도 된다고 생각한다. 손절 기준 없이 버텼는데 살아나면, 다음에도 버티면 된다고 믿는다. 시장은 가끔 잘못된 행동에도 보상을 주는데, 그것이 더 큰 위험을 만든다.
-
-좋은 투자자는 결과와 과정을 함께 본다. 돈을 벌었는가도 중요하지만, 그 돈을 버는 과정이 반복 가능한가가 더 중요하다. 반복할 수 없는 수익은 실력이 아니라 사건에 가깝다.
-
-나는 시장에서 오래 살아남으려면 자신에게 엄격해야 한다고 배웠다. 손실 앞에서만 엄격한 것이 아니라, 수익 앞에서도 엄격해야 한다. 그래야 수익이 자만으로 바뀌지 않는다.
-''',
-    ),
-    _BookChapter(
-      title: '19. 시장에서 살아남는 사람',
-      body: '''
-시장에는 한때 크게 번 사람이 많다. 그러나 오래 살아남은 사람은 훨씬 적다. 큰 수익은 사람들의 눈에 잘 보이지만, 오래 버티는 능력은 조용해서 잘 보이지 않는다. 하지만 결국 시장에서 가장 중요한 것은 생존이다.
-
-살아남는 사람은 자신이 언제 약해지는지 안다. 어떤 상황에서 조급해지는지, 어떤 손실을 견디지 못하는지, 어떤 소문에 흔들리는지 알고 있다. 그는 시장만 연구하지 않고 자기 자신도 연구한다.
-
-또한 살아남는 사람은 기회가 없을 때 억지로 기회를 만들지 않는다. 시장이 분명하지 않으면 기다리고, 손실이 커지면 줄이고, 크게 맞았을 때도 다시 규칙으로 돌아온다. 그는 한 번의 거래로 인생을 바꾸려 하지 않는다.
-
-이 책이 오래 읽히는 이유는 시장의 기술보다 인간의 약점을 더 정확하게 보여주기 때문이다. 시대가 바뀌고 도구가 바뀌어도, 탐욕과 공포와 자존심은 크게 달라지지 않는다.
-''',
-    ),
-    _BookChapter(
-      title: '20. 마지막 장',
-      body: '''
-나는 시장에서 수많은 것을 배웠다. 가격은 말보다 정직하고, 손실은 빨리 인정할수록 작아지며, 큰돈은 조급한 손보다 기다릴 줄 아는 마음에 더 자주 온다. 그러나 이 모든 교훈은 알고 있는 것만으로는 부족하다. 실제 돈이 걸렸을 때 지킬 수 있어야 한다.
-
-투자자는 늘 두 가지 싸움을 한다. 하나는 시장과의 싸움이고, 다른 하나는 자기 자신과의 싸움이다. 시장과의 싸움에서는 이길 수도 있고 질 수도 있다. 그러나 자기 자신과의 싸움에서 계속 지면, 시장에서 오래 버틸 수 없다.
-
-좋은 판단은 화려하지 않다. 좋은 판단은 때로 지루하고, 때로 답답하고, 때로 아무것도 하지 않는 모습으로 나타난다. 하지만 그런 판단이 계좌를 지키고, 다음 기회를 가능하게 한다.
-
-시장은 내일도 열린다. 이 단순한 사실을 잊지 않는 사람은 오늘 모든 것을 걸지 않는다. 오늘 살아남아야 내일의 기회를 볼 수 있다. 그것이 이 오래된 책이 지금도 투자자에게 남기는 가장 중요한 문장이다.
-''',
-    ),
-  ];
-
-  static const englishPages = <_BookChapter>[
-    _BookChapter(
-      title: 'About This Edition',
-      body: '''
-Reminiscences of a Stock Operator
-Edwin Lefevre
-
-This reader follows the flow of the English classic and presents it in a readable app format. It is arranged as a long-form reading edition rather than a short summary, so the reader can move through the story and its lessons page by page.
-
-The story begins with a boy who works near a quotation board and becomes fascinated by the movement of prices. He watches grown men change their faces over a few points of movement. Before he understands the language of finance, he understands that prices speak in their own way.
-
-The book is not only about making money. It is about judgment, discipline, fear, greed, and the strange habit people have of ignoring the market when it disagrees with them. The operator wins, loses, rises again, and learns that the market is a severe teacher.
-''',
-    ),
-    _BookChapter(
-      title: '1. The Boy at the Quotation Board',
-      body: '''
-I was young when I first began watching prices. The office had a board where quotations were written, and men came in with hopes, fears, and opinions. A small change in price could brighten one face and darken another. I did not know much about companies then, but I knew that numbers could command men.
-
-At first I was only a boy doing a job. I wrote down prices as they came in and copied them where others could see them. But after doing the same thing day after day, I began to notice that prices had habits. They did not move exactly as men said they should. Sometimes they rose before the reason was known, and sometimes they fell while everyone still had explanations for why they ought to rise.
-
-I became less interested in what people said and more interested in what prices did. Talk was easy. Buying and selling with real money was different. The tape, as traders called it, seemed to tell a story before the crowd understood the plot.
-
-What began as a boy's curiosity slowly became the center of my life. I wanted to know when a price was ready to move, when a move was false, and when the crowd was late. The market became my classroom, and the cost of tuition would later prove very high.
-''',
-    ),
-    _BookChapter(
-      title: '2. The First Taste of Winning',
-      body: '''
-When I first risked money, I did not think of myself as a great trader. I simply believed I had watched the board long enough to see things that others missed. I knew how prices behaved when interest appeared and how they acted when a move had no strength behind it.
-
-Early success is dangerous. When a man makes money, he is tempted to believe that the money is proof of wisdom. I was no different. A few correct trades gave me confidence, and confidence soon became the desire to trade larger.
-
-At first the market seemed generous. I was right often enough to believe that the game was simple. But the market does not remain gentle with a man who grows careless. It lets him win just enough to become bold, and then it charges him for confusing boldness with skill.
-
-I learned later that the most expensive lessons are often the ones we thought we had already learned. Knowing a rule is easy. Obeying it while money is at risk is the real test.
-''',
-    ),
-    _BookChapter(
-      title: '3. The Market Does Not Wait for Explanations',
-      body: '''
-People enjoy explaining price movements after they happen. If a stock rises, they find a favorable reason. If it falls, they discover a bad rumor. But prices often move before the explanation arrives.
-
-I was not afraid of trading without a perfect explanation. I was more afraid of ignoring a clear movement because it disagreed with my opinion. The market does not explain itself politely. It moves, and the trader must decide whether to listen.
-
-Beginners often trade opinions. They buy because a company is good, because a stock has fallen a great deal, or because someone important is said to be buying. But the market does not pay a man for having an opinion. It pays him for being right in position and right in time.
-
-So I learned to listen less to talk and more to action. Words could be loud, but money was quieter and more decisive. In the end, the price was the record of what money had actually done.
-''',
-    ),
-    _BookChapter(
-      title: '4. Being Right Quickly Is Not the Same as Making Big Money',
-      body: '''
-I was good at catching small movements. A few points up or down often seemed clear to me before others saw it. But catching small movements and making large profits are not the same thing.
-
-A man who trades every small turn becomes busy. He buys, sells, takes a profit, and begins again. He may look skillful, but if he treats a great trend like a small fluctuation, he will leave the largest money on the table.
-
-The big money was not made by constant action. It was made by sitting with a correct position while the market carried it far enough. This sounds simple, but it is difficult because no good position moves in a straight line.
-
-I was right many times and still failed to make what I should have made. I sold too soon. I feared losing a profit more than I respected the trend. In time I learned that being right is only the beginning. Holding correctly is the harder art.
-''',
-    ),
-    _BookChapter(
-      title: '5. The Art of Becoming Small When Wrong',
-      body: '''
-Every trader is wrong. The difference between survival and ruin is what he does after he becomes wrong. A small loss is the market's quiet warning. If ignored, the warning becomes louder and more expensive.
-
-I enlarged losses many times. At first I told myself the price would return. Then I told myself it would be foolish to sell after such a decline. Finally the loss became so large that I no longer watched the market clearly. I watched only my own wound.
-
-Cutting a loss looks like a cold technique, but it is really emotional discipline. A man must give up pride, admit error, and abandon an idea that only a short time earlier felt certain.
-
-A small loss is the price of staying in the game. A large loss can take away the ability to play the next hand. That is why the first loss is usually the best loss.
-''',
-    ),
-    _BookChapter(
-      title: '6. Rumors Move People, Prices Move Money',
-      body: '''
-Wall Street has always been full of rumors. A company is improving, a pool is buying, an announcement is coming, an important man knows something. People love such stories because stories make uncertainty feel manageable.
-
-But a position entered on another man's word is weak. If trouble comes, the trader waits for another man's reassurance instead of reading the market. The price may already be saying that the trade is wrong, but the trader waits for the rumor to save him.
-
-Information has value, but it must not replace judgment. A rumor may be a reason to investigate, but it is not a reason to surrender responsibility. The money at risk belongs to the trader, so the final decision must also belong to him.
-
-A man may make money by accident on another man's tip. Keeping that money is another matter. If he does not know why he entered, he will not know when to leave.
-''',
-    ),
-    _BookChapter(
-      title: '7. The Quiet Beginning of a Trend',
-      body: '''
-Great movements do not always begin with noise. Often they begin quietly. The crowd is uncertain, the news is incomplete, and the price begins to lean in one direction with increasing persistence.
-
-I watched not only the price but the behavior of the price. Did it recover after a decline? Did buying appear when weakness should have continued? Did volume gather before the public became interested? Such signs often appeared before explanations.
-
-Following a trend requires courage, but not blind courage. It requires the patience to wait for evidence and the courage to act when the evidence is sufficient. Enter too early and the ordinary shaking of the market may wear you out. Enter too late and the risk may be too large.
-
-Trend trading is not the art of predicting the future. It is the art of recognizing where the market has already begun to go.
-''',
-    ),
-    _BookChapter(
-      title: '8. The Trap of Knowing Too Much',
-      body: '''
-There are many intelligent people in the market. Some understand balance sheets, some understand economics, some understand politics and interest rates, and some know an industry deeply. But knowledge alone does not guarantee profits.
-
-The danger is that knowledge can make a man stubborn. If he knows too much about a company, he may explain away a falling price because he believes the market has failed to appreciate what he knows. He thinks he is defending facts, but often he is defending his conclusion.
-
-Humility is not ignorance. Humility is the ability to say, even after careful study, that the market may be showing something I have missed. Without that humility, knowledge becomes a burden.
-
-When price moves against an idea, the question is not whether the market has insulted me. The question is whether the reason for the position still exists.
-''',
-    ),
-    _BookChapter(
-      title: '9. Why Profit Can Make a Man More Dangerous',
-      body: '''
-After a loss, many men become careful. After a large profit, many become dangerous. Profit can make a man believe that the market has confirmed his superiority.
-
-I knew that feeling. After making money, the same position size seemed too small. A larger trade seemed natural. Past success appeared to promise future safety, though the market makes no such promise.
-
-The greatest danger after profit is the loosening of rules. A man enters sooner than he should, holds a loss longer than he planned, and ignores signals he would have respected before. Confidence begins to replace discipline.
-
-After a large win, the trader must become small again in his own mind. He must return to rules before profit becomes pride.
-''',
-    ),
-    _BookChapter(
-      title: '10. Rest Is Also a Position',
-      body: '''
-Many traders think that staying out of the market is wasted time. It is not. Cash is a position. It gives a man the right to act when a real opportunity appears.
-
-The market moves every day, and movement tempts men to participate. But not every movement is an opportunity. Some movement is only noise. Some exists only to exhaust attention and capital.
-
-The good speculator is not the man who is always busy. He is the man who knows when action is required and when inaction is wiser. Without that distinction, energy is scattered across mediocre trades.
-
-I lost money many times because I could not rest. I thought the market was calling me, but often I was the one clinging to the market.
-''',
-    ),
-    _BookChapter(
-      title: '11. The Danger of Averaging Down',
-      body: '''
-When a price falls, buying more lowers the average cost. The arithmetic is simple, and that simplicity comforts people. But simple arithmetic is not always good judgment.
-
-A falling price may be falling for a reason. If a man buys more without understanding whether the original judgment remains valid, he may be increasing a mistake rather than improving a position.
-
-Averaging down is not always wrong, but unplanned averaging down is dangerous. If the trader did not decide in advance where to add, how much to add, and where to stop, the additional purchase is often emotional defense.
-
-The market does not care that a man's average cost has improved. It cares only about supply, demand, fear, greed, and money.
-''',
-    ),
-    _BookChapter(
-      title: '12. The Crowd Becomes Certain Too Late',
-      body: '''
-At first the crowd doubts a move. Then it notices. Then it believes. Finally it becomes certain, and often the last certainty comes at the highest price.
-
-Declines work the same way. At first the decline is called temporary. Then it is called an opportunity. Later it becomes frightening. At the end, those who can no longer bear the fear sell in despair.
-
-It is easy to laugh at the crowd, but every trader can become part of it. A man thinks more poorly when he is excited with others. Agreement makes an idea feel safer than it really is.
-
-The trader must observe the mood of the crowd without becoming its servant. The crowd is not always wrong, but when certainty becomes too hot, risk often becomes hot with it.
-''',
-    ),
-    _BookChapter(
-      title: '13. Leverage Enlarges the Mind as Well as the Account',
-      body: '''
-Leverage does not only enlarge profits and losses. It enlarges emotion. A small rise becomes great joy. A small decline becomes great fear.
-
-With a large position, ordinary fluctuation becomes difficult to endure. A movement that would have been harmless at normal size becomes a threat. The trader stops reading the market and begins reading his own anxiety.
-
-The leveraged trader needs discipline more than courage. He must know when to reduce, when to stop, and how much pain he can afford before the trade begins.
-
-The desire to make large money is understandable. But the market is not kinder to large desire. It often uses that desire to make a man overstay, overtrade, and overrisk.
-''',
-    ),
-    _BookChapter(
-      title: '14. Waiting Is Painful',
-      body: '''
-Waiting for a good opportunity is painful. When prices move, a man feels he ought to be doing something. Doing nothing can feel like falling behind.
-
-But waiting is not empty time. It preserves judgment, capital, and emotional strength. A man who enters casually must search for reasons later. A man who waits enters with reasons already formed.
-
-I lost money because I did not wait. A position that is only almost right can become very uncomfortable. Weak conviction cannot survive ordinary market noise.
-
-Good trading begins before the trade. It begins in the waiting.
-''',
-    ),
-    _BookChapter(
-      title: '15. The Market Does Not Allow Revenge',
-      body: '''
-After a loss, the desire to recover quickly is strong. The lost money carries pride, anger, and humiliation with it. That makes the next trade dangerous.
-
-Revenge trading is not really trading the market. It is trading one's own injury. The man increases size because he wants relief, not because the opportunity is better.
-
-The market does not know that a trader has just lost money, and if it knew, it would not care. It gives no special terms to a wounded man.
-
-After a loss, the best first action is often rest. The money will not be recovered by anger. It will be recovered, if at all, by better judgment later.
-''',
-    ),
-    _BookChapter(
-      title: '16. Judgment Comes From Records',
-      body: '''
-Memory is not reliable in speculation. A man remembers his successes clearly and explains away his mistakes. With time, errors become reasonable and wins become larger in the imagination.
-
-Records make self-deception harder. Why did I enter? What did I see? Where was I supposed to admit error? What did I actually do? Written answers reveal patterns that memory hides.
-
-One man always buys too early. Another sells too late. Another becomes reckless after a loss. Without records these habits feel like personality. With records they become visible.
-
-Learning the market is also learning oneself. The numbers are outside, but many mistakes begin inside.
-''',
-    ),
-    _BookChapter(
-      title: '17. The Main Movement and the Noise',
-      body: '''
-The market shakes every day. If every shake is treated as a major signal, the trader soon becomes exhausted. Some movements matter. Others are only noise.
-
-The trader must distinguish a normal reaction from a change in character. This is difficult. Hold too stubbornly and a real reversal becomes ruin. React too quickly and every small shake throws you out.
-
-The answer is not emotion but preparation. Before the market tests him, the trader must decide what conditions keep him in and what conditions take him out.
-
-A man without standards is moved by every price. A man with standards may still feel fear, but he has a place to return.
-''',
-    ),
-    _BookChapter(
-      title: '18. Profitable Trades Must Also Be Reviewed',
-      body: '''
-Many traders review only their losses. But winning trades must also be examined. A profit does not prove that the process was sound.
-
-Sometimes a man makes money after taking foolish risk. If he does not review the trade, the profit teaches him the wrong lesson. The market occasionally rewards bad behavior, and that reward can be dangerous.
-
-The question is not only whether money was made. The question is whether the decision can be repeated without depending on luck.
-
-A trader must be strict with profits as well as losses. Otherwise profit becomes the seed of future carelessness.
-''',
-    ),
-    _BookChapter(
-      title: '19. The Man Who Survives',
-      body: '''
-There are many people who once made large money in the market. There are fewer who survived for a long time. Large profits are visible. Survival is quieter.
-
-The survivor knows his weaknesses. He knows when he becomes impatient, what kind of loss disturbs him, and which stories tempt him. He studies himself as much as he studies prices.
-
-He does not force opportunity when none exists. He waits when the market is unclear, reduces when the trade is wrong, and returns to rules after both wins and losses.
-
-This is why the book remains alive. It is not only about old markets. It is about human nature in markets, and human nature has not changed much.
-''',
-    ),
-    _BookChapter(
-      title: '20. Final Page',
-      body: '''
-The market taught me many things. Price is more honest than talk. Losses are best when they are small. Large profits come less often from restless hands than from patient judgment.
-
-But knowing these things is not enough. They must be obeyed when money is at risk. That is where most men fail.
-
-The trader fights two battles. One is with the market. The other is with himself. He may lose to the market and recover. If he continually loses to himself, he will not last.
-
-The market will open again tomorrow. The man who remembers this does not need to risk everything today. To survive today is to keep the right to meet tomorrow's opportunity.
-''',
-    ),
-  ];
-
-  @override
-  void initState() {
-    super.initState();
-    loadSavedBookPosition();
-  }
-
-  Future<void> loadSavedBookPosition() async {
-    final prefs = await SharedPreferences.getInstance();
-    final pageKey = await userScopedPrefsKey(_bookReaderPagePrefsKey);
-    final languageKey = await userScopedPrefsKey(_bookReaderLanguagePrefsKey);
-    final savedEnglish = prefs.getBool(languageKey) ?? false;
-    final pageCount = savedEnglish ? englishPages.length : koreanPages.length;
-    final savedPage = (prefs.getInt(pageKey) ?? 0).clamp(0, pageCount - 1);
-    if (!mounted) return;
-    setState(() {
-      showEnglish = savedEnglish;
-      currentPage = savedPage;
-    });
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted && pageController.hasClients) {
-        pageController.jumpToPage(currentPage);
-      }
-    });
-  }
-
-  Future<void> saveBookPosition() async {
-    final prefs = await SharedPreferences.getInstance();
-    final pageKey = await userScopedPrefsKey(_bookReaderPagePrefsKey);
-    final languageKey = await userScopedPrefsKey(_bookReaderLanguagePrefsKey);
-    await prefs.setInt(pageKey, currentPage);
-    await prefs.setBool(languageKey, showEnglish);
-  }
-
-  @override
-  void dispose() {
-    pageController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final whiteMode = isWhiteModeEnabled(context);
-    final pageBg = whiteMode ? _lightAppBg : _appBg;
-    final cardBg = whiteMode ? _lightSurface : _darkSurface;
-    final cardLine = whiteMode ? _lightLine : _darkLineSoft;
-    final primaryText = whiteMode ? _lightText : _darkText;
-    final secondaryText = whiteMode ? _lightMuted : _darkMuted;
-    final accent = whiteMode ? _lightBlue : _cyan;
-    final pages = showEnglish ? englishPages : koreanPages;
-    final progress = '${currentPage + 1}/${pages.length}';
-    final screenTitle = showEnglish ? 'Book Reader' : '책 읽기';
-    final bookTitle =
-        showEnglish ? 'Reminiscences of a Stock Operator' : '어느 주식투자자의 회상';
-
-    void changeBookLanguage(bool next) {
-      if (showEnglish == next) return;
-      setState(() {
-        showEnglish = next;
-        currentPage = 0;
-      });
-      if (pageController.hasClients) {
-        pageController.jumpToPage(0);
-      }
-      saveBookPosition();
-    }
-
-    Widget languageButton(String label, bool value) {
-      final selected = showEnglish == value;
-      return Expanded(
-        child: GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onTap: () => changeBookLanguage(value),
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 140),
-            height: 28,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: selected ? accent : Colors.transparent,
-              borderRadius: BorderRadius.circular(9),
-            ),
-            child: FittedBox(
-              fit: BoxFit.scaleDown,
-              child: Text(
-                label,
-                maxLines: 1,
-                style: TextStyle(
-                  color: selected
-                      ? (whiteMode ? Colors.white : _appBg)
-                      : secondaryText,
-                  fontSize: 11,
-                  fontWeight: FontWeight.w900,
-                ),
-              ),
-            ),
-          ),
-        ),
-      );
-    }
-
-    return Scaffold(
-      backgroundColor: pageBg,
-      bottomNavigationBar: buildAdOnlyBottomBar(),
-      appBar: AppBar(
-        title: Text(screenTitle),
-        foregroundColor: primaryText,
-        backgroundColor: pageBg,
-        elevation: 0,
-        actions: [
-          buildWhiteModeButton(context),
-        ],
-      ),
-      body: SafeArea(
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 6, 16, 6),
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  bookTitle,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    color: primaryText,
-                    fontSize: 19,
-                    height: 1.22,
-                    fontWeight: FontWeight.w900,
-                  ),
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 8,
-                ),
-                decoration: BoxDecoration(
-                  color: cardBg,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: cardLine),
-                ),
-                child: Row(
-                  children: [
-                    SizedBox(
-                      width: 88,
-                      child: Container(
-                        padding: const EdgeInsets.all(3),
-                        decoration: BoxDecoration(
-                          color: accent.withValues(
-                            alpha: whiteMode ? 0.08 : 0.12,
-                          ),
-                          borderRadius: BorderRadius.circular(11),
-                          border: Border.all(
-                            color: accent.withValues(alpha: 0.18),
-                          ),
-                        ),
-                        child: Row(
-                          children: [
-                            languageButton('한글', false),
-                            const SizedBox(width: 3),
-                            languageButton('EN', true),
-                          ],
-                        ),
-                      ),
-                    ),
-                    const Spacer(),
-                    SizedBox(
-                      width: 62,
-                      height: 30,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 5,
-                        ),
-                        decoration: BoxDecoration(
-                          color:
-                              accent.withValues(alpha: whiteMode ? 0.08 : 0.12),
-                          borderRadius: BorderRadius.circular(999),
-                          border: Border.all(
-                            color: accent.withValues(alpha: 0.22),
-                          ),
-                        ),
-                        alignment: Alignment.center,
-                        child: FittedBox(
-                          fit: BoxFit.scaleDown,
-                          child: Text(
-                            progress,
-                            maxLines: 1,
-                            style: TextStyle(
-                              color: accent,
-                              fontSize: 11,
-                              fontWeight: FontWeight.w900,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            Expanded(
-              child: PageView.builder(
-                controller: pageController,
-                itemCount: pages.length,
-                onPageChanged: (index) {
-                  setState(() {
-                    currentPage = index;
-                  });
-                  saveBookPosition();
-                },
-                itemBuilder: (context, index) {
-                  final page = pages[index];
-                  return Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
-                    child: Container(
-                      padding: const EdgeInsets.all(18),
-                      decoration: BoxDecoration(
-                        color: cardBg,
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: cardLine),
-                      ),
-                      child: ListView(
-                        padding: EdgeInsets.zero,
-                        children: [
-                          Text(
-                            '${index + 1} 페이지',
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              color: accent,
-                              fontSize: 11,
-                              fontWeight: FontWeight.w900,
-                              letterSpacing: 0,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            page.title,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              color: primaryText,
-                              fontSize: 20,
-                              height: 1.25,
-                              fontWeight: FontWeight.w900,
-                            ),
-                          ),
-                          const SizedBox(height: 14),
-                          SelectableText(
-                            page.body,
-                            style: TextStyle(
-                              color: primaryText,
-                              fontSize: 15,
-                              height: 1.62,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: List.generate(pages.length, (index) {
-                  final selected = index == currentPage;
-                  return AnimatedContainer(
-                    duration: const Duration(milliseconds: 180),
-                    width: selected ? 18 : 6,
-                    height: 6,
-                    margin: const EdgeInsets.symmetric(horizontal: 3),
-                    decoration: BoxDecoration(
-                      color: selected
-                          ? accent
-                          : secondaryText.withValues(alpha: 0.28),
-                      borderRadius: BorderRadius.circular(999),
-                    ),
-                  );
-                }),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _BookChapter {
-  const _BookChapter({
-    required this.title,
-    required this.body,
-  });
-
-  final String title;
-  final String body;
-}
 
 class JumpDodgeGamePage extends StatefulWidget {
   const JumpDodgeGamePage({super.key});
@@ -14909,6 +14146,8 @@ class _JumpDodgeGamePageState extends State<JumpDodgeGamePage> {
   static const _playerSize = 34.0;
   static const _obstacleWidth = 24.0;
   static const _obstacleHeight = 42.0;
+  static const _leaderboardUrl =
+      'https://billowing-band-06cd.nn46099080.workers.dev/jump-dodge-leaderboard';
 
   Timer? timer;
   double playerY = 0;
@@ -14918,11 +14157,14 @@ class _JumpDodgeGamePageState extends State<JumpDodgeGamePage> {
   int bestScore = 0;
   bool running = false;
   bool gameOver = false;
+  List<Map<String, dynamic>> leaderboard = [];
+  bool leaderboardLoading = false;
 
   @override
   void initState() {
     super.initState();
     loadBestScore();
+    loadLeaderboard();
   }
 
   @override
@@ -14935,9 +14177,22 @@ class _JumpDodgeGamePageState extends State<JumpDodgeGamePage> {
     final prefs = await SharedPreferences.getInstance();
     final key = await userScopedPrefsKey(_bestScoreKey);
     if (!mounted) return;
+    final saved = prefs.getInt(key) ?? 0;
     setState(() {
-      bestScore = prefs.getInt(key) ?? 0;
+      bestScore = saved;
     });
+    if (saved > 0) {
+      // 기존 로컬 신기록을 서버에 동기화
+      try {
+        final identity = await ensureAnonymousUserIdentity();
+        await http.post(
+          Uri.parse(_leaderboardUrl),
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode({'uid': identity.uid, 'score': saved}),
+        );
+        await loadLeaderboard();
+      } catch (_) {}
+    }
   }
 
   Future<void> saveBestScore() async {
@@ -14951,6 +14206,44 @@ class _JumpDodgeGamePageState extends State<JumpDodgeGamePage> {
     });
   }
 
+  Future<void> loadLeaderboard() async {
+    if (!mounted) return;
+    setState(() => leaderboardLoading = true);
+    try {
+      final res = await http.get(Uri.parse(_leaderboardUrl));
+      if (!mounted) return;
+      if (res.statusCode == 200) {
+        final data = jsonDecode(res.body) as Map<String, dynamic>;
+        final entries = (data['entries'] as List?)
+                ?.map((e) => Map<String, dynamic>.from(e as Map))
+                .toList() ??
+            [];
+        setState(() {
+          leaderboard = entries;
+          leaderboardLoading = false;
+        });
+      } else {
+        setState(() => leaderboardLoading = false);
+      }
+    } catch (_) {
+      if (mounted) setState(() => leaderboardLoading = false);
+    }
+  }
+
+  Future<void> submitScore() async {
+    final submitTarget = math.max(score, bestScore);
+    if (submitTarget < 1) return;
+    try {
+      final identity = await ensureAnonymousUserIdentity();
+      await http.post(
+        Uri.parse(_leaderboardUrl),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'uid': identity.uid, 'score': submitTarget}),
+      );
+      await loadLeaderboard();
+    } catch (_) {}
+  }
+
   void startGame() {
     timer?.cancel();
     setState(() {
@@ -14962,15 +14255,18 @@ class _JumpDodgeGamePageState extends State<JumpDodgeGamePage> {
       gameOver = false;
     });
 
-    timer = Timer.periodic(const Duration(milliseconds: 16), (_) {
+    timer = Timer.periodic(const Duration(milliseconds: 20), (_) {
       if (!mounted || !running) return;
 
       setState(() {
-        velocity -= 0.0038;
+        // 10회 넘을 때마다 10%씩 속도 증가
+        final speedMult = math.pow(1.10, score ~/ 10).toDouble();
+        // 중력만 배율 적용 → 빠를수록 공중 시간 단축
+        velocity -= 0.0038 * speedMult;
         playerY = (playerY + velocity).clamp(0.0, 0.62);
         if (playerY == 0 && velocity < 0) velocity = 0;
 
-        final speed = 0.012 + math.min(score, 900) / 90000;
+        final speed = 0.012 * speedMult;
         obstacleX -= speed;
         if (obstacleX < -0.18) {
           obstacleX = 1.12;
@@ -14991,14 +14287,14 @@ class _JumpDodgeGamePageState extends State<JumpDodgeGamePage> {
     }
     if (playerY <= 0.01) {
       setState(() {
-        velocity = 0.078;
+        velocity = 0.078; // 점프력 고정 — 중력만 빨라지므로 속도 높을수록 체공시간 감소
       });
     }
   }
 
   bool hasCollision() {
-    final playerLeft = 0.16;
-    final playerRight = playerLeft + 0.12;
+    const playerLeft = 0.16;
+    const playerRight = playerLeft + 0.12;
     final obstacleLeft = obstacleX;
     final obstacleRight = obstacleX + 0.08;
     final horizontalHit =
@@ -15014,6 +14310,7 @@ class _JumpDodgeGamePageState extends State<JumpDodgeGamePage> {
       gameOver = true;
     });
     await saveBestScore();
+    await submitScore();
   }
 
   @override
@@ -15026,28 +14323,138 @@ class _JumpDodgeGamePageState extends State<JumpDodgeGamePage> {
     final secondaryText = whiteMode ? _lightMuted : _darkMuted;
     final accent = whiteMode ? _lightBlue : _cyan;
     final danger = whiteMode ? const Color(0xFFEF4444) : Colors.redAccent;
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: pageBg,
       bottomNavigationBar: buildAdOnlyBottomBar(),
       appBar: AppBar(
-        title: const Text('점프 장애물 피하기'),
+        title: Text(l10n.contentJumpDodge),
         foregroundColor: primaryText,
         backgroundColor: pageBg,
         elevation: 0,
-        actions: [
-          buildWhiteModeButton(context),
-        ],
+        actions: [buildWhiteModeButton(context)],
       ),
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.fromLTRB(16, 10, 16, 88),
           children: [
+            // ── 전체 신기록 리더보드 ──
+            Container(
+              padding: const EdgeInsets.fromLTRB(14, 10, 14, 10),
+              decoration: BoxDecoration(
+                color: cardBg,
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: cardLine),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(Icons.emoji_events_rounded,
+                          color: const Color(0xFFF59E0B), size: 16),
+                      const SizedBox(width: 6),
+                      Text(
+                        l10n.jumpLeaderboard,
+                        style: TextStyle(
+                          color: primaryText,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
+                      const Spacer(),
+                      if (leaderboardLoading)
+                        SizedBox(
+                          width: 14,
+                          height: 14,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: accent,
+                          ),
+                        )
+                      else
+                        GestureDetector(
+                          onTap: loadLeaderboard,
+                          child: Icon(Icons.refresh_rounded,
+                              color: secondaryText, size: 16),
+                        ),
+                    ],
+                  ),
+                  if (leaderboard.isEmpty && !leaderboardLoading)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8),
+                      child: Text(
+                        l10n.numGuessNoRecords,
+                        style: TextStyle(
+                            color: secondaryText,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500),
+                      ),
+                    )
+                  else
+                    ...leaderboard.take(10).toList().asMap().entries.map((e) {
+                      final rank = e.key + 1;
+                      final entry = e.value;
+                      final uid = entry['uid'] as String? ?? '';
+                      final entryScore = entry['score'] as int? ?? 0;
+                      final isTop3 = rank <= 3;
+                      final rankColor = rank == 1
+                          ? const Color(0xFFF59E0B)
+                          : rank == 2
+                              ? const Color(0xFF94A3B8)
+                              : rank == 3
+                                  ? const Color(0xFFCD7C2F)
+                                  : secondaryText;
+                      return Padding(
+                        padding: const EdgeInsets.only(top: 6),
+                        child: Row(
+                          children: [
+                            SizedBox(
+                              width: 22,
+                              child: Text(
+                                '$rank',
+                                style: TextStyle(
+                                  color: rankColor,
+                                  fontSize: 12,
+                                  fontWeight: isTop3
+                                      ? FontWeight.w900
+                                      : FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              child: Text(
+                                uid,
+                                style: TextStyle(
+                                  color: primaryText,
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                            Text(
+                              '$entryScore',
+                              style: TextStyle(
+                                color: accent,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w900,
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }),
+                ],
+              ),
+            ),
+            const SizedBox(height: 12),
+            // ── 점수 박스 ──
             Row(
               children: [
                 Expanded(
                   child: _GameScoreBox(
-                    label: '점수',
+                    label: l10n.jumpScore,
                     value: '$score',
                     color: accent,
                     whiteMode: whiteMode,
@@ -15056,7 +14463,7 @@ class _JumpDodgeGamePageState extends State<JumpDodgeGamePage> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: _GameScoreBox(
-                    label: '신기록',
+                    label: l10n.jumpPersonalBest,
                     value: '$bestScore',
                     color: danger,
                     whiteMode: whiteMode,
@@ -15065,9 +14472,10 @@ class _JumpDodgeGamePageState extends State<JumpDodgeGamePage> {
               ],
             ),
             const SizedBox(height: 12),
+            // ── 게임 영역 ──
             GestureDetector(
               behavior: HitTestBehavior.opaque,
-              onTap: jump,
+              onTapDown: (_) => jump(),
               child: AspectRatio(
                 aspectRatio: 1.36,
                 child: Container(
@@ -15151,7 +14559,7 @@ class _JumpDodgeGamePageState extends State<JumpDodgeGamePage> {
                                   border: Border.all(color: cardLine),
                                 ),
                                 child: Text(
-                                  gameOver ? '다시 시작하려면 탭' : '탭해서 시작',
+                                  gameOver ? l10n.jumpTapToRestart : l10n.jumpTapToStart,
                                   style: TextStyle(
                                     color: primaryText,
                                     fontSize: 16,
@@ -15167,9 +14575,9 @@ class _JumpDodgeGamePageState extends State<JumpDodgeGamePage> {
                 ),
               ),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 24),
             Text(
-              '화면을 탭해서 점프하고 장애물을 피하세요.',
+              l10n.jumpInstruction,
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: secondaryText,
@@ -15177,25 +14585,7 @@ class _JumpDodgeGamePageState extends State<JumpDodgeGamePage> {
                 fontWeight: FontWeight.w700,
               ),
             ),
-            const SizedBox(height: 12),
-            SizedBox(
-              height: 44,
-              child: FilledButton.icon(
-                style: FilledButton.styleFrom(
-                  backgroundColor: accent,
-                  foregroundColor: whiteMode ? Colors.white : _appBg,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                ),
-                onPressed: startGame,
-                icon: const Icon(Icons.refresh_rounded, size: 18),
-                label: const Text(
-                  '새 게임',
-                  style: TextStyle(fontWeight: FontWeight.w900),
-                ),
-              ),
-            ),
+            const SizedBox(height: 24),
           ],
         ),
       ),
@@ -15258,15 +14648,21 @@ class NumberGuessGamePage extends StatefulWidget {
   State<NumberGuessGamePage> createState() => _NumberGuessGamePageState();
 }
 
+enum _NumGuessMsg { prompt, invalidInput, correct, tooLow, tooHigh }
+
 class _NumberGuessGamePageState extends State<NumberGuessGamePage> {
+  static const _leaderboardUrl =
+      'https://billowing-band-06cd.nn46099080.workers.dev/number-guess-leaderboard';
+
   final guessController = TextEditingController();
   final random = math.Random();
   final rankings = <Map<String, dynamic>>[];
 
   late int answer;
   int attempts = 0;
-  String message = '1부터 100 사이 숫자를 맞춰보세요.';
+  _NumGuessMsg messageType = _NumGuessMsg.prompt;
   bool solved = false;
+  bool rankingsLoading = false;
 
   @override
   void initState() {
@@ -15282,85 +14678,76 @@ class _NumberGuessGamePageState extends State<NumberGuessGamePage> {
   }
 
   void resetGame() {
-    answer = random.nextInt(100) + 1;
+    answer = random.nextInt(1000) + 1;
     attempts = 0;
     solved = false;
-    message = '1부터 100 사이 숫자를 맞춰보세요.';
+    messageType = _NumGuessMsg.prompt;
     guessController.clear();
     if (mounted) setState(() {});
   }
 
   Future<void> loadRankings() async {
-    final prefs = await SharedPreferences.getInstance();
-    final rawItems =
-        prefs.getStringList(_numberGuessRankingPrefsKey) ?? const [];
-    final nextItems = rawItems
-        .map((raw) {
-          try {
-            final data = jsonDecode(raw) as Map<String, dynamic>;
-            return {
-              'name': (data['name'] ?? '').toString(),
-              'attempts': int.tryParse('${data['attempts']}') ?? 0,
-              'createdAt': (data['createdAt'] ?? '').toString(),
-            };
-          } catch (_) {
-            return <String, dynamic>{};
-          }
-        })
-        .where((item) =>
-            (item['name'] ?? '').toString().isNotEmpty &&
-            (item['attempts'] as int? ?? 0) > 0)
-        .toList()
-      ..sort((a, b) {
-        final attemptCompare =
-            (a['attempts'] as int).compareTo(b['attempts'] as int);
-        if (attemptCompare != 0) return attemptCompare;
-        return (b['createdAt'] as String).compareTo(a['createdAt'] as String);
-      });
-
     if (!mounted) return;
-    setState(() {
-      rankings
-        ..clear()
-        ..addAll(nextItems.take(10));
-    });
+    setState(() => rankingsLoading = true);
+    try {
+      final res = await http.get(Uri.parse(_leaderboardUrl));
+      if (!mounted) return;
+      if (res.statusCode == 200) {
+        final data = jsonDecode(res.body) as Map<String, dynamic>;
+        final entries = (data['entries'] as List?)
+                ?.map((e) => Map<String, dynamic>.from(e as Map))
+                .toList() ??
+            [];
+        setState(() {
+          rankings
+            ..clear()
+            ..addAll(entries);
+          rankingsLoading = false;
+        });
+      } else {
+        if (mounted) setState(() => rankingsLoading = false);
+      }
+    } catch (_) {
+      if (mounted) setState(() => rankingsLoading = false);
+    }
   }
 
   Future<void> recordRanking() async {
     final identity = await ensureAnonymousUserIdentity();
     final isAdmin = appUserAdminNotifier.value;
-    final entry = {
-      'name': appUserDisplayName(identity, isAdmin: isAdmin),
-      'attempts': attempts,
-      'createdAt': DateTime.now().toIso8601String(),
-    };
-    final nextItems = [entry, ...rankings]..sort((a, b) {
-        final attemptCompare =
-            (a['attempts'] as int).compareTo(b['attempts'] as int);
-        if (attemptCompare != 0) return attemptCompare;
-        return (b['createdAt'] as String).compareTo(a['createdAt'] as String);
-      });
-    final limitedItems = nextItems.take(10).toList();
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setStringList(
-      _numberGuessRankingPrefsKey,
-      limitedItems.map(jsonEncode).toList(),
-    );
-    if (!mounted) return;
-    setState(() {
-      rankings
-        ..clear()
-        ..addAll(limitedItems);
-    });
+    try {
+      final res = await http.post(
+        Uri.parse(_leaderboardUrl),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'uid': identity.uid,
+          'name': appUserDisplayName(identity, isAdmin: isAdmin),
+          'attempts': attempts,
+        }),
+      );
+      if (!mounted) return;
+      if (res.statusCode == 200) {
+        final data = jsonDecode(res.body) as Map<String, dynamic>;
+        final entries = (data['entries'] as List?)
+                ?.map((e) => Map<String, dynamic>.from(e as Map))
+                .toList() ??
+            [];
+        setState(() {
+          rankings
+            ..clear()
+            ..addAll(entries);
+        });
+      }
+    } catch (_) {}
   }
 
   void submitGuess() {
     if (solved) return;
 
     final guess = int.tryParse(guessController.text.trim()) ?? 0;
-    if (guess < 1 || guess > 100) {
+    if (guess < 1 || guess > 1000) {
       setState(() {
-        message = '1부터 100 사이 숫자를 입력해 주세요.';
+        messageType = _NumGuessMsg.invalidInput;
       });
       return;
     }
@@ -15371,11 +14758,11 @@ class _NumberGuessGamePageState extends State<NumberGuessGamePage> {
       if (guess == answer) {
         solved = true;
         completed = true;
-        message = '정답입니다. $attempts번 만에 맞췄어요.';
+        messageType = _NumGuessMsg.correct;
       } else if (guess < answer) {
-        message = '더 큰 숫자입니다.';
+        messageType = _NumGuessMsg.tooLow;
       } else {
-        message = '더 작은 숫자입니다.';
+        messageType = _NumGuessMsg.tooHigh;
       }
     });
     guessController.clear();
@@ -15402,12 +14789,20 @@ class _NumberGuessGamePageState extends State<NumberGuessGamePage> {
     final primaryText = whiteMode ? _lightText : _darkText;
     final secondaryText = whiteMode ? _lightMuted : _darkMuted;
     final accent = whiteMode ? _lightBlue : _cyan;
+    final l10n = AppLocalizations.of(context)!;
+    final message = switch (messageType) {
+      _NumGuessMsg.prompt => l10n.numGuessPrompt,
+      _NumGuessMsg.invalidInput => l10n.numGuessInvalidInput,
+      _NumGuessMsg.correct => l10n.numGuessCorrect(attempts),
+      _NumGuessMsg.tooLow => l10n.numGuessTooLow,
+      _NumGuessMsg.tooHigh => l10n.numGuessTooHigh,
+    };
 
     return Scaffold(
       backgroundColor: pageBg,
       bottomNavigationBar: buildAdOnlyBottomBar(),
       appBar: AppBar(
-        title: const Text('숫자 맞추기'),
+        title: Text(l10n.contentNumberGuess),
         foregroundColor: primaryText,
         backgroundColor: pageBg,
         elevation: 0,
@@ -15453,7 +14848,7 @@ class _NumberGuessGamePageState extends State<NumberGuessGamePage> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    '시도 횟수 $attempts',
+                    l10n.numGuessAttemptsLabel(attempts),
                     style: TextStyle(
                       color: secondaryText,
                       fontSize: 13,
@@ -15472,7 +14867,7 @@ class _NumberGuessGamePageState extends State<NumberGuessGamePage> {
                     onSubmitted: (_) => submitGuess(),
                     style: TextStyle(color: primaryText, fontSize: 15),
                     decoration: InputDecoration(
-                      labelText: '숫자 입력',
+                      labelText: l10n.numGuessInputHint,
                       labelStyle: TextStyle(color: secondaryText),
                       filled: true,
                       fillColor: whiteMode
@@ -15506,9 +14901,9 @@ class _NumberGuessGamePageState extends State<NumberGuessGamePage> {
                           ),
                           onPressed: solved ? null : submitGuess,
                           icon: const Icon(Icons.check_rounded, size: 18),
-                          label: const Text(
-                            '확인',
-                            style: TextStyle(fontWeight: FontWeight.w900),
+                          label: Text(
+                            l10n.numGuessConfirm,
+                            style: const TextStyle(fontWeight: FontWeight.w900),
                           ),
                         ),
                       ),
@@ -15519,7 +14914,7 @@ class _NumberGuessGamePageState extends State<NumberGuessGamePage> {
                         child: IconButton.filledTonal(
                           onPressed: resetGame,
                           icon: const Icon(Icons.refresh_rounded),
-                          tooltip: '새 게임',
+                          tooltip: l10n.numGuessNewGame,
                         ),
                       ),
                     ],
@@ -15547,7 +14942,7 @@ class _NumberGuessGamePageState extends State<NumberGuessGamePage> {
                       ),
                       const SizedBox(width: 7),
                       Text(
-                        '랭킹',
+                        l10n.numGuessRanking,
                         style: TextStyle(
                           color: primaryText,
                           fontSize: 16,
@@ -15557,9 +14952,18 @@ class _NumberGuessGamePageState extends State<NumberGuessGamePage> {
                     ],
                   ),
                   const SizedBox(height: 12),
-                  if (rankings.isEmpty)
+                  if (rankingsLoading)
+                    SizedBox(
+                      height: 24,
+                      width: 24,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: accent,
+                      ),
+                    )
+                  else if (rankings.isEmpty)
                     Text(
-                      '아직 기록이 없습니다.',
+                      l10n.numGuessNoRecords,
                       style: TextStyle(
                         color: secondaryText,
                         fontSize: 13,
@@ -15574,7 +14978,7 @@ class _NumberGuessGamePageState extends State<NumberGuessGamePage> {
                       final name = (item['name'] ?? '').toString();
                       final attemptCount = item['attempts'] as int;
                       final createdAt =
-                          rankingTimeText((item['createdAt'] ?? '').toString());
+                          rankingTimeText((item['at'] ?? '').toString());
                       return Padding(
                         padding: EdgeInsets.only(
                           bottom: index == rankings.length - 1 ? 0 : 9,
@@ -15605,7 +15009,7 @@ class _NumberGuessGamePageState extends State<NumberGuessGamePage> {
                               ),
                             ),
                             Text(
-                              '$attemptCount회',
+                              l10n.numGuessAttemptCount(attemptCount),
                               style: TextStyle(
                                 color: accent,
                                 fontSize: 13,
@@ -15688,8 +15092,8 @@ class _InquiryPageState extends State<InquiryPage> {
     } catch (_) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('문의 목록을 불러오지 못했습니다.'),
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.inquiryLoadError),
         ),
       );
     } finally {
@@ -15753,7 +15157,7 @@ class _InquiryPageState extends State<InquiryPage> {
     if (!mounted) return;
     if (!appUserAdminNotifier.value) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('관리자만 답변을 등록할 수 있습니다.')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.inquiryAdminOnlyReply)),
       );
       return;
     }
@@ -15762,7 +15166,7 @@ class _InquiryPageState extends State<InquiryPage> {
         replyControllerFor(inquiryId, item['answer'] ?? '').text.trim();
     if (answer.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('답변 내용을 입력해 주세요.')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.inquiryReplyEmpty)),
       );
       return;
     }
@@ -15791,7 +15195,7 @@ class _InquiryPageState extends State<InquiryPage> {
     } catch (_) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('답변 등록에 실패했습니다. 잠시 후 다시 시도해 주세요.')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.inquiryReplyError)),
       );
     } finally {
       if (mounted) {
@@ -15810,7 +15214,7 @@ class _InquiryPageState extends State<InquiryPage> {
     if (!mounted) return;
     if (!appUserAdminNotifier.value) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('관리자만 고정할 수 있습니다.')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.inquiryAdminOnlyPin)),
       );
       return;
     }
@@ -15840,7 +15244,7 @@ class _InquiryPageState extends State<InquiryPage> {
     } catch (_) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('고정 상태를 저장하지 못했습니다.')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.inquiryPinError)),
       );
     } finally {
       if (mounted) {
@@ -15859,7 +15263,7 @@ class _InquiryPageState extends State<InquiryPage> {
     if (!mounted) return;
     if (!appUserAdminNotifier.value) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('관리자만 삭제할 수 있습니다.')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.inquiryAdminOnlyDelete)),
       );
       return;
     }
@@ -15873,21 +15277,21 @@ class _InquiryPageState extends State<InquiryPage> {
         return AlertDialog(
           backgroundColor: dialogBg,
           title: Text(
-            '문의 삭제',
+            AppLocalizations.of(context)!.inquiryDeleteTitle,
             style: TextStyle(color: primaryText, fontWeight: FontWeight.w900),
           ),
           content: Text(
-            '이 문의를 삭제할까요?',
+            AppLocalizations.of(context)!.inquiryDeleteConfirm,
             style: TextStyle(color: primaryText),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(dialogContext, false),
-              child: const Text('취소'),
+              child: Text(AppLocalizations.of(context)!.inquiryCancel),
             ),
             FilledButton(
               onPressed: () => Navigator.pop(dialogContext, true),
-              child: const Text('삭제'),
+              child: Text(AppLocalizations.of(context)!.inquiryDeleteAction),
             ),
           ],
         );
@@ -15919,7 +15323,7 @@ class _InquiryPageState extends State<InquiryPage> {
     } catch (_) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('삭제에 실패했습니다. 잠시 후 다시 시도해 주세요.')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.inquiryDeleteError)),
       );
     } finally {
       if (mounted) {
@@ -15951,8 +15355,8 @@ class _InquiryPageState extends State<InquiryPage> {
 
     if (content.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('문의 내용을 입력해 주세요.'),
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.inquiryContentEmpty),
         ),
       );
       return;
@@ -15983,8 +15387,8 @@ class _InquiryPageState extends State<InquiryPage> {
     } catch (_) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('문의 등록에 실패했습니다. 잠시 후 다시 시도해 주세요.'),
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.inquirySubmitError),
         ),
       );
     } finally {
@@ -16010,7 +15414,7 @@ class _InquiryPageState extends State<InquiryPage> {
           return AlertDialog(
             backgroundColor: dialogBg,
             title: Text(
-              '관리자',
+              AppLocalizations.of(context)!.inquiryAdminLabel,
               style: TextStyle(
                 color: primaryText,
                 fontWeight: FontWeight.w900,
@@ -16022,7 +15426,7 @@ class _InquiryPageState extends State<InquiryPage> {
               autofocus: true,
               style: TextStyle(color: primaryText),
               decoration: InputDecoration(
-                labelText: '비밀번호',
+                labelText: AppLocalizations.of(context)!.inquiryPasswordLabel,
                 labelStyle: TextStyle(color: secondaryText),
               ),
               onSubmitted: (_) => Navigator.pop(dialogContext, true),
@@ -16030,11 +15434,11 @@ class _InquiryPageState extends State<InquiryPage> {
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(dialogContext, false),
-                child: const Text('취소'),
+                child: Text(AppLocalizations.of(context)!.inquiryCancel),
               ),
               FilledButton(
                 onPressed: () => Navigator.pop(dialogContext, true),
-                child: const Text('확인'),
+                child: Text(AppLocalizations.of(context)!.numGuessConfirm),
               ),
             ],
           );
@@ -16045,16 +15449,21 @@ class _InquiryPageState extends State<InquiryPage> {
 
       if (passwordController.text.trim() != _ownerAdminPassword) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('비밀번호가 맞지 않습니다.')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.inquiryPasswordWrong)),
         );
         return;
       }
 
       await activateOwnerAdminIdentity();
+      final adminFcmToken = await FirebaseMessaging.instance.getToken();
+      bool registered = false;
+      if (adminFcmToken != null && adminFcmToken.isNotEmpty) {
+        registered = await registerDeviceSafely(adminFcmToken, _ownerAdminUid, await savedLanguageCode());
+      }
       if (!mounted) return;
       setState(() {});
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('관리자 권한으로 전환되었습니다.')),
+        SnackBar(content: Text(registered ? AppLocalizations.of(context)!.inquiryAdminActivatedRegistered : AppLocalizations.of(context)!.inquiryAdminActivatedFailed)),
       );
     } finally {
       passwordController.dispose();
@@ -16070,6 +15479,7 @@ class _InquiryPageState extends State<InquiryPage> {
     final primaryText = whiteMode ? _lightText : _darkText;
     final secondaryText = whiteMode ? _lightMuted : _darkMuted;
     final accent = whiteMode ? _lightBlue : _cyan;
+    final l10n = AppLocalizations.of(context)!;
     final totalInquiryPages = inquiries.isEmpty
         ? 1
         : ((inquiries.length - 1) / _inquiriesPerPage).floor() + 1;
@@ -16118,234 +15528,241 @@ class _InquiryPageState extends State<InquiryPage> {
         backgroundColor: Colors.transparent,
         builder: (detailContext) {
           final keyboardBottom = MediaQuery.viewInsetsOf(detailContext).bottom;
-          return AnimatedPadding(
-            duration: const Duration(milliseconds: 180),
-            curve: Curves.easeOutCubic,
-            padding: EdgeInsets.only(bottom: keyboardBottom),
-            child: FractionallySizedBox(
-              heightFactor: keyboardBottom > 0 ? 0.96 : 0.86,
-              child: Container(
-                decoration: BoxDecoration(
-                  color: pageBg,
-                  borderRadius: const BorderRadius.vertical(
-                    top: Radius.circular(22),
-                  ),
+          return FractionallySizedBox(
+            heightFactor: 0.92,
+            child: Container(
+              decoration: BoxDecoration(
+                color: pageBg,
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(22),
                 ),
-                child: SafeArea(
-                  top: false,
-                  child: ListView(
-                    keyboardDismissBehavior:
-                        ScrollViewKeyboardDismissBehavior.onDrag,
-                    padding: EdgeInsets.fromLTRB(
-                      16,
-                      14,
-                      16,
-                      keyboardBottom > 0 ? 120 : 22,
-                    ),
-                    children: [
-                      Center(
-                        child: Container(
-                          width: 36,
-                          height: 4,
-                          decoration: BoxDecoration(
-                            color: secondaryText.withValues(alpha: 0.35),
-                            borderRadius: BorderRadius.circular(99),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 14),
-                      Row(
+              ),
+              child: SafeArea(
+                top: false,
+                child: Column(
+                  children: [
+                    Expanded(
+                      child: ListView(
+                        keyboardDismissBehavior:
+                            ScrollViewKeyboardDismissBehavior.onDrag,
+                        padding: const EdgeInsets.fromLTRB(16, 14, 16, 22),
                         children: [
-                          Icon(
-                            Icons.help_outline_rounded,
-                            color: accent,
-                            size: 18,
-                          ),
-                          const SizedBox(width: 7),
-                          Expanded(
-                            child: Text(
-                              '문의 내용',
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                color: primaryText,
-                                fontSize: 15,
-                                fontWeight: FontWeight.w900,
+                          Center(
+                            child: Container(
+                              width: 36,
+                              height: 4,
+                              decoration: BoxDecoration(
+                                color: secondaryText.withValues(alpha: 0.35),
+                                borderRadius: BorderRadius.circular(99),
                               ),
                             ),
                           ),
-                          if (pinned)
-                            Icon(
-                              Icons.push_pin_rounded,
-                              color: accent,
-                              size: 16,
-                            ),
-                          const SizedBox(width: 8),
-                          Text(
-                            item['createdAt'] ?? '',
-                            style: TextStyle(
-                              color: secondaryText,
-                              fontSize: 11,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 14),
-                      Container(
-                        padding: const EdgeInsets.all(14),
-                        decoration: BoxDecoration(
-                          color: cardBg,
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: cardLine),
-                        ),
-                        child: Text(
-                          item['content'] ?? '',
-                          style: TextStyle(
-                            color: primaryText,
-                            fontSize: 14,
-                            height: 1.5,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                      ),
-                      if (answer.isNotEmpty) ...[
-                        const SizedBox(height: 12),
-                        Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: accent.withValues(
-                              alpha: whiteMode ? 0.08 : 0.12,
-                            ),
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(
-                              color: accent.withValues(alpha: 0.28),
-                            ),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                          const SizedBox(height: 14),
+                          Row(
                             children: [
-                              Row(
-                                children: [
-                                  Icon(
-                                    Icons.admin_panel_settings_rounded,
-                                    color: accent,
-                                    size: 16,
-                                  ),
-                                  const SizedBox(width: 6),
-                                  Expanded(
-                                    child: Text(
-                                      '관리자 답변',
-                                      style: TextStyle(
-                                        color: accent,
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w900,
-                                      ),
-                                    ),
-                                  ),
-                                  if (answeredAt.isNotEmpty)
-                                    Text(
-                                      answeredAt,
-                                      style: TextStyle(
-                                        color: secondaryText,
-                                        fontSize: 10,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                ],
+                              Icon(
+                                Icons.help_outline_rounded,
+                                color: accent,
+                                size: 18,
                               ),
-                              const SizedBox(height: 8),
-                              Text(
-                                answer,
-                                style: TextStyle(
-                                  color: primaryText,
-                                  fontSize: 13,
-                                  height: 1.45,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                      if (canManageInquiry) ...[
-                        const SizedBox(height: 14),
-                        TextField(
-                          controller: replyController,
-                          minLines: 3,
-                          maxLines: 7,
-                          textInputAction: TextInputAction.newline,
-                          style: TextStyle(color: primaryText, fontSize: 13),
-                          decoration: inputDecoration(
-                            answer.isEmpty ? '관리자 답변' : '답변 수정',
-                          ),
-                        ),
-                        const SizedBox(height: 10),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: FilledButton.icon(
-                                style: FilledButton.styleFrom(
-                                  backgroundColor: accent,
-                                  foregroundColor:
-                                      whiteMode ? Colors.white : _appBg,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                ),
-                                onPressed: replying
-                                    ? null
-                                    : () => submitInquiryReply(item),
-                                icon: replying
-                                    ? SizedBox(
-                                        width: 14,
-                                        height: 14,
-                                        child: CircularProgressIndicator(
-                                          strokeWidth: 2,
-                                          color:
-                                              whiteMode ? Colors.white : _appBg,
-                                        ),
-                                      )
-                                    : const Icon(Icons.reply_rounded, size: 17),
-                                label: Text(
-                                  replying ? '저장 중' : '답변 등록',
-                                  style: const TextStyle(
+                              const SizedBox(width: 7),
+                              Expanded(
+                                child: Text(
+                                  l10n.inquiryContentDetailLabel,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    color: primaryText,
+                                    fontSize: 15,
                                     fontWeight: FontWeight.w900,
                                   ),
                                 ),
                               ),
+                              if (pinned)
+                                Icon(
+                                  Icons.push_pin_rounded,
+                                  color: accent,
+                                  size: 16,
+                                ),
+                              const SizedBox(width: 8),
+                              Text(
+                                item['createdAt'] ?? '',
+                                style: TextStyle(
+                                  color: secondaryText,
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 14),
+                          Container(
+                            padding: const EdgeInsets.all(14),
+                            decoration: BoxDecoration(
+                              color: cardBg,
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(color: cardLine),
                             ),
-                            const SizedBox(width: 8),
-                            SizedBox(
-                              height: 40,
-                              width: 46,
-                              child: IconButton.filledTonal(
-                                tooltip: '문의 삭제',
-                                onPressed: deleting
-                                    ? null
-                                    : () async {
-                                        await deleteInquiry(item);
-                                        if (detailContext.mounted) {
-                                          Navigator.pop(detailContext);
-                                        }
-                                      },
-                                icon: deleting
-                                    ? const SizedBox(
-                                        width: 14,
-                                        height: 14,
-                                        child: CircularProgressIndicator(
-                                          strokeWidth: 2,
+                            child: Text(
+                              item['content'] ?? '',
+                              style: TextStyle(
+                                color: primaryText,
+                                fontSize: 14,
+                                height: 1.5,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ),
+                          if (answer.isNotEmpty) ...[
+                            const SizedBox(height: 12),
+                            Container(
+                              width: double.infinity,
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: accent.withValues(
+                                  alpha: whiteMode ? 0.08 : 0.12,
+                                ),
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                  color: accent.withValues(alpha: 0.28),
+                                ),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Icon(
+                                        Icons.admin_panel_settings_rounded,
+                                        color: accent,
+                                        size: 16,
+                                      ),
+                                      const SizedBox(width: 6),
+                                      Expanded(
+                                        child: Text(
+                                          l10n.inquiryAdminReplyLabel,
+                                          style: TextStyle(
+                                            color: accent,
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w900,
+                                          ),
                                         ),
-                                      )
-                                    : const Icon(Icons.delete_outline_rounded),
+                                      ),
+                                      if (answeredAt.isNotEmpty)
+                                        Text(
+                                          answeredAt,
+                                          style: TextStyle(
+                                            color: secondaryText,
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    answer,
+                                    style: TextStyle(
+                                      color: primaryText,
+                                      fontSize: 13,
+                                      height: 1.45,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                           ],
+                        ],
+                      ),
+                    ),
+                    if (canManageInquiry)
+                      AnimatedPadding(
+                        duration: const Duration(milliseconds: 180),
+                        curve: Curves.easeOutCubic,
+                        padding: EdgeInsets.fromLTRB(16, 8, 16, 12 + keyboardBottom),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            TextField(
+                              controller: replyController,
+                              minLines: 3,
+                              maxLines: 5,
+                              textInputAction: TextInputAction.newline,
+                              style: TextStyle(color: primaryText, fontSize: 13),
+                              decoration: inputDecoration(
+                                answer.isEmpty ? l10n.inquiryAdminReplyLabel : l10n.inquiryAdminReplyEdit,
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: FilledButton.icon(
+                                    style: FilledButton.styleFrom(
+                                      backgroundColor: accent,
+                                      foregroundColor:
+                                          whiteMode ? Colors.white : _appBg,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                    ),
+                                    onPressed: replying
+                                        ? null
+                                        : () => submitInquiryReply(item),
+                                    icon: replying
+                                        ? SizedBox(
+                                            width: 14,
+                                            height: 14,
+                                            child: CircularProgressIndicator(
+                                              strokeWidth: 2,
+                                              color: whiteMode
+                                                  ? Colors.white
+                                                  : _appBg,
+                                            ),
+                                          )
+                                        : const Icon(Icons.reply_rounded,
+                                            size: 17),
+                                    label: Text(
+                                      replying ? l10n.inquirySaving : l10n.inquirySubmitReply,
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.w900,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                SizedBox(
+                                  height: 40,
+                                  width: 46,
+                                  child: IconButton.filledTonal(
+                                    tooltip: l10n.inquiryDeleteTitle,
+                                    onPressed: deleting
+                                        ? null
+                                        : () async {
+                                            await deleteInquiry(item);
+                                            if (detailContext.mounted) {
+                                              Navigator.pop(detailContext);
+                                            }
+                                          },
+                                    icon: deleting
+                                        ? const SizedBox(
+                                            width: 14,
+                                            height: 14,
+                                            child: CircularProgressIndicator(
+                                              strokeWidth: 2,
+                                            ),
+                                          )
+                                        : const Icon(
+                                            Icons.delete_outline_rounded),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
                         ),
-                      ],
-                    ],
-                  ),
+                      ),
+                  ],
                 ),
               ),
             ),
@@ -16370,7 +15787,7 @@ class _InquiryPageState extends State<InquiryPage> {
           onTap: () => openInquiryDetail(item),
           borderRadius: BorderRadius.circular(10),
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(10),
               border: Border.all(color: cardLine),
@@ -16426,7 +15843,7 @@ class _InquiryPageState extends State<InquiryPage> {
                     child: IconButton(
                       padding: EdgeInsets.zero,
                       visualDensity: VisualDensity.compact,
-                      tooltip: pinned ? '상단 고정 해제' : '상단 고정',
+                      tooltip: pinned ? l10n.inquiryUnpin : l10n.inquiryPin,
                       onPressed: pinning ? null : () => toggleInquiryPin(item),
                       icon: pinning
                           ? SizedBox(
@@ -16465,7 +15882,7 @@ class _InquiryPageState extends State<InquiryPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             IconButton(
-              tooltip: '이전 페이지',
+              tooltip: l10n.inquiryPrevPage,
               onPressed: normalizedInquiryPage <= 0
                   ? null
                   : () {
@@ -16483,7 +15900,7 @@ class _InquiryPageState extends State<InquiryPage> {
                 border: Border.all(color: cardLine),
               ),
               child: Text(
-                '${normalizedInquiryPage + 1}페이지 / $totalInquiryPages페이지',
+                l10n.inquiryPageOf(normalizedInquiryPage + 1, totalInquiryPages),
                 style: TextStyle(
                   color: primaryText,
                   fontSize: 12,
@@ -16492,7 +15909,7 @@ class _InquiryPageState extends State<InquiryPage> {
               ),
             ),
             IconButton(
-              tooltip: '다음 페이지',
+              tooltip: l10n.inquiryNextPage,
               onPressed: normalizedInquiryPage >= totalInquiryPages - 1
                   ? null
                   : () {
@@ -16511,7 +15928,7 @@ class _InquiryPageState extends State<InquiryPage> {
       backgroundColor: pageBg,
       bottomNavigationBar: buildAdOnlyBottomBar(),
       appBar: AppBar(
-        title: const Text('문의사항'),
+        title: Text(l10n.contentInquiry),
         foregroundColor: primaryText,
         backgroundColor: pageBg,
         elevation: 0,
@@ -16524,7 +15941,7 @@ class _InquiryPageState extends State<InquiryPage> {
           padding: const EdgeInsets.fromLTRB(16, 10, 16, 88),
           children: [
             Text(
-              '문의 리스트',
+              l10n.inquiryListTitle,
               style: TextStyle(
                 color: primaryText,
                 fontSize: 17,
@@ -16548,7 +15965,7 @@ class _InquiryPageState extends State<InquiryPage> {
                   border: Border.all(color: cardLine),
                 ),
                 child: Text(
-                  '아직 등록된 문의가 없습니다.',
+                  l10n.inquiryEmpty,
                   style: TextStyle(
                     color: secondaryText,
                     fontSize: 13,
@@ -16566,7 +15983,7 @@ class _InquiryPageState extends State<InquiryPage> {
             inquiryPager(),
             const SizedBox(height: 18),
             Text(
-              '문의 작성',
+              l10n.inquiryWriteTitle,
               style: TextStyle(
                 color: primaryText,
                 fontSize: 17,
@@ -16580,7 +15997,7 @@ class _InquiryPageState extends State<InquiryPage> {
               maxLines: 8,
               textInputAction: TextInputAction.newline,
               style: TextStyle(color: primaryText, fontSize: 13),
-              decoration: inputDecoration('내용'),
+              decoration: inputDecoration(l10n.inquiryContentFieldLabel),
             ),
             const SizedBox(height: 12),
             SizedBox(
@@ -16605,7 +16022,7 @@ class _InquiryPageState extends State<InquiryPage> {
                       )
                     : const Icon(Icons.send_rounded, size: 18),
                 label: Text(
-                  submitting ? '등록 중' : '등록',
+                  submitting ? l10n.inquirySubmitting : l10n.inquirySubmitButton,
                   style: const TextStyle(fontWeight: FontWeight.w900),
                 ),
               ),
@@ -16620,7 +16037,7 @@ class _InquiryPageState extends State<InquiryPage> {
                   size: 17,
                 ),
                 label: Text(
-                  '관리자',
+                  l10n.inquiryAdminLabel,
                   style: TextStyle(
                     color: secondaryText,
                     fontWeight: FontWeight.w800,
@@ -16631,682 +16048,6 @@ class _InquiryPageState extends State<InquiryPage> {
           ],
         ),
       ),
-    );
-  }
-}
-
-class CloseGuessRankingPage extends StatefulWidget {
-  const CloseGuessRankingPage({
-    super.key,
-    required this.initialClose,
-  });
-
-  final double initialClose;
-
-  @override
-  State<CloseGuessRankingPage> createState() => _CloseGuessRankingPageState();
-}
-
-class _CloseGuessRankingPageState extends State<CloseGuessRankingPage> {
-  final idController = TextEditingController();
-  final priceController = TextEditingController();
-  final messageController = TextEditingController();
-
-  List<CloseGuessEntry> entries = [];
-  List<String> dates = [];
-  CloseGuessWinnerMessage? winnerMessage;
-  String selectedDate = '';
-  String lastSubmittedId = '';
-  String winnerMessageToken = '';
-  double referenceClose = 0;
-  bool loading = false;
-  bool started = false;
-
-  @override
-  void initState() {
-    super.initState();
-    referenceClose = widget.initialClose;
-    loadRanking();
-  }
-
-  @override
-  void dispose() {
-    idController.dispose();
-    priceController.dispose();
-    messageController.dispose();
-    super.dispose();
-  }
-
-  String todayDate() => _closeGuessSubmissionDate();
-
-  List<CloseGuessEntry> sortedEntries() {
-    final date = selectedDate.isEmpty ? todayDate() : selectedDate;
-    final next = entries.where((entry) => entry.date == date).toList()
-      ..sort((a, b) {
-        final diff = a.difference.compareTo(b.difference);
-        if (diff != 0) return diff;
-        return a.price.compareTo(b.price);
-      });
-    return next.take(5).toList();
-  }
-
-  Future<void> loadRanking({String? date}) async {
-    setState(() {
-      loading = true;
-    });
-
-    try {
-      final uri = Uri.parse(_closeGuessRankingsUrl).replace(
-        queryParameters: date == null && selectedDate.isEmpty
-            ? null
-            : {'date': date ?? selectedDate},
-      );
-      final response = await http.get(uri).timeout(const Duration(seconds: 8));
-      if (response.statusCode < 200 || response.statusCode >= 300) {
-        throw Exception('Ranking API ${response.statusCode}');
-      }
-      final ranking = CloseGuessRankingState.fromMap(
-        jsonDecode(response.body) as Map<String, dynamic>,
-      );
-      if (ranking == null) throw Exception('Invalid ranking response');
-      if (!mounted) return;
-      applyRanking(ranking);
-    } catch (_) {
-      if (!mounted) return;
-      setState(() {
-        selectedDate = selectedDate.isEmpty ? todayDate() : selectedDate;
-        dates = dates.isEmpty ? [selectedDate] : dates;
-      });
-    } finally {
-      if (mounted) {
-        setState(() {
-          loading = false;
-        });
-      }
-    }
-  }
-
-  void applyRanking(CloseGuessRankingState ranking) {
-    setState(() {
-      selectedDate = ranking.date;
-      dates = ranking.dates.isEmpty ? [ranking.date] : ranking.dates;
-      if (ranking.referenceClose > 0) {
-        referenceClose = ranking.referenceClose;
-      }
-      entries = ranking.entries
-          .map(
-            (entry) => CloseGuessEntry(
-              id: entry.id,
-              uid: entry.uid,
-              price: entry.price,
-              close: entry.close,
-              date: ranking.date,
-              submittedAt: entry.submittedAt,
-            ),
-          )
-          .toList();
-      winnerMessage = ranking.winnerMessage;
-    });
-    unawaited(refreshWinnerMessageToken());
-  }
-
-  void applyRankingWithSubmittedEntry(
-    CloseGuessRankingState ranking,
-    CloseGuessEntry submittedEntry,
-  ) {
-    final submittedForRankingDate = CloseGuessEntry(
-      id: submittedEntry.id,
-      uid: submittedEntry.uid,
-      price: submittedEntry.price,
-      close: submittedEntry.close,
-      date: ranking.date,
-      submittedAt: submittedEntry.submittedAt,
-    );
-    final mergedEntries = ranking.entries
-        .where(
-          (entry) => submittedForRankingDate.uid.isNotEmpty
-              ? entry.uid != submittedForRankingDate.uid
-              : entry.id != submittedForRankingDate.id,
-        )
-        .toList()
-      ..add(submittedForRankingDate);
-
-    applyRanking(
-      CloseGuessRankingState(
-        date: ranking.date,
-        dates: ranking.dates.contains(ranking.date)
-            ? ranking.dates
-            : [ranking.date, ...ranking.dates],
-        entries: mergedEntries,
-        referenceClose: ranking.referenceClose,
-        winnerMessage: ranking.winnerMessage,
-      ),
-    );
-  }
-
-  Future<void> saveWinnerMessageToken(
-      String date, String uid, String token) async {
-    if (date.isEmpty || uid.isEmpty || token.isEmpty) return;
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('closeGuessWinnerToken:$date:$uid', token);
-  }
-
-  Future<String> loadWinnerMessageToken(String date, String uid) async {
-    if (date.isEmpty || uid.isEmpty) return '';
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getString('closeGuessWinnerToken:$date:$uid') ?? '';
-  }
-
-  Future<void> refreshWinnerMessageToken() async {
-    final rankings = sortedEntries();
-    final winner = rankings.isEmpty ? null : rankings.first;
-    final identity = await ensureAnonymousUserIdentity();
-    final token = winner == null || winner.uid != identity.uid
-        ? ''
-        : await loadWinnerMessageToken(selectedDate, identity.uid);
-    if (!mounted) return;
-    setState(() {
-      winnerMessageToken = token;
-    });
-  }
-
-  Future<void> submitGuess() async {
-    final gameLocale = Localizations.localeOf(context);
-    final identity = await ensureAnonymousUserIdentity();
-    if (!mounted) return;
-    final isAdmin = appUserAdminNotifier.value;
-    final id = idController.text.trim().isNotEmpty
-        ? idController.text.trim()
-        : appUserDisplayName(identity, isAdmin: isAdmin);
-    final rawPrice = double.tryParse(
-          priceController.text.trim().replaceAll(',', ''),
-        ) ??
-        0;
-    final price = double.parse(rawPrice.toStringAsFixed(2));
-    final close = referenceClose > 0 ? referenceClose : widget.initialClose;
-
-    if (price <= 0 || close <= 0) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            close <= 0
-                ? localizedCloseGuessText(gameLocale, 'referenceCloseMissing')
-                : localizedCloseGuessText(gameLocale, 'idPriceMissing'),
-          ),
-        ),
-      );
-      return;
-    }
-
-    final entry = CloseGuessEntry(
-      id: id,
-      uid: identity.uid,
-      price: price,
-      close: close,
-      date: todayDate(),
-      submittedAt: DateTime.now().toIso8601String(),
-    );
-    lastSubmittedId = identity.uid;
-
-    try {
-      final response = await http
-          .post(
-            Uri.parse(_closeGuessSubmitUrl),
-            headers: {'Content-Type': 'application/json'},
-            body: jsonEncode(entry.toJson()),
-          )
-          .timeout(const Duration(seconds: 8));
-      if (response.statusCode == 403) {
-        if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-                localizedCloseGuessText(gameLocale, 'submissionWindowClosed')),
-          ),
-        );
-        return;
-      }
-      if (response.statusCode < 200 || response.statusCode >= 300) {
-        throw Exception('Ranking API ${response.statusCode}');
-      }
-      final data = jsonDecode(response.body) as Map<String, dynamic>;
-      final ranking = CloseGuessRankingState.fromMap(data);
-      if (ranking == null) throw Exception('Invalid ranking response');
-      final token = (data['winnerMessageToken'] ?? '').toString();
-      if (token.isNotEmpty) {
-        await saveWinnerMessageToken(ranking.date, identity.uid, token);
-      }
-    } catch (_) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content:
-              Text(localizedCloseGuessText(gameLocale, 'rankingUnavailable')),
-        ),
-      );
-      return;
-    }
-
-    idController.clear();
-    priceController.clear();
-    if (!mounted) return;
-    setState(() {
-      selectedDate = '';
-      winnerMessageToken = '';
-    });
-    unawaited(loadRanking());
-  }
-
-  Future<void> submitWinnerMessage() async {
-    final gameLocale = Localizations.localeOf(context);
-    final rankings = sortedEntries();
-    final winner = rankings.isEmpty ? null : rankings.first;
-    final message = messageController.text.trim();
-    final identity = await ensureAnonymousUserIdentity();
-    final token = winner == null || winner.uid != identity.uid
-        ? ''
-        : (winnerMessageToken.isNotEmpty
-            ? winnerMessageToken
-            : await loadWinnerMessageToken(selectedDate, identity.uid));
-
-    if (winner == null || token.isEmpty) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content:
-              Text(localizedCloseGuessText(gameLocale, 'winnerTokenMissing')),
-        ),
-      );
-      return;
-    }
-
-    try {
-      final response = await http
-          .post(
-            Uri.parse(_closeGuessWinnerMessageUrl),
-            headers: {'Content-Type': 'application/json'},
-            body: jsonEncode({
-              'date': selectedDate,
-              'uid': identity.uid,
-              'id': winner.id,
-              'token': token,
-              'message': message,
-            }),
-          )
-          .timeout(const Duration(seconds: 8));
-      if (response.statusCode < 200 || response.statusCode >= 300) {
-        throw Exception('Ranking API ${response.statusCode}');
-      }
-      final ranking = CloseGuessRankingState.fromMap(
-        jsonDecode(response.body) as Map<String, dynamic>,
-      );
-      if (ranking == null) throw Exception('Invalid ranking response');
-      applyRanking(ranking);
-      messageController.clear();
-    } catch (_) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content:
-              Text(localizedCloseGuessText(gameLocale, 'messageSaveFailed')),
-        ),
-      );
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final gameLocale = Localizations.localeOf(context);
-    final whiteMode = isWhiteModeEnabled(context);
-    final pageBg = whiteMode ? _lightAppBg : _appBg;
-    final cardBg = whiteMode ? _lightSurface : _darkSurface;
-    final cardLine = whiteMode ? _lightLine : _darkLineSoft;
-    final primaryText = whiteMode ? _lightText : _darkText;
-    final secondaryText = whiteMode ? _lightMuted : _darkMuted;
-    final mutedText = whiteMode ? const Color(0xFF94A3B8) : _darkFaint;
-    final accent = whiteMode ? _lightBlue : _cyan;
-    final panelBg =
-        whiteMode ? const Color(0xFFF8FAFC) : const Color(0xFF111827);
-    final rankings = sortedEntries();
-    final winner = rankings.isEmpty ? null : rankings.first;
-
-    InputDecoration inputDecoration(String label) => InputDecoration(
-          labelText: label,
-          labelStyle: TextStyle(color: secondaryText, fontSize: 12),
-          filled: true,
-          fillColor: panelBg,
-          isDense: true,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: cardLine),
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: cardLine),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: accent),
-          ),
-        );
-
-    Widget ruleCard() {
-      return Container(
-        padding: const EdgeInsets.all(18),
-        decoration: BoxDecoration(
-          color: cardBg,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: cardLine),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              width: 42,
-              height: 42,
-              decoration: BoxDecoration(
-                color: accent.withValues(alpha: whiteMode ? 0.11 : 0.16),
-                borderRadius: BorderRadius.circular(14),
-              ),
-              child: Icon(
-                Icons.emoji_events_rounded,
-                color: accent,
-                size: 24,
-              ),
-            ),
-            const SizedBox(height: 14),
-            Text(
-              localizedCloseGuessText(gameLocale, 'rulesTitle'),
-              style: TextStyle(
-                color: primaryText,
-                fontSize: 20,
-                fontWeight: FontWeight.w900,
-              ),
-            ),
-            const SizedBox(height: 10),
-            Text(
-              localizedCloseGuessText(gameLocale, 'rulesBody'),
-              style: TextStyle(
-                color: secondaryText,
-                fontSize: 13,
-                height: 1.45,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            const SizedBox(height: 14),
-            _CloseGuessRuleRow(
-              icon: Icons.edit_rounded,
-              text: localizedCloseGuessText(gameLocale, 'rule1'),
-              color: accent,
-              textColor: primaryText,
-            ),
-            const SizedBox(height: 8),
-            _CloseGuessRuleRow(
-              icon: Icons.format_list_numbered_rounded,
-              text: localizedCloseGuessText(gameLocale, 'rule2'),
-              color: accent,
-              textColor: primaryText,
-            ),
-            const SizedBox(height: 8),
-            _CloseGuessRuleRow(
-              icon: Icons.chat_bubble_rounded,
-              text: localizedCloseGuessText(gameLocale, 'rule3'),
-              color: accent,
-              textColor: primaryText,
-            ),
-            const SizedBox(height: 18),
-            SizedBox(
-              width: double.infinity,
-              height: 44,
-              child: FilledButton(
-                style: FilledButton.styleFrom(
-                  backgroundColor: accent,
-                  foregroundColor: whiteMode ? Colors.white : _appBg,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                ),
-                onPressed: () {
-                  setState(() {
-                    started = true;
-                  });
-                  if (entries.isEmpty && !loading) {
-                    unawaited(loadRanking());
-                  }
-                },
-                child: Text(
-                  localizedCloseGuessText(gameLocale, 'start'),
-                  style: TextStyle(
-                    fontWeight: FontWeight.w900,
-                    fontSize: 15,
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-
-    return Scaffold(
-      backgroundColor: pageBg,
-      bottomNavigationBar: buildAdOnlyBottomBar(),
-      appBar: AppBar(
-        title: Text(localizedCloseGuessText(gameLocale, 'title')),
-        foregroundColor: primaryText,
-        backgroundColor: pageBg,
-        elevation: 0,
-        actions: [
-          buildWhiteModeButton(context),
-        ],
-      ),
-      body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.fromLTRB(16, 10, 16, 88),
-          children: started
-              ? [
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: cardBg,
-                      borderRadius: BorderRadius.circular(18),
-                      border: Border.all(color: cardLine),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          localizedCloseGuessText(
-                              gameLocale, 'todayPrediction'),
-                          style: TextStyle(
-                            color: primaryText,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w900,
-                          ),
-                        ),
-                        const SizedBox(height: 6),
-                        Text(
-                          referenceClose > 0
-                              ? localizedCloseGuessReferenceClose(
-                                  gameLocale,
-                                  referenceClose,
-                                )
-                              : localizedCloseGuessText(
-                                  gameLocale,
-                                  'referenceCloseLoading',
-                                ),
-                          style: TextStyle(
-                            color: secondaryText,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                        const SizedBox(height: 14),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: TextField(
-                                controller: idController,
-                                textInputAction: TextInputAction.next,
-                                style:
-                                    TextStyle(color: primaryText, fontSize: 13),
-                                decoration: inputDecoration('닉네임(선택)'),
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: TextField(
-                                controller: priceController,
-                                keyboardType:
-                                    const TextInputType.numberWithOptions(
-                                  decimal: true,
-                                ),
-                                inputFormatters: [
-                                  TextInputFormatter.withFunction(
-                                      (oldValue, newValue) {
-                                    final text = newValue.text;
-                                    if (text.isEmpty) return newValue;
-                                    return RegExp(r'^\d*\.?\d{0,2}$')
-                                            .hasMatch(text)
-                                        ? newValue
-                                        : oldValue;
-                                  }),
-                                ],
-                                textInputAction: TextInputAction.done,
-                                style:
-                                    TextStyle(color: primaryText, fontSize: 13),
-                                decoration: inputDecoration('가격 0.00'),
-                                onSubmitted: (_) => submitGuess(),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 10),
-                        SizedBox(
-                          width: double.infinity,
-                          height: 42,
-                          child: FilledButton(
-                            style: FilledButton.styleFrom(
-                              backgroundColor: accent,
-                              foregroundColor:
-                                  whiteMode ? Colors.white : _appBg,
-                            ),
-                            onPressed: submitGuess,
-                            child: Text(
-                              localizedCloseGuessText(gameLocale, 'join'),
-                              style: TextStyle(fontWeight: FontWeight.w900),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 14),
-                  Container(
-                    padding: const EdgeInsets.all(14),
-                    decoration: BoxDecoration(
-                      color: cardBg,
-                      borderRadius: BorderRadius.circular(18),
-                      border: Border.all(color: cardLine),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Text(
-                                localizedCloseGuessPreviousResultTitle(
-                                    gameLocale),
-                                style: TextStyle(
-                                  color: primaryText,
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w900,
-                                ),
-                              ),
-                            ),
-                            if (loading)
-                              SizedBox(
-                                width: 16,
-                                height: 16,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  color: accent,
-                                ),
-                              ),
-                          ],
-                        ),
-                        const SizedBox(height: 12),
-                        Text(
-                          referenceClose > 0
-                              ? localizedCloseGuessPreviousClose(
-                                  gameLocale,
-                                  referenceClose,
-                                )
-                              : localizedCloseGuessText(
-                                  gameLocale,
-                                  'referenceCloseLoading',
-                                ),
-                          style: TextStyle(
-                            color: primaryText,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w900,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          localizedCloseGuessWinnerSummary(gameLocale, winner),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            color: winner == null ? mutedText : accent,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w900,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ]
-              : [
-                  ruleCard(),
-                ],
-        ),
-      ),
-    );
-  }
-}
-
-class _CloseGuessRuleRow extends StatelessWidget {
-  const _CloseGuessRuleRow({
-    required this.icon,
-    required this.text,
-    required this.color,
-    required this.textColor,
-  });
-
-  final IconData icon;
-  final String text;
-  final Color color;
-  final Color textColor;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Icon(icon, color: color, size: 17),
-        const SizedBox(width: 8),
-        Expanded(
-          child: Text(
-            text,
-            style: TextStyle(
-              color: textColor,
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-        ),
-      ],
     );
   }
 }
@@ -17340,20 +16081,13 @@ Widget buildPersistentBottomNav(
             Stack(
               clipBehavior: Clip.none,
               children: [
-                Icon(
-                  icon,
-                  color: color,
-                  size: 21,
-                ),
+                Icon(icon, color: color, size: 21),
                 if (badgeCount > 0)
                   Positioned(
                     right: -9,
                     top: -7,
                     child: Container(
-                      constraints: const BoxConstraints(
-                        minWidth: 15,
-                        minHeight: 15,
-                      ),
+                      constraints: const BoxConstraints(minWidth: 15, minHeight: 15),
                       padding: const EdgeInsets.symmetric(horizontal: 4),
                       decoration: const BoxDecoration(
                         color: Colors.redAccent,
@@ -17391,31 +16125,14 @@ Widget buildPersistentBottomNav(
 
   return Container(
     margin: EdgeInsets.zero,
-    padding: const EdgeInsets.symmetric(
-      horizontal: 6,
-      vertical: 7,
-    ),
+    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 7),
     decoration: BoxDecoration(
       color: whiteMode ? Colors.white : const Color(0xF20A1726),
       borderRadius: BorderRadius.zero,
-      border: Border(
-        top: BorderSide(color: whiteMode ? _lightLine : _cardLine),
-      ),
+      border: Border(top: BorderSide(color: whiteMode ? _lightLine : _cardLine)),
       boxShadow: whiteMode
-          ? [
-              BoxShadow(
-                color: const Color(0xFF0F172A).withValues(alpha: 0.06),
-                blurRadius: 18,
-                offset: const Offset(0, -5),
-              ),
-            ]
-          : const [
-              BoxShadow(
-                color: Colors.black54,
-                blurRadius: 18,
-                offset: Offset(0, -5),
-              ),
-            ],
+          ? [BoxShadow(color: const Color(0xFF0F172A).withValues(alpha: 0.06), blurRadius: 18, offset: const Offset(0, -5))]
+          : const [BoxShadow(color: Colors.black54, blurRadius: 18, offset: Offset(0, -5))],
     ),
     child: SafeArea(
       top: false,
@@ -17423,32 +16140,10 @@ Widget buildPersistentBottomNav(
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          item(
-            Icons.home_rounded,
-            l10n.navHome,
-            false,
-            () {
-              goHomeAndScrollTop(context);
-            },
-          ),
-          item(
-            Icons.show_chart_rounded,
-            l10n.navChart,
-            isChart,
-            () => openChartPage(context),
-          ),
-          item(
-            Icons.currency_exchange_rounded,
-            l10n.navExchange,
-            isExchange,
-            () => openExchangePage(context),
-          ),
-          item(
-            Icons.speed_rounded,
-            l10n.navFearGreed,
-            isFearGreed,
-            () => openFearGreedPage(context),
-          ),
+          item(Icons.home_rounded, l10n.navHome, false, () => goHomeAndScrollTop(context)),
+          item(Icons.show_chart_rounded, l10n.navChart, isChart, () => openChartPage(context)),
+          item(Icons.currency_exchange_rounded, l10n.navExchange, isExchange, () => openExchangePage(context)),
+          item(Icons.speed_rounded, l10n.navFearGreed, isFearGreed, () => openFearGreedPage(context)),
           ValueListenableBuilder<int>(
             valueListenable: alertBadgeCount,
             builder: (context, count, _) {
@@ -17458,43 +16153,23 @@ Widget buildPersistentBottomNav(
                 isAlert,
                 () {
                   if (isAlert) return;
-
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => const NotificationHistoryPage(),
-                    ),
-                  );
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => const NotificationHistoryPage()));
                 },
                 badgeCount: isAlert ? 0 : count,
               );
             },
           ),
-          item(
-            Icons.rule_rounded,
-            l10n.navStrategy,
-            isStrategy,
-            () {
-              if (isStrategy) return;
-
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => const StrategyPage(),
-                ),
-              );
-            },
-          ),
+          item(Icons.rule_rounded, l10n.navStrategy, isStrategy, () {
+            if (isStrategy) return;
+            Navigator.push(context, MaterialPageRoute(builder: (_) => const StrategyPage()));
+          }),
         ],
       ),
     ),
   );
 }
 
-Widget buildFixedAdBottomBar(
-  Widget nav, {
-  Widget? closeGuessWidget,
-}) {
+Widget buildFixedAdBottomBar(Widget nav, {Widget? closeGuessWidget}) {
   return ColoredBox(
     color: whiteModeNotifier.value ? _lightAppBg : _appBg,
     child: Column(
@@ -17509,10 +16184,7 @@ Widget buildFixedAdBottomBar(
             ),
           ),
         if (bottomBannerAdHeight > 0)
-          SizedBox(
-            height: bottomBannerAdHeight,
-            child: const StrategyBannerAd(),
-          ),
+          SizedBox(height: bottomBannerAdHeight, child: const StrategyBannerAd()),
         nav,
       ],
     ),
@@ -17525,10 +16197,7 @@ Widget buildAdOnlyBottomBar() {
     child: SafeArea(
       top: false,
       child: bottomBannerAdHeight > 0
-          ? SizedBox(
-              height: bottomBannerAdHeight,
-              child: const StrategyBannerAd(),
-            )
+          ? SizedBox(height: bottomBannerAdHeight, child: const StrategyBannerAd())
           : const SizedBox.shrink(),
     ),
   );

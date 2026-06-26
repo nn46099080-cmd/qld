@@ -1,4 +1,4 @@
-{
+﻿{
   "appTitle": "Alerte QLD",
   "noBuyZone": "Zone sans achat",
   "tapToViewStrategy": "Voir la stratégie",
@@ -82,7 +82,7 @@
   "guide3": "✅ Focus on long-term positioning",
   "guide4": "❌ Avoid emotional overbuying",
   "minus20Title": "Stratégie -20%",
-  "minus20Headline": "Commencer l’accumulation hebdomadaire de TQQQ avec 1 % du cash",
+  "minus20Headline": "Commencer l’accumulation hebdomadaire de TQQQ avec 1 % du cash total",
   "minus20OverviewTitle": "Strategy Overview",
   "minus20OverviewText": "This zone represents approximately a 10% correction in QQQ.\n\nSince the decline is still relatively moderate, maintaining cash reserves remains important.",
   "minus20AllocationTitle": "Suggested Allocation",
@@ -169,11 +169,11 @@
   "noBuyNextTitle": "Étape suivante",
   "noBuyNextText": "À -20 %, préparez des achats fractionnés réguliers de TQQQ.",
   "minus20ActionTitle": "Action immédiate",
-  "minus20ActionText": "Utilisez seulement 1 % du cash total une fois par semaine pour accumuler des fractions de TQQQ. N’investissez pas une grosse somme d’un coup.",
+  "minus20ActionText": "Achetez du TQQQ chaque semaine à hauteur de 1% de votre trésorerie.\nEx.) 500 $ en cash → 5 $ par semaine",
   "minus20BuyRuleTitle": "Objectif",
   "minus20BuyRuleText": "Ce réglage commence en zone -20 % afin que, si le marché évolue latéralement, de petits achats réguliers abaissent progressivement le prix moyen de TQQQ. L’objectif n’est pas de viser un gain immédiat, mais de construire un coût moyen plus bas.",
   "minus20CashTitle": "Gestion des liquidités",
-  "minus20CashText": "La majorité des liquidités doit rester disponible pour les zones -30 %, -40 % et -50 %. Même après l’utilisation du cash prévu à -50 %, le nouveau cash peut continuer à abaisser le prix moyen par accumulation hebdomadaire.",
+  "minus20CashText": "La majorité des liquidités doit rester disponible pour les zones -30 %, -40 % et -50 %. Même après l’utilisation du cash prévu à -50 %, le nouveau cash peut continuer à abaisser le prix moyen par accumulation hebdomadaire.\n\nMême si le marché évolue latéralement pendant 10 semaines ou plus, continuez à accumuler 1 % du cash total chaque semaine. Plus la phase latérale dure, plus vous accumulez de parts — il n’y a aucune raison de s’arrêter.\n\nLorsque la zone -30 % est atteinte, effectuez un achat supplémentaire unique en utilisant 20 % du cash restant à ce moment. L’accumulation hebdomadaire ne s’arrête pas — elle se poursuit en parallèle de la stratégie -30 %. L’accumulation prend fin uniquement lorsque le sommet précédent est récupéré et que le rééquilibrage a lieu.",
   "minus20AvoidTitle": "Plan de sortie",
   "minus20AvoidText": "Ne vendez pas ces parts de TQQQ à chaque petit rebond. Traitez-les comme une position à clôturer plus tard, quand un nouveau plus haut est atteint et que TQQQ est allégé.",
   "minus30ActionTitle": "Action immédiate",
@@ -249,6 +249,16 @@
   "holdAvoidText": "Ne vendez pas précipitamment à cause de la volatilité et n'achetez pas impulsivement en étant certain de la reprise.",
   "holdResetTitle": "Réinitialisation de la stratégie",
   "holdResetText": "Lorsque QLD retrouve complètement son précédent sommet, ce cycle de baisse se termine et la stratégie revient à la position initiale sans achat.",
+  "rebalanceTitle": "Zone de rééquilibrage",
+  "rebalanceHeadline": "Vendre TQQQ et revenir à la position de base",
+  "rebalanceOverviewTitle": "Aperçu de la stratégie",
+  "rebalanceOverviewText": "Le retour aux plus hauts historiques signale la fin de la phase de réponse à la crise. Il est temps de vendre le TQQQ accumulé dans les zones -20% ou inférieures et de revenir à la position de base (QLD 70%, Liquidités 30%).",
+  "rebalanceActionTitle": "Action immédiate",
+  "rebalanceActionText": "Vendez tout le TQQQ accumulé ou acheté dans les zones -20% ou inférieures. Rééquilibrez ensuite vos actifs selon la répartition de la position de base.",
+  "rebalanceCashTitle": "Objectif de liquidités",
+  "rebalanceCashText": "Après le rééquilibrage, maintenir QLD 70% et Liquidités 30%. Conserver les liquidités sécurisées comme réserve pour la prochaine baisse.",
+  "rebalanceAvoidTitle": "À éviter",
+  "rebalanceAvoidText": "Ne continuez pas à accumuler du TQQQ après la reprise des plus hauts historiques. Vendez les positions accumulées pendant la phase de crise et revenez à la position de base.",
   "investmentCalculatorTitle": "Calculateur de rendement attendu",
   "investmentCalculatorSubtitle": "Calcul composé simple basé sur la moyenne passée de QLD",
   "investmentCalculatorReturnRate": "Rendement moyen sur 10 ans",
@@ -283,13 +293,23 @@
   "investmentCurrencyRussiaRub": "Russie RUB",
   "contentTitle": "Contenus",
   "contentInquiry": "Demandes",
+  "contentInquirySubtitle": "Envoyez une question anonyme et consultez la réponse.",
+  "contentInquiryBadge": "Q&A",
   "contentCloseGuess": "Deviner la cloture",
   "contentStockQuote": "Citations boursieres",
+  "contentStockQuoteSubtitle": "Citations courtes pour affiner votre instinct d investissement.",
+  "contentStockQuoteBadge": "Quotidien",
   "contentNumberGuess": "Deviner le nombre",
-  "contentBookReader": "Lecteur de livres",
+  "contentNumberGuessSubtitle": "Mini-jeu de probabilité à apprécier sans prise de tête.",
+  "contentNumberGuessBadge": "Jeu",
+  "contentBookReader": "Colonne",
+  "contentBookReaderSubtitle": "Textes du domaine public à lire tranquillement.",
+  "contentBookReaderBadge": "Lecture",
   "contentStockMeme": "Meme boursier",
   "contentLottoNumbers": "Numeros de loto",
   "contentJumpDodge": "Jeu de saut et esquive",
+  "contentJumpDodgeSubtitle": "Mini-jeu de saut pour des sessions courtes et concentrées.",
+  "contentJumpDodgeBadge": "Action",
   "stockQuoteTitle": "Citations boursieres",
   "stockQuoteTapHint": "Touchez pour voir une autre citation.",
   "stockQuoteShuffle": "Voir une autre citation",
@@ -308,5 +328,86 @@
   "usageGuideQldTitle": "3. Acheter puis enregistrer le portefeuille",
   "usageGuideQldBody": "Utilisez la stratégie et le montant comme repère, achetez avec votre courtier, puis enregistrez quantité, prix moyen et cash dans le portefeuille de l’app.",
   "usageGuideDisclaimer": "Cette app est uniquement une référence d’investissement et ne garantit aucun profit.",
-  "usageGuideConfirm": "OK"
+  "usageGuideConfirm": "OK",
+  "bookReadingTitle": "Colonne",
+  "bookReaderPageNumber": "Page {page}",
+  "@bookReaderPageNumber": {
+    "placeholders": {
+      "page": { "type": "int" }
+    }
+  },
+  "numGuessPrompt": "Devinez un nombre entre 1 et 1000.",
+  "numGuessInvalidInput": "Veuillez entrer un nombre entre 1 et 1000.",
+  "numGuessCorrect": "Correct ! Vous avez trouvé en {attempts} essais.",
+  "@numGuessCorrect": {
+    "placeholders": {
+      "attempts": { "type": "int" }
+    }
+  },
+  "numGuessTooLow": "Le nombre est plus grand.",
+  "numGuessTooHigh": "Le nombre est plus petit.",
+  "numGuessAttemptsLabel": "Essais : {count}",
+  "@numGuessAttemptsLabel": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "numGuessInputHint": "Saisir un nombre",
+  "numGuessConfirm": "Confirmer",
+  "numGuessNewGame": "Nouveau jeu",
+  "numGuessRanking": "Classement",
+  "numGuessNoRecords": "Aucun résultat pour l'instant.",
+  "numGuessAttemptCount": "{count} essais",
+  "@numGuessAttemptCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "jumpLeaderboard": "Classement",
+  "jumpScore": "Score",
+  "jumpPersonalBest": "Meilleur score",
+  "jumpTapToRestart": "Appuyez pour recommencer",
+  "jumpTapToStart": "Appuyez pour commencer",
+  "jumpInstruction": "Appuyez pour sauter et éviter les obstacles.",
+  "inquiryLoadError": "Impossible de charger les demandes.",
+  "inquiryAdminOnlyReply": "Seuls les administrateurs peuvent répondre.",
+  "inquiryReplyEmpty": "Veuillez saisir une réponse.",
+  "inquiryReplyError": "Échec de l'envoi de la réponse. Veuillez réessayer plus tard.",
+  "inquiryAdminOnlyPin": "Seuls les administrateurs peuvent épingler.",
+  "inquiryPinError": "Impossible de sauvegarder l'état d'épinglage.",
+  "inquiryAdminOnlyDelete": "Seuls les administrateurs peuvent supprimer.",
+  "inquiryDeleteTitle": "Supprimer la demande",
+  "inquiryDeleteConfirm": "Supprimer cette demande ?",
+  "inquiryCancel": "Annuler",
+  "inquiryDeleteAction": "Supprimer",
+  "inquiryDeleteError": "Échec de la suppression. Veuillez réessayer plus tard.",
+  "inquiryContentEmpty": "Veuillez saisir votre demande.",
+  "inquirySubmitError": "Échec de l'envoi de la demande. Veuillez réessayer plus tard.",
+  "inquiryAdminLabel": "Administrateur",
+  "inquiryPasswordLabel": "Mot de passe",
+  "inquiryPasswordWrong": "Mot de passe incorrect.",
+  "inquiryAdminActivatedRegistered": "Mode admin activé (appareil enregistré)",
+  "inquiryAdminActivatedFailed": "Mode admin activé (enregistrement de l'appareil échoué)",
+  "inquiryContentDetailLabel": "Demande",
+  "inquiryAdminReplyLabel": "Réponse de l'administrateur",
+  "inquiryAdminReplyEdit": "Modifier la réponse",
+  "inquirySaving": "Enregistrement...",
+  "inquirySubmitReply": "Envoyer la réponse",
+  "inquiryPrevPage": "Page précédente",
+  "inquiryNextPage": "Page suivante",
+  "inquiryPageOf": "Page {current} / {total}",
+  "@inquiryPageOf": {
+    "placeholders": {
+      "current": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "inquiryUnpin": "Désépingler",
+  "inquiryPin": "Épingler en haut",
+  "inquiryListTitle": "Liste des demandes",
+  "inquiryEmpty": "Aucune demande pour l'instant.",
+  "inquiryWriteTitle": "Écrire une demande",
+  "inquiryContentFieldLabel": "Contenu",
+  "inquirySubmitting": "Envoi...",
+  "inquirySubmitButton": "Envoyer"
 }

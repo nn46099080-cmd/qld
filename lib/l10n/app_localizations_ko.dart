@@ -268,7 +268,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get minus20Title => '-20% 전략';
 
   @override
-  String get minus20Headline => '현금 1% 주간 TQQQ 적립 시작';
+  String get minus20Headline => '전체 현금 1% 주간 TQQQ 적립 시작';
 
   @override
   String get minus20OverviewTitle => '전략 개요';
@@ -554,7 +554,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get minus20ActionText =>
-      '전체 현금의 1%만 사용해 일주일에 한 번 TQQQ를 소수점 단위로 적립 매수합니다. 큰 금액을 한 번에 넣지 않습니다.';
+      '보유 현금의 1%씩 매주 TQQQ 적립 매수를 시작합니다.\n예) 현금 500달러 → 매주 5달러 매수';
 
   @override
   String get minus20BuyRuleTitle => '목적';
@@ -568,7 +568,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get minus20CashText =>
-      '대부분의 현금은 -30%, -40%, -50% 구간을 위해 남깁니다. -50%에서 계획된 현금을 모두 사용한 뒤에도 새로 생기는 현금은 주간 적립으로 평단을 계속 낮춥니다.';
+      '대부분의 현금은 -30%, -40%, -50% 구간을 위해 남깁니다. -50%에서 계획된 현금을 모두 사용한 뒤에도 새로 생기는 현금은 주간 적립으로 평단을 계속 낮춥니다.\n\n10주 이상 횡보가 이어지더라도 매주 1%씩 적립은 계속합니다. 횡보가 길어질수록 수량을 조금씩 늘려두는 것이 목적이며, 적립을 멈출 이유가 없습니다.\n\n이후 -30% 구간에 도달하면 그 시점에 남아 있는 현금의 20%를 한 번에 추가 매수합니다. 주간 적립은 중단하지 않고 -30% 전략과 함께 계속 이어갑니다. 적립 중단은 전고점을 회복하고 리밸런싱할 때 합니다.';
 
   @override
   String get minus20AvoidTitle => '정리 기준';
@@ -824,6 +824,40 @@ class AppLocalizationsKo extends AppLocalizations {
       'QLD가 전 고점까지 완전히 회복하면 이번 하락 사이클이 종료되고 전략은 첫 번째 매수 금지 상태로 돌아갑니다.';
 
   @override
+  String get rebalanceTitle => '리밸런싱 구간';
+
+  @override
+  String get rebalanceHeadline => 'TQQQ 정리 후 기본 포지션으로 복귀';
+
+  @override
+  String get rebalanceOverviewTitle => '전략 개요';
+
+  @override
+  String get rebalanceOverviewText =>
+      '전고점 회복은 위기 대응 단계가 종료되었음을 의미합니다. -20% 이하 구간에서 모은 TQQQ를 정리하고 기본 포지션(QLD 70%, 현금 30%)으로 복귀하기 위한 단계입니다.';
+
+  @override
+  String get rebalanceActionTitle => '즉시 행동';
+
+  @override
+  String get rebalanceActionText =>
+      '-20% 이하 구간에서 적립하거나 매수한 TQQQ를 정리합니다. 이후 보유 자산을 기본 포지션 비중에 맞게 조정합니다.';
+
+  @override
+  String get rebalanceCashTitle => '현금 기준';
+
+  @override
+  String get rebalanceCashText =>
+      '리밸런싱 후에는 QLD 70%, 현금 30% 비중을 유지합니다. 확보한 현금은 다음 하락 구간을 대비한 대기 자금으로 보관합니다.';
+
+  @override
+  String get rebalanceAvoidTitle => '금지 행동';
+
+  @override
+  String get rebalanceAvoidText =>
+      '전고점 회복 이후에도 TQQQ 적립을 계속 이어가지 않습니다. 위기 구간 대응을 위해 모은 물량은 이 단계에서 정리하고 기본 포지션으로 복귀합니다.';
+
+  @override
   String get investmentCalculatorTitle => '예상 수익률 계산기';
 
   @override
@@ -929,16 +963,40 @@ class AppLocalizationsKo extends AppLocalizations {
   String get contentInquiry => '문의사항';
 
   @override
+  String get contentInquirySubtitle => '익명 문의를 남기고 답변을 확인합니다.';
+
+  @override
+  String get contentInquiryBadge => 'Q&A';
+
+  @override
   String get contentCloseGuess => '종가 맞추기';
 
   @override
   String get contentStockQuote => '오늘의 주식 명언';
 
   @override
+  String get contentStockQuoteSubtitle => '투자 감각을 다듬는 짧은 문장을 확인합니다.';
+
+  @override
+  String get contentStockQuoteBadge => '매일';
+
+  @override
   String get contentNumberGuess => '숫자 맞추기';
 
   @override
-  String get contentBookReader => '책 읽기';
+  String get contentNumberGuessSubtitle => '가볍게 즐기는 확률형 미니게임입니다.';
+
+  @override
+  String get contentNumberGuessBadge => '게임';
+
+  @override
+  String get contentBookReader => '칼럼';
+
+  @override
+  String get contentBookReaderSubtitle => '차분히 읽을 수 있는 공개 도메인 텍스트입니다.';
+
+  @override
+  String get contentBookReaderBadge => '읽기';
 
   @override
   String get contentStockMeme => '주식 짤';
@@ -948,6 +1006,12 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get contentJumpDodge => '점프 장애물 피하기';
+
+  @override
+  String get contentJumpDodgeSubtitle => '짧게 집중해서 즐기는 점프 미니게임입니다.';
+
+  @override
+  String get contentJumpDodgeBadge => '액션';
 
   @override
   String get stockQuoteTitle => '오늘의 주식 명언';
@@ -1010,4 +1074,179 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get usageGuideConfirm => '확인';
+
+  @override
+  String get bookReadingTitle => '칼럼';
+
+  @override
+  String bookReaderPageNumber(int page) {
+    return '$page페이지';
+  }
+
+  @override
+  String get numGuessPrompt => '1부터 1000 사이 숫자를 맞춰보세요.';
+
+  @override
+  String get numGuessInvalidInput => '1부터 1000 사이 숫자를 입력해 주세요.';
+
+  @override
+  String numGuessCorrect(int attempts) {
+    return '정답입니다. $attempts번 만에 맞췄어요.';
+  }
+
+  @override
+  String get numGuessTooLow => '더 큰 숫자입니다.';
+
+  @override
+  String get numGuessTooHigh => '더 작은 숫자입니다.';
+
+  @override
+  String numGuessAttemptsLabel(int count) {
+    return '시도 횟수 $count';
+  }
+
+  @override
+  String get numGuessInputHint => '숫자 입력';
+
+  @override
+  String get numGuessConfirm => '확인';
+
+  @override
+  String get numGuessNewGame => '새 게임';
+
+  @override
+  String get numGuessRanking => '랭킹';
+
+  @override
+  String get numGuessNoRecords => '아직 기록이 없습니다.';
+
+  @override
+  String numGuessAttemptCount(int count) {
+    return '$count회';
+  }
+
+  @override
+  String get jumpLeaderboard => '전체 신기록';
+
+  @override
+  String get jumpScore => '점수';
+
+  @override
+  String get jumpPersonalBest => '내 신기록';
+
+  @override
+  String get jumpTapToRestart => '다시 시작하려면 탭';
+
+  @override
+  String get jumpTapToStart => '탭해서 시작';
+
+  @override
+  String get jumpInstruction => '화면을 탭해서 점프하고 장애물을 피하세요.';
+
+  @override
+  String get inquiryLoadError => '문의 목록을 불러오지 못했습니다.';
+
+  @override
+  String get inquiryAdminOnlyReply => '관리자만 답변을 등록할 수 있습니다.';
+
+  @override
+  String get inquiryReplyEmpty => '답변 내용을 입력해 주세요.';
+
+  @override
+  String get inquiryReplyError => '답변 등록에 실패했습니다. 잠시 후 다시 시도해 주세요.';
+
+  @override
+  String get inquiryAdminOnlyPin => '관리자만 고정할 수 있습니다.';
+
+  @override
+  String get inquiryPinError => '고정 상태를 저장하지 못했습니다.';
+
+  @override
+  String get inquiryAdminOnlyDelete => '관리자만 삭제할 수 있습니다.';
+
+  @override
+  String get inquiryDeleteTitle => '문의 삭제';
+
+  @override
+  String get inquiryDeleteConfirm => '이 문의를 삭제할까요?';
+
+  @override
+  String get inquiryCancel => '취소';
+
+  @override
+  String get inquiryDeleteAction => '삭제';
+
+  @override
+  String get inquiryDeleteError => '삭제에 실패했습니다. 잠시 후 다시 시도해 주세요.';
+
+  @override
+  String get inquiryContentEmpty => '문의 내용을 입력해 주세요.';
+
+  @override
+  String get inquirySubmitError => '문의 등록에 실패했습니다. 잠시 후 다시 시도해 주세요.';
+
+  @override
+  String get inquiryAdminLabel => '관리자';
+
+  @override
+  String get inquiryPasswordLabel => '비밀번호';
+
+  @override
+  String get inquiryPasswordWrong => '비밀번호가 맞지 않습니다.';
+
+  @override
+  String get inquiryAdminActivatedRegistered => '관리자 전환 완료 (기기 등록됨)';
+
+  @override
+  String get inquiryAdminActivatedFailed => '관리자 전환 완료 (기기 등록 실패)';
+
+  @override
+  String get inquiryContentDetailLabel => '문의 내용';
+
+  @override
+  String get inquiryAdminReplyLabel => '관리자 답변';
+
+  @override
+  String get inquiryAdminReplyEdit => '답변 수정';
+
+  @override
+  String get inquirySaving => '저장 중';
+
+  @override
+  String get inquirySubmitReply => '답변 등록';
+
+  @override
+  String get inquiryPrevPage => '이전 페이지';
+
+  @override
+  String get inquiryNextPage => '다음 페이지';
+
+  @override
+  String inquiryPageOf(int current, int total) {
+    return '$current페이지 / $total페이지';
+  }
+
+  @override
+  String get inquiryUnpin => '상단 고정 해제';
+
+  @override
+  String get inquiryPin => '상단 고정';
+
+  @override
+  String get inquiryListTitle => '문의 리스트';
+
+  @override
+  String get inquiryEmpty => '아직 등록된 문의가 없습니다.';
+
+  @override
+  String get inquiryWriteTitle => '문의 작성';
+
+  @override
+  String get inquiryContentFieldLabel => '내용';
+
+  @override
+  String get inquirySubmitting => '등록 중';
+
+  @override
+  String get inquirySubmitButton => '등록';
 }

@@ -267,7 +267,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get minus20Title => '-20%戦略';
 
   @override
-  String get minus20Headline => '現金1%で週1回TQQQ積立開始';
+  String get minus20Headline => '総現金の1%で週1回TQQQ積立開始';
 
   @override
   String get minus20OverviewTitle => '戦略概要';
@@ -550,7 +550,7 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get minus20ActionText =>
-      '総現金の1%だけを使い、週に1回TQQQを端株で積み立てます。一度に大きな金額を入れません。';
+      '保有現金の1%ずつ、毎週TQQQを積立買いします。\n例）現金500ドル → 毎週5ドル購入';
 
   @override
   String get minus20BuyRuleTitle => '目的';
@@ -564,7 +564,7 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get minus20CashText =>
-      '大半の現金は-30%、-40%、-50%ゾーンに備えて残します。-50%で計画した現金を使い切った後も、新しい現金は週次積立で平均単価を下げ続けます。';
+      '大半の現金は-30%、-40%、-50%ゾーンに備えて残します。-50%で計画した現金を使い切った後も、新しい現金は週次積立で平均単価を下げ続けます。\n\n10週以上横ばいが続いても、毎週総現金の1%ずつ積立を続けます。横ばいが長引くほど数量が増え、積立を止める理由はありません。\n\n-30%ゾーンに到達したら、その時点で残っている現金の20%を一度に追加買い付けします。週次積立は止めずに-30%戦略と並行して続けます。積立の終了は前高値を回復してリバランスするときです。';
 
   @override
   String get minus20AvoidTitle => '整理基準';
@@ -812,6 +812,40 @@ class AppLocalizationsJa extends AppLocalizations {
       'QLDが前回高値まで完全に回復すると、今回の下落サイクルは終了し、戦略は最初の購入禁止状態に戻ります。';
 
   @override
+  String get rebalanceTitle => 'リバランスゾーン';
+
+  @override
+  String get rebalanceHeadline => 'TQQQを売却して基本ポジションに戻る';
+
+  @override
+  String get rebalanceOverviewTitle => '戦略概要';
+
+  @override
+  String get rebalanceOverviewText =>
+      '過去最高値の回復は危機対応フェーズの終了を意味します。-20%以下のゾーンで積み立てたTQQQを売却し、基本ポジション（QLD 70%、現金 30%）に戻る段階です。';
+
+  @override
+  String get rebalanceActionTitle => '即時行動';
+
+  @override
+  String get rebalanceActionText =>
+      '-20%以下のゾーンで積み立てまたは購入したTQQQをすべて売却します。その後、基本ポジションの配分に合わせて資産を調整します。';
+
+  @override
+  String get rebalanceCashTitle => '現金目標';
+
+  @override
+  String get rebalanceCashText =>
+      'リバランス後はQLD 70%、現金 30%の比率を維持します。確保した現金は次の下落局面に備えた待機資金として保管します。';
+
+  @override
+  String get rebalanceAvoidTitle => '避けるべきこと';
+
+  @override
+  String get rebalanceAvoidText =>
+      '過去最高値回復後もTQQQの積み立てを続けないでください。危機フェーズで積み立てたポジションはこの段階で売却し、基本ポジションに戻ります。';
+
+  @override
   String get investmentCalculatorTitle => '予想リターン計算機';
 
   @override
@@ -916,16 +950,40 @@ class AppLocalizationsJa extends AppLocalizations {
   String get contentInquiry => 'お問い合わせ';
 
   @override
+  String get contentInquirySubtitle => '匿名でお問い合わせを送り、返答を確認します。';
+
+  @override
+  String get contentInquiryBadge => 'Q&A';
+
+  @override
   String get contentCloseGuess => '終値予想';
 
   @override
   String get contentStockQuote => '今日の投資格言';
 
   @override
+  String get contentStockQuoteSubtitle => '投資感覚を磨く短い名言を確認します。';
+
+  @override
+  String get contentStockQuoteBadge => '毎日';
+
+  @override
   String get contentNumberGuess => '数字当て';
 
   @override
-  String get contentBookReader => '本を読む';
+  String get contentNumberGuessSubtitle => '気軽に楽しめる確率型ミニゲームです。';
+
+  @override
+  String get contentNumberGuessBadge => 'ゲーム';
+
+  @override
+  String get contentBookReader => 'コラム';
+
+  @override
+  String get contentBookReaderSubtitle => 'ゆっくり読めるパブリックドメインのテキストです。';
+
+  @override
+  String get contentBookReaderBadge => '読書';
 
   @override
   String get contentStockMeme => '株式ミーム';
@@ -935,6 +993,12 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get contentJumpDodge => 'ジャンプ回避ゲーム';
+
+  @override
+  String get contentJumpDodgeSubtitle => '短時間集中して楽しむジャンプミニゲームです。';
+
+  @override
+  String get contentJumpDodgeBadge => 'アクション';
 
   @override
   String get stockQuoteTitle => '今日の投資格言';
@@ -997,4 +1061,179 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get usageGuideConfirm => 'OK';
+
+  @override
+  String get bookReadingTitle => 'コラム';
+
+  @override
+  String bookReaderPageNumber(int page) {
+    return '$pageページ';
+  }
+
+  @override
+  String get numGuessPrompt => '1から1000の数字を当ててください。';
+
+  @override
+  String get numGuessInvalidInput => '1から1000の数字を入力してください。';
+
+  @override
+  String numGuessCorrect(int attempts) {
+    return '正解！$attempts回で当てました。';
+  }
+
+  @override
+  String get numGuessTooLow => 'もっと大きい数字です。';
+
+  @override
+  String get numGuessTooHigh => 'もっと小さい数字です。';
+
+  @override
+  String numGuessAttemptsLabel(int count) {
+    return '試行回数: $count';
+  }
+
+  @override
+  String get numGuessInputHint => '数字を入力';
+
+  @override
+  String get numGuessConfirm => '確認';
+
+  @override
+  String get numGuessNewGame => '新しいゲーム';
+
+  @override
+  String get numGuessRanking => 'ランキング';
+
+  @override
+  String get numGuessNoRecords => 'まだ記録がありません。';
+
+  @override
+  String numGuessAttemptCount(int count) {
+    return '$count回';
+  }
+
+  @override
+  String get jumpLeaderboard => 'リーダーボード';
+
+  @override
+  String get jumpScore => 'スコア';
+
+  @override
+  String get jumpPersonalBest => '自己ベスト';
+
+  @override
+  String get jumpTapToRestart => 'タップして再開';
+
+  @override
+  String get jumpTapToStart => 'タップして開始';
+
+  @override
+  String get jumpInstruction => '画面をタップしてジャンプし、障害物を避けてください。';
+
+  @override
+  String get inquiryLoadError => 'お問い合わせの読み込みに失敗しました。';
+
+  @override
+  String get inquiryAdminOnlyReply => '管理者のみ返信できます。';
+
+  @override
+  String get inquiryReplyEmpty => '返信を入力してください。';
+
+  @override
+  String get inquiryReplyError => '返信の登録に失敗しました。しばらくしてから再試行してください。';
+
+  @override
+  String get inquiryAdminOnlyPin => '管理者のみ固定できます。';
+
+  @override
+  String get inquiryPinError => '固定状態の保存に失敗しました。';
+
+  @override
+  String get inquiryAdminOnlyDelete => '管理者のみ削除できます。';
+
+  @override
+  String get inquiryDeleteTitle => '問い合わせを削除';
+
+  @override
+  String get inquiryDeleteConfirm => 'この問い合わせを削除しますか？';
+
+  @override
+  String get inquiryCancel => 'キャンセル';
+
+  @override
+  String get inquiryDeleteAction => '削除';
+
+  @override
+  String get inquiryDeleteError => '削除に失敗しました。しばらくしてから再試行してください。';
+
+  @override
+  String get inquiryContentEmpty => 'お問い合わせ内容を入力してください。';
+
+  @override
+  String get inquirySubmitError => '問い合わせの登録に失敗しました。しばらくしてから再試行してください。';
+
+  @override
+  String get inquiryAdminLabel => '管理者';
+
+  @override
+  String get inquiryPasswordLabel => 'パスワード';
+
+  @override
+  String get inquiryPasswordWrong => 'パスワードが正しくありません。';
+
+  @override
+  String get inquiryAdminActivatedRegistered => '管理者モード有効 (デバイス登録済み)';
+
+  @override
+  String get inquiryAdminActivatedFailed => '管理者モード有効 (デバイス登録失敗)';
+
+  @override
+  String get inquiryContentDetailLabel => '問い合わせ内容';
+
+  @override
+  String get inquiryAdminReplyLabel => '管理者の返信';
+
+  @override
+  String get inquiryAdminReplyEdit => '返信を編集';
+
+  @override
+  String get inquirySaving => '保存中...';
+
+  @override
+  String get inquirySubmitReply => '返信を登録';
+
+  @override
+  String get inquiryPrevPage => '前のページ';
+
+  @override
+  String get inquiryNextPage => '次のページ';
+
+  @override
+  String inquiryPageOf(int current, int total) {
+    return '$currentページ / $totalページ';
+  }
+
+  @override
+  String get inquiryUnpin => '固定を解除';
+
+  @override
+  String get inquiryPin => '上部に固定';
+
+  @override
+  String get inquiryListTitle => 'お問い合わせ一覧';
+
+  @override
+  String get inquiryEmpty => 'まだ問い合わせがありません。';
+
+  @override
+  String get inquiryWriteTitle => '問い合わせを書く';
+
+  @override
+  String get inquiryContentFieldLabel => '内容';
+
+  @override
+  String get inquirySubmitting => '登録中...';
+
+  @override
+  String get inquirySubmitButton => '登録';
 }

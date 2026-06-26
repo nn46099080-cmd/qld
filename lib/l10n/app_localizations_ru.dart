@@ -277,7 +277,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get minus20Headline =>
-      'Начать еженедельное накопление TQQQ на 1% кэша';
+      'Начать еженедельное накопление TQQQ на 1% от общего кэша';
 
   @override
   String get minus20OverviewTitle => 'Strategy Overview';
@@ -572,7 +572,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get minus20ActionText =>
-      'Раз в неделю используйте только 1% общего кэша для дробного накопления TQQQ. Не вкладывайте крупную сумму сразу.';
+      'Покупайте TQQQ еженедельно на 1% от имеющихся наличных.\nПример: \$500 наличными → \$5 в неделю';
 
   @override
   String get minus20BuyRuleTitle => 'Цель';
@@ -586,7 +586,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get minus20CashText =>
-      'Большая часть кэша должна остаться для зон -30%, -40% и -50%. Даже после полного использования планового кэша на -50% новый кэш может продолжать снижать среднюю цену через еженедельное накопление.';
+      'Большая часть кэша должна остаться для зон -30%, -40% и -50%. Даже после полного использования планового кэша на -50% новый кэш может продолжать снижать среднюю цену через еженедельное накопление.\n\nДаже если рынок движется в боковике 10 и более недель, продолжайте еженедельно вкладывать 1% от общего кэша. Чем дольше боковик, тем больше накапливается долей — останавливаться не нужно.\n\nКогда достигается зона -30%, совершите разовую дополнительную покупку на 20% оставшегося на тот момент кэша. Еженедельное накопление не прекращается — оно продолжается параллельно со стратегией -30%. Накопление заканчивается только при восстановлении предыдущего максимума и проведении ребалансировки.';
 
   @override
   String get minus20AvoidTitle => 'План выхода';
@@ -854,6 +854,40 @@ class AppLocalizationsRu extends AppLocalizations {
       'Когда QLD полностью восстановится до предыдущего максимума, цикл падения завершится и стратегия вернётся в исходное состояние без покупок.';
 
   @override
+  String get rebalanceTitle => 'Зона ребалансировки';
+
+  @override
+  String get rebalanceHeadline => 'Продать TQQQ и вернуться к базовой позиции';
+
+  @override
+  String get rebalanceOverviewTitle => 'Обзор стратегии';
+
+  @override
+  String get rebalanceOverviewText =>
+      'Восстановление до исторического максимума сигнализирует о завершении фазы антикризисного реагирования. Пора продать TQQQ, накопленный в зонах -20% и ниже, и вернуться к базовой позиции (QLD 70%, Кэш 30%).';
+
+  @override
+  String get rebalanceActionTitle => 'Немедленные действия';
+
+  @override
+  String get rebalanceActionText =>
+      'Продайте весь TQQQ, накопленный или купленный в зонах -20% и ниже. Затем перераспределите активы согласно базовой позиции.';
+
+  @override
+  String get rebalanceCashTitle => 'Цель по кэшу';
+
+  @override
+  String get rebalanceCashText =>
+      'После ребалансировки поддерживать QLD 70% и Кэш 30%. Сохраняйте обеспеченный кэш как резерв для следующего падения.';
+
+  @override
+  String get rebalanceAvoidTitle => 'Чего избегать';
+
+  @override
+  String get rebalanceAvoidText =>
+      'Не продолжайте накапливать TQQQ после восстановления исторического максимума. Продайте позиции, накопленные в кризисной фазе, и вернитесь к базовой позиции.';
+
+  @override
   String get investmentCalculatorTitle => 'Калькулятор ожидаемой доходности';
 
   @override
@@ -963,16 +997,44 @@ class AppLocalizationsRu extends AppLocalizations {
   String get contentInquiry => 'Вопросы';
 
   @override
+  String get contentInquirySubtitle =>
+      'Отправьте анонимный запрос и получите ответ.';
+
+  @override
+  String get contentInquiryBadge => 'Q&A';
+
+  @override
   String get contentCloseGuess => 'Угадать закрытие';
 
   @override
   String get contentStockQuote => 'Биржевые цитаты';
 
   @override
+  String get contentStockQuoteSubtitle =>
+      'Короткие цитаты для обострения инвестиционного чутья.';
+
+  @override
+  String get contentStockQuoteBadge => 'Ежедн.';
+
+  @override
   String get contentNumberGuess => 'Угадай число';
 
   @override
-  String get contentBookReader => 'Чтение книг';
+  String get contentNumberGuessSubtitle =>
+      'Лёгкая вероятностная мини-игра для отдыха.';
+
+  @override
+  String get contentNumberGuessBadge => 'Игра';
+
+  @override
+  String get contentBookReader => 'Колонка';
+
+  @override
+  String get contentBookReaderSubtitle =>
+      'Тексты общественного достояния для спокойного чтения.';
+
+  @override
+  String get contentBookReaderBadge => 'Читать';
 
   @override
   String get contentStockMeme => 'Биржевой мем';
@@ -982,6 +1044,13 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get contentJumpDodge => 'Игра: прыгай и уклоняйся';
+
+  @override
+  String get contentJumpDodgeSubtitle =>
+      'Мини-игра с прыжками для коротких сессий.';
+
+  @override
+  String get contentJumpDodgeBadge => 'Экшен';
 
   @override
   String get stockQuoteTitle => 'Биржевые цитаты';
@@ -1049,4 +1118,184 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get usageGuideConfirm => 'OK';
+
+  @override
+  String get bookReadingTitle => 'Колонка';
+
+  @override
+  String bookReaderPageNumber(int page) {
+    return 'Стр. $page';
+  }
+
+  @override
+  String get numGuessPrompt => 'Угадайте число от 1 до 1000.';
+
+  @override
+  String get numGuessInvalidInput => 'Пожалуйста, введите число от 1 до 1000.';
+
+  @override
+  String numGuessCorrect(int attempts) {
+    return 'Правильно! Вы угадали за $attempts попытки.';
+  }
+
+  @override
+  String get numGuessTooLow => 'Число больше.';
+
+  @override
+  String get numGuessTooHigh => 'Число меньше.';
+
+  @override
+  String numGuessAttemptsLabel(int count) {
+    return 'Попытки: $count';
+  }
+
+  @override
+  String get numGuessInputHint => 'Введите число';
+
+  @override
+  String get numGuessConfirm => 'Подтвердить';
+
+  @override
+  String get numGuessNewGame => 'Новая игра';
+
+  @override
+  String get numGuessRanking => 'Рейтинг';
+
+  @override
+  String get numGuessNoRecords => 'Записей пока нет.';
+
+  @override
+  String numGuessAttemptCount(int count) {
+    return '$count попыток';
+  }
+
+  @override
+  String get jumpLeaderboard => 'Рекорды';
+
+  @override
+  String get jumpScore => 'Счёт';
+
+  @override
+  String get jumpPersonalBest => 'Личный рекорд';
+
+  @override
+  String get jumpTapToRestart => 'Нажмите для перезапуска';
+
+  @override
+  String get jumpTapToStart => 'Нажмите для начала';
+
+  @override
+  String get jumpInstruction =>
+      'Нажмите на экран, чтобы прыгать и уклоняться от препятствий.';
+
+  @override
+  String get inquiryLoadError => 'Не удалось загрузить запросы.';
+
+  @override
+  String get inquiryAdminOnlyReply => 'Только администраторы могут отвечать.';
+
+  @override
+  String get inquiryReplyEmpty => 'Пожалуйста, введите ответ.';
+
+  @override
+  String get inquiryReplyError =>
+      'Не удалось отправить ответ. Попробуйте позже.';
+
+  @override
+  String get inquiryAdminOnlyPin => 'Только администраторы могут закреплять.';
+
+  @override
+  String get inquiryPinError => 'Не удалось сохранить статус закрепления.';
+
+  @override
+  String get inquiryAdminOnlyDelete => 'Только администраторы могут удалять.';
+
+  @override
+  String get inquiryDeleteTitle => 'Удалить запрос';
+
+  @override
+  String get inquiryDeleteConfirm => 'Удалить этот запрос?';
+
+  @override
+  String get inquiryCancel => 'Отмена';
+
+  @override
+  String get inquiryDeleteAction => 'Удалить';
+
+  @override
+  String get inquiryDeleteError => 'Не удалось удалить. Попробуйте позже.';
+
+  @override
+  String get inquiryContentEmpty => 'Пожалуйста, введите ваш запрос.';
+
+  @override
+  String get inquirySubmitError =>
+      'Не удалось отправить запрос. Попробуйте позже.';
+
+  @override
+  String get inquiryAdminLabel => 'Администратор';
+
+  @override
+  String get inquiryPasswordLabel => 'Пароль';
+
+  @override
+  String get inquiryPasswordWrong => 'Неверный пароль.';
+
+  @override
+  String get inquiryAdminActivatedRegistered =>
+      'Режим администратора включён (устройство зарегистрировано)';
+
+  @override
+  String get inquiryAdminActivatedFailed =>
+      'Режим администратора включён (ошибка регистрации устройства)';
+
+  @override
+  String get inquiryContentDetailLabel => 'Запрос';
+
+  @override
+  String get inquiryAdminReplyLabel => 'Ответ администратора';
+
+  @override
+  String get inquiryAdminReplyEdit => 'Редактировать ответ';
+
+  @override
+  String get inquirySaving => 'Сохранение...';
+
+  @override
+  String get inquirySubmitReply => 'Отправить ответ';
+
+  @override
+  String get inquiryPrevPage => 'Предыдущая страница';
+
+  @override
+  String get inquiryNextPage => 'Следующая страница';
+
+  @override
+  String inquiryPageOf(int current, int total) {
+    return 'Страница $current / $total';
+  }
+
+  @override
+  String get inquiryUnpin => 'Открепить';
+
+  @override
+  String get inquiryPin => 'Закрепить';
+
+  @override
+  String get inquiryListTitle => 'Список запросов';
+
+  @override
+  String get inquiryEmpty => 'Запросов пока нет.';
+
+  @override
+  String get inquiryWriteTitle => 'Написать запрос';
+
+  @override
+  String get inquiryContentFieldLabel => 'Содержание';
+
+  @override
+  String get inquirySubmitting => 'Отправка...';
+
+  @override
+  String get inquirySubmitButton => 'Отправить';
 }

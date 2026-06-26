@@ -278,7 +278,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get minus20Headline =>
-      'Wöchentliche TQQQ-Akkumulation mit 1% Cash starten';
+      'Wöchentliche TQQQ-Akkumulation mit 1% des Gesamtcashs starten';
 
   @override
   String get minus20OverviewTitle => 'Strategy Overview';
@@ -572,7 +572,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get minus20ActionText =>
-      'Einmal pro Woche nur 1% des gesamten Cashs verwenden, um TQQQ fraktional zu sammeln. Keinen großen Betrag auf einmal einsetzen.';
+      'Kaufen Sie wöchentlich TQQQ mit 1% Ihres Bargeldbestands.\nBsp.) 500 \$ Bargeld → 5 \$ pro Woche kaufen';
 
   @override
   String get minus20BuyRuleTitle => 'Zweck';
@@ -586,7 +586,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get minus20CashText =>
-      'Der größte Teil des Cashs bleibt für -30%, -40% und -50% verfügbar. Selbst wenn das geplante Cash bei -50% vollständig eingesetzt ist, kann neues Cash über wöchentliche Akkumulation den Durchschnitt weiter senken.';
+      'Der größte Teil des Cashs bleibt für -30%, -40% und -50% verfügbar. Selbst wenn das geplante Cash bei -50% vollständig eingesetzt ist, kann neues Cash über wöchentliche Akkumulation den Durchschnitt weiter senken.\n\nSelbst wenn der Markt 10 oder mehr Wochen seitwärts läuft, wird wöchentlich 1% des gesamten Cashs weiter angesammelt. Je länger die Seitwärtsphase, desto mehr Anteile werden aufgebaut — es gibt keinen Grund aufzuhören.\n\nSobald die -30%-Zone erreicht ist, wird einmalig 20% des zu diesem Zeitpunkt verbleibenden Cashs zusätzlich investiert. Die wöchentliche Akkumulation wird nicht gestoppt — sie läuft parallel zur -30%-Strategie weiter. Die Akkumulation endet erst, wenn das vorherige Hoch zurückerobert und ein Rebalancing durchgeführt wird.';
 
   @override
   String get minus20AvoidTitle => 'Ausstiegsplan';
@@ -853,6 +853,41 @@ class AppLocalizationsDe extends AppLocalizations {
       'Wenn sich QLD vollständig bis zum vorherigen Hoch erholt, endet dieser Rückgangszyklus und die Strategie kehrt zur anfänglichen Kaufverbotsposition zurück.';
 
   @override
+  String get rebalanceTitle => 'Rebalancing-Zone';
+
+  @override
+  String get rebalanceHeadline =>
+      'TQQQ verkaufen und zur Basisposition zurückkehren';
+
+  @override
+  String get rebalanceOverviewTitle => 'Strategieübersicht';
+
+  @override
+  String get rebalanceOverviewText =>
+      'Die Erholung auf ein Allzeithoch signalisiert das Ende der Krisenreaktionsphase. Jetzt ist es Zeit, das in den -20%-Zonen oder darunter angesammelte TQQQ zu verkaufen und zur Basisposition (QLD 70%, Cash 30%) zurückzukehren.';
+
+  @override
+  String get rebalanceActionTitle => 'Sofortmaßnahme';
+
+  @override
+  String get rebalanceActionText =>
+      'Verkaufen Sie alle TQQQ, die in den -20%-Zonen oder darunter angesammelt oder gekauft wurden. Passen Sie dann Ihre Vermögenswerte gemäß der Basispositionsaufteilung an.';
+
+  @override
+  String get rebalanceCashTitle => 'Cash-Ziel';
+
+  @override
+  String get rebalanceCashText =>
+      'Nach dem Rebalancing QLD 70% und Cash 30% halten. Das gesicherte Cash als Reserve für den nächsten Abschwung aufbewahren.';
+
+  @override
+  String get rebalanceAvoidTitle => 'Was zu vermeiden ist';
+
+  @override
+  String get rebalanceAvoidText =>
+      'Setzen Sie die TQQQ-Akkumulation nach der Allzeithoch-Erholung nicht fort. Verkaufen Sie die in der Krisenphase angesammelten Positionen in dieser Phase und kehren Sie zur Basisposition zurück.';
+
+  @override
   String get investmentCalculatorTitle => 'Rechner für erwartete Rendite';
 
   @override
@@ -962,16 +997,44 @@ class AppLocalizationsDe extends AppLocalizations {
   String get contentInquiry => 'Anfragen';
 
   @override
+  String get contentInquirySubtitle =>
+      'Anonyme Anfrage stellen und Antwort prüfen.';
+
+  @override
+  String get contentInquiryBadge => 'Q&A';
+
+  @override
   String get contentCloseGuess => 'Schlusskurs raten';
 
   @override
   String get contentStockQuote => 'Boersenzitate';
 
   @override
+  String get contentStockQuoteSubtitle =>
+      'Kurze Zitate zum Schärfen des Investmentgespürs.';
+
+  @override
+  String get contentStockQuoteBadge => 'Täglich';
+
+  @override
   String get contentNumberGuess => 'Zahl erraten';
 
   @override
-  String get contentBookReader => 'Buch lesen';
+  String get contentNumberGuessSubtitle =>
+      'Leichtes Wahrscheinlichkeits-Minispiel.';
+
+  @override
+  String get contentNumberGuessBadge => 'Spiel';
+
+  @override
+  String get contentBookReader => 'Kolumne';
+
+  @override
+  String get contentBookReaderSubtitle =>
+      'Texte aus dem öffentlichen Bereich zum ruhigen Lesen.';
+
+  @override
+  String get contentBookReaderBadge => 'Lesen';
 
   @override
   String get contentStockMeme => 'Aktien-Meme';
@@ -981,6 +1044,13 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get contentJumpDodge => 'Sprung-Ausweichspiel';
+
+  @override
+  String get contentJumpDodgeSubtitle =>
+      'Kurzes Sprung-Minispiel für konzentrierte Sessions.';
+
+  @override
+  String get contentJumpDodgeBadge => 'Aktion';
 
   @override
   String get stockQuoteTitle => 'Boersenzitate';
@@ -1048,4 +1118,186 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get usageGuideConfirm => 'OK';
+
+  @override
+  String get bookReadingTitle => 'Kolumne';
+
+  @override
+  String bookReaderPageNumber(int page) {
+    return 'Seite $page';
+  }
+
+  @override
+  String get numGuessPrompt => 'Raten Sie eine Zahl zwischen 1 und 10000.';
+
+  @override
+  String get numGuessInvalidInput =>
+      'Bitte geben Sie eine Zahl zwischen 1 und 10000 ein.';
+
+  @override
+  String numGuessCorrect(int attempts) {
+    return 'Richtig! Sie haben es in $attempts Versuchen erraten.';
+  }
+
+  @override
+  String get numGuessTooLow => 'Die Zahl ist höher.';
+
+  @override
+  String get numGuessTooHigh => 'Die Zahl ist niedriger.';
+
+  @override
+  String numGuessAttemptsLabel(int count) {
+    return 'Versuche: $count';
+  }
+
+  @override
+  String get numGuessInputHint => 'Zahl eingeben';
+
+  @override
+  String get numGuessConfirm => 'Bestätigen';
+
+  @override
+  String get numGuessNewGame => 'Neues Spiel';
+
+  @override
+  String get numGuessRanking => 'Rangliste';
+
+  @override
+  String get numGuessNoRecords => 'Noch keine Einträge.';
+
+  @override
+  String numGuessAttemptCount(int count) {
+    return '$count Versuche';
+  }
+
+  @override
+  String get jumpLeaderboard => 'Bestenliste';
+
+  @override
+  String get jumpScore => 'Punktzahl';
+
+  @override
+  String get jumpPersonalBest => 'Persönlicher Rekord';
+
+  @override
+  String get jumpTapToRestart => 'Tippen zum Neustart';
+
+  @override
+  String get jumpTapToStart => 'Tippen zum Starten';
+
+  @override
+  String get jumpInstruction =>
+      'Tippen Sie, um zu springen und Hindernissen auszuweichen.';
+
+  @override
+  String get inquiryLoadError => 'Anfragen konnten nicht geladen werden.';
+
+  @override
+  String get inquiryAdminOnlyReply => 'Nur Admins können antworten.';
+
+  @override
+  String get inquiryReplyEmpty => 'Bitte geben Sie eine Antwort ein.';
+
+  @override
+  String get inquiryReplyError =>
+      'Antwort konnte nicht übermittelt werden. Bitte später erneut versuchen.';
+
+  @override
+  String get inquiryAdminOnlyPin => 'Nur Admins können anheften.';
+
+  @override
+  String get inquiryPinError => 'Pin-Status konnte nicht gespeichert werden.';
+
+  @override
+  String get inquiryAdminOnlyDelete => 'Nur Admins können löschen.';
+
+  @override
+  String get inquiryDeleteTitle => 'Anfrage löschen';
+
+  @override
+  String get inquiryDeleteConfirm => 'Diese Anfrage löschen?';
+
+  @override
+  String get inquiryCancel => 'Abbrechen';
+
+  @override
+  String get inquiryDeleteAction => 'Löschen';
+
+  @override
+  String get inquiryDeleteError =>
+      'Löschen fehlgeschlagen. Bitte später erneut versuchen.';
+
+  @override
+  String get inquiryContentEmpty => 'Bitte geben Sie Ihre Anfrage ein.';
+
+  @override
+  String get inquirySubmitError =>
+      'Anfrage konnte nicht übermittelt werden. Bitte später erneut versuchen.';
+
+  @override
+  String get inquiryAdminLabel => 'Admin';
+
+  @override
+  String get inquiryPasswordLabel => 'Passwort';
+
+  @override
+  String get inquiryPasswordWrong => 'Falsches Passwort.';
+
+  @override
+  String get inquiryAdminActivatedRegistered =>
+      'Admin-Modus aktiviert (Gerät registriert)';
+
+  @override
+  String get inquiryAdminActivatedFailed =>
+      'Admin-Modus aktiviert (Geräteregistrierung fehlgeschlagen)';
+
+  @override
+  String get inquiryContentDetailLabel => 'Anfrage';
+
+  @override
+  String get inquiryAdminReplyLabel => 'Admin-Antwort';
+
+  @override
+  String get inquiryAdminReplyEdit => 'Antwort bearbeiten';
+
+  @override
+  String get inquirySaving => 'Speichern...';
+
+  @override
+  String get inquirySubmitReply => 'Antwort senden';
+
+  @override
+  String get inquiryPrevPage => 'Vorherige Seite';
+
+  @override
+  String get inquiryNextPage => 'Nächste Seite';
+
+  @override
+  String inquiryPageOf(int current, int total) {
+    return 'Seite $current / $total';
+  }
+
+  @override
+  String get inquiryUnpin => 'Anheftung aufheben';
+
+  @override
+  String get inquiryPin => 'Oben anheften';
+
+  @override
+  String get inquiryListTitle => 'Anfragenliste';
+
+  @override
+  String get inquiryEmpty => 'Noch keine Anfragen.';
+
+  @override
+  String get inquiryWriteTitle => 'Anfrage schreiben';
+
+  @override
+  String get inquiryContentFieldLabel => 'Inhalt';
+
+  @override
+  String get inquirySubmitting => 'Senden...';
+
+  @override
+  String get inquirySubmitButton => 'Senden';
 }
