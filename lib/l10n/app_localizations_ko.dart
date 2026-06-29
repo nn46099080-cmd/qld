@@ -186,6 +186,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get buySignalMessage => '매수 신호는 이곳에 자동으로 표시됩니다.';
 
   @override
+  String get checkStrategyCard => '현재구간 전략 카드를 확인하세요.';
+
+  @override
   String get currentPrice => '현재 가격';
 
   @override
@@ -1249,4 +1252,85 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get inquirySubmitButton => '등록';
+
+  @override
+  String get inquiryUserReplyLabel => 'Add a follow-up message...';
+
+  @override
+  String get indicatorCnnFearGreed => 'CNN 공포탐욕';
+
+  @override
+  String get indicatorVix => 'VIX 변동성';
+
+  @override
+  String get indicatorUsSchedule => '미국 중요 발표 일정';
+
+  @override
+  String get indicatorTenYearYield => '미국 10년 국채수익률';
+
+  @override
+  String get indicatorUsMarketTime => '미국장 남은시간';
+
+  @override
+  String get indicatorVixHigh => '높은 변동성 구간';
+
+  @override
+  String get indicatorVixStable => '보통 구간';
+
+  @override
+  String get indicatorVixDefault => '시장 불안 심리 지표';
+
+  @override
+  String get indicatorVixLow => '변동성 매우 낮은 구간';
+
+  @override
+  String get indicatorVixCaution => '주의 구간';
+
+  @override
+  String get indicatorTenYearDesc => '미국 10년물 금리 지표';
+
+  @override
+  String get marketWeekendLabel => '주말 휴장 · 개장까지';
+
+  @override
+  String get marketPreOpenLabel => '개장까지';
+
+  @override
+  String get marketToCloseLabel => '마감까지';
+
+  @override
+  String get marketClosedLabel => '장 마감';
+
+  @override
+  String get marketClosedValue => '휴장중';
+
+  @override
+  String get noData => '데이터 없음';
+
+  @override
+  String get rsiOverbought => '과매수';
+
+  @override
+  String get rsiOversold => '과매도';
+
+  @override
+  String get rsiNormal => '중립';
+
+  @override
+  String get rsiOverboughtZone => '과매수 구간';
+
+  @override
+  String get rsiOversoldZone => '과매도 구간';
+
+  @override
+  String get rsiNormalZone => '정상 범위';
+
+  @override
+  String get rsiOverboughtOversold => '과매수 / 과매도';
+
+  @override
+  String get coverStrategyTab => '전략 탭';
+
+  @override
+  String get coverStrategyHint => '위로 올리면 전략탭이 표시됩니다';
 }

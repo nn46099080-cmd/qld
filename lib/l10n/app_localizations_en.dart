@@ -12,7 +12,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appTitle => 'QLD Alert';
 
   @override
-  String get noBuyZone => 'No Buy Zone';
+  String get noBuyZone => 'No Additional Buy Zone';
 
   @override
   String get tapToViewStrategy => 'Tap to View Strategy';
@@ -129,7 +129,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get from10yHigh => 'vs All-Time High';
 
   @override
-  String get holdQLDPlusCash => 'QLD + 30% Cash';
+  String get holdQLDPlusCash => 'QLD 70% + 30% Cash';
 
   @override
   String get basePositionDescription =>
@@ -190,6 +190,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get buySignalMessage => 'Buy signals will automatically appear here.';
 
   @override
+  String get checkStrategyCard =>
+      'Check the strategy card for your current zone.';
+
+  @override
   String get currentPrice => 'Current Price';
 
   @override
@@ -202,7 +206,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get buyStrategy => 'Buy Strategy';
 
   @override
-  String get noBuyZoneTitle => 'No Buy Zone';
+  String get noBuyZoneTitle => 'No Additional Buy Zone';
 
   @override
   String get strategyOverview => 'Strategy Overview';
@@ -1293,4 +1297,85 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get inquirySubmitButton => 'Submit';
+
+  @override
+  String get inquiryUserReplyLabel => 'Add a follow-up message...';
+
+  @override
+  String get indicatorCnnFearGreed => 'CNN Fear & Greed';
+
+  @override
+  String get indicatorVix => 'VIX Volatility';
+
+  @override
+  String get indicatorUsSchedule => 'Major U.S. Events';
+
+  @override
+  String get indicatorTenYearYield => 'U.S. 10Y Yield';
+
+  @override
+  String get indicatorUsMarketTime => 'U.S. Market Time';
+
+  @override
+  String get indicatorVixHigh => 'High volatility';
+
+  @override
+  String get indicatorVixStable => 'Normal zone';
+
+  @override
+  String get indicatorVixDefault => 'Market anxiety index';
+
+  @override
+  String get indicatorVixLow => 'Very low volatility';
+
+  @override
+  String get indicatorVixCaution => 'Caution zone';
+
+  @override
+  String get indicatorTenYearDesc => '10-year bond rate';
+
+  @override
+  String get marketWeekendLabel => 'Weekend · To Open';
+
+  @override
+  String get marketPreOpenLabel => 'To Open';
+
+  @override
+  String get marketToCloseLabel => 'To Close';
+
+  @override
+  String get marketClosedLabel => 'Market Closed';
+
+  @override
+  String get marketClosedValue => 'Closed';
+
+  @override
+  String get noData => 'No data';
+
+  @override
+  String get rsiOverbought => 'Overbought';
+
+  @override
+  String get rsiOversold => 'Oversold';
+
+  @override
+  String get rsiNormal => 'Neutral';
+
+  @override
+  String get rsiOverboughtZone => 'Overbought zone';
+
+  @override
+  String get rsiOversoldZone => 'Oversold zone';
+
+  @override
+  String get rsiNormalZone => 'Normal range';
+
+  @override
+  String get rsiOverboughtOversold => 'Overbought / Oversold';
+
+  @override
+  String get coverStrategyTab => 'Strategy Tab';
+
+  @override
+  String get coverStrategyHint => 'Swipe up to view the Strategy Tab';
 }

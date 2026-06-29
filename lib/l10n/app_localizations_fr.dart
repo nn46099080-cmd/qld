@@ -192,6 +192,10 @@ class AppLocalizationsFr extends AppLocalizations {
   String get buySignalMessage => 'Les signaux d’achat apparaîtront ici.';
 
   @override
+  String get checkStrategyCard =>
+      'Consultez la carte stratégie de votre zone actuelle.';
+
+  @override
   String get currentPrice => 'Prix actuel';
 
   @override
@@ -1305,4 +1309,86 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get inquirySubmitButton => 'Envoyer';
+
+  @override
+  String get inquiryUserReplyLabel => 'Add a follow-up message...';
+
+  @override
+  String get indicatorCnnFearGreed => 'CNN Peur & Avidité';
+
+  @override
+  String get indicatorVix => 'VIX Volatilité';
+
+  @override
+  String get indicatorUsSchedule => 'Événements US Importants';
+
+  @override
+  String get indicatorTenYearYield => 'Rendement US 10 ans';
+
+  @override
+  String get indicatorUsMarketTime => 'Temps du Marché US';
+
+  @override
+  String get indicatorVixHigh => 'Haute volatilité';
+
+  @override
+  String get indicatorVixStable => 'Zone normale';
+
+  @override
+  String get indicatorVixDefault => 'Indicateur d\'anxiété';
+
+  @override
+  String get indicatorVixLow => 'Très faible volatilité';
+
+  @override
+  String get indicatorVixCaution => 'Zone de prudence';
+
+  @override
+  String get indicatorTenYearDesc => 'Taux obligataire US 10 ans';
+
+  @override
+  String get marketWeekendLabel => 'Week-end · À l\'ouverture';
+
+  @override
+  String get marketPreOpenLabel => 'Jusqu\'à l\'ouverture';
+
+  @override
+  String get marketToCloseLabel => 'Jusqu\'à la clôture';
+
+  @override
+  String get marketClosedLabel => 'Marché fermé';
+
+  @override
+  String get marketClosedValue => 'Fermé';
+
+  @override
+  String get noData => 'Aucune donnée';
+
+  @override
+  String get rsiOverbought => 'Suracheté';
+
+  @override
+  String get rsiOversold => 'Survendu';
+
+  @override
+  String get rsiNormal => 'Neutre';
+
+  @override
+  String get rsiOverboughtZone => 'Zone surachetée';
+
+  @override
+  String get rsiOversoldZone => 'Zone survendue';
+
+  @override
+  String get rsiNormalZone => 'Plage normale';
+
+  @override
+  String get rsiOverboughtOversold => 'Suracheté / Survendu';
+
+  @override
+  String get coverStrategyTab => 'Onglet Stratégie';
+
+  @override
+  String get coverStrategyHint =>
+      'Glissez vers le haut pour afficher l\'Onglet Stratégie';
 }

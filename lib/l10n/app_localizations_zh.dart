@@ -185,6 +185,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get buySignalMessage => '买入信号会自动显示在这里。';
 
   @override
+  String get checkStrategyCard => '请查看当前区间的策略卡片。';
+
+  @override
   String get currentPrice => '当前价格';
 
   @override
@@ -1225,6 +1228,87 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get inquirySubmitButton => '提交';
+
+  @override
+  String get inquiryUserReplyLabel => 'Add a follow-up message...';
+
+  @override
+  String get indicatorCnnFearGreed => 'CNN 恐惧贪婪';
+
+  @override
+  String get indicatorVix => 'VIX 波动率';
+
+  @override
+  String get indicatorUsSchedule => '美国重要发布日程';
+
+  @override
+  String get indicatorTenYearYield => '美国10年国债收益率';
+
+  @override
+  String get indicatorUsMarketTime => '美国市场剩余时间';
+
+  @override
+  String get indicatorVixHigh => '高波动区间';
+
+  @override
+  String get indicatorVixStable => '正常区间';
+
+  @override
+  String get indicatorVixDefault => '市场恐慌指标';
+
+  @override
+  String get indicatorVixLow => '波动率极低区间';
+
+  @override
+  String get indicatorVixCaution => '注意区间';
+
+  @override
+  String get indicatorTenYearDesc => '美国10年期国债利率';
+
+  @override
+  String get marketWeekendLabel => '周末休市·距开市';
+
+  @override
+  String get marketPreOpenLabel => '距开市';
+
+  @override
+  String get marketToCloseLabel => '距收市';
+
+  @override
+  String get marketClosedLabel => '市场休市';
+
+  @override
+  String get marketClosedValue => '休市中';
+
+  @override
+  String get noData => '暂无数据';
+
+  @override
+  String get rsiOverbought => '超买';
+
+  @override
+  String get rsiOversold => '超卖';
+
+  @override
+  String get rsiNormal => '中性';
+
+  @override
+  String get rsiOverboughtZone => '超买区间';
+
+  @override
+  String get rsiOversoldZone => '超卖区间';
+
+  @override
+  String get rsiNormalZone => '正常范围';
+
+  @override
+  String get rsiOverboughtOversold => '超买 / 超卖';
+
+  @override
+  String get coverStrategyTab => '策略标签';
+
+  @override
+  String get coverStrategyHint => '向上滑动查看策略标签';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).
@@ -1406,6 +1490,9 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get buySignalMessage => '買入信號會自動顯示在這裡。';
+
+  @override
+  String get checkStrategyCard => '請查看目前區間的策略卡片。';
 
   @override
   String get currentPrice => '目前價格';
@@ -2448,4 +2535,82 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get inquirySubmitButton => '提交';
+
+  @override
+  String get indicatorCnnFearGreed => 'CNN 恐懼貪婪';
+
+  @override
+  String get indicatorVix => 'VIX 波動率';
+
+  @override
+  String get indicatorUsSchedule => '美國重要發布日程';
+
+  @override
+  String get indicatorTenYearYield => '美國10年國債收益率';
+
+  @override
+  String get indicatorUsMarketTime => '美國市場剩餘時間';
+
+  @override
+  String get indicatorVixHigh => '高波動區間';
+
+  @override
+  String get indicatorVixStable => '正常區間';
+
+  @override
+  String get indicatorVixDefault => '市場恐慌指標';
+
+  @override
+  String get indicatorVixLow => '波動率極低區間';
+
+  @override
+  String get indicatorVixCaution => '注意區間';
+
+  @override
+  String get indicatorTenYearDesc => '美國10年期國債利率';
+
+  @override
+  String get marketWeekendLabel => '週末休市·距開市';
+
+  @override
+  String get marketPreOpenLabel => '距開市';
+
+  @override
+  String get marketToCloseLabel => '距收市';
+
+  @override
+  String get marketClosedLabel => '市場休市';
+
+  @override
+  String get marketClosedValue => '休市中';
+
+  @override
+  String get noData => '暫無數據';
+
+  @override
+  String get rsiOverbought => '超買';
+
+  @override
+  String get rsiOversold => '超賣';
+
+  @override
+  String get rsiNormal => '中性';
+
+  @override
+  String get rsiOverboughtZone => '超買區間';
+
+  @override
+  String get rsiOversoldZone => '超賣區間';
+
+  @override
+  String get rsiNormalZone => '正常範圍';
+
+  @override
+  String get rsiOverboughtOversold => '超買 / 超賣';
+
+  @override
+  String get coverStrategyTab => '策略標籤';
+
+  @override
+  String get coverStrategyHint => '向上滑動查看策略標籤';
 }

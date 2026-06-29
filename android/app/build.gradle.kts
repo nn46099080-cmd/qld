@@ -30,7 +30,7 @@ android {
         applicationId = "com.qldalert.app"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
-        versionCode = 55
+        versionCode = 60
         versionName = flutter.versionName
     }
 

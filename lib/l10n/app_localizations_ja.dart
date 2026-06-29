@@ -186,6 +186,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get buySignalMessage => '買いシグナルはここに自動表示されます。';
 
   @override
+  String get checkStrategyCard => '現在のゾーンの戦略カードを確認してください。';
+
+  @override
   String get currentPrice => '現在価格';
 
   @override
@@ -1236,4 +1239,85 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get inquirySubmitButton => '登録';
+
+  @override
+  String get inquiryUserReplyLabel => 'Add a follow-up message...';
+
+  @override
+  String get indicatorCnnFearGreed => 'CNN 恐怖貪欲';
+
+  @override
+  String get indicatorVix => 'VIX ボラティリティ';
+
+  @override
+  String get indicatorUsSchedule => '米国重要イベント';
+
+  @override
+  String get indicatorTenYearYield => '米国10年国債利回り';
+
+  @override
+  String get indicatorUsMarketTime => '米国市場残り時間';
+
+  @override
+  String get indicatorVixHigh => '高ボラティリティ圏';
+
+  @override
+  String get indicatorVixStable => '通常ゾーン';
+
+  @override
+  String get indicatorVixDefault => '市場不安心理指標';
+
+  @override
+  String get indicatorVixLow => '非常に低いボラティリティ';
+
+  @override
+  String get indicatorVixCaution => '注意ゾーン';
+
+  @override
+  String get indicatorTenYearDesc => '米国10年債金利';
+
+  @override
+  String get marketWeekendLabel => '週末休場・開場まで';
+
+  @override
+  String get marketPreOpenLabel => '開場まで';
+
+  @override
+  String get marketToCloseLabel => '引けまで';
+
+  @override
+  String get marketClosedLabel => '閉場';
+
+  @override
+  String get marketClosedValue => '休場中';
+
+  @override
+  String get noData => 'データなし';
+
+  @override
+  String get rsiOverbought => '過買い';
+
+  @override
+  String get rsiOversold => '過売り';
+
+  @override
+  String get rsiNormal => '中立';
+
+  @override
+  String get rsiOverboughtZone => '過買い圏';
+
+  @override
+  String get rsiOversoldZone => '過売り圏';
+
+  @override
+  String get rsiNormalZone => '正常範囲';
+
+  @override
+  String get rsiOverboughtOversold => '過買い / 過売り';
+
+  @override
+  String get coverStrategyTab => '戦略タブ';
+
+  @override
+  String get coverStrategyHint => '上にスワイプすると戦略タブが表示されます';
 }

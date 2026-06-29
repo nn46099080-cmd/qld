@@ -86,7 +86,7 @@ const _ownerAdminUid = 'qld-admin-179204';
 const _ownerAdminPassword = '0610aa!!';
 const _tradingViewInstallUrl =
     'https://play.google.com/store/apps/details?id=com.tradingview.tradingviewapp&utm_source=chatgpt.com';
-const _currentAppVersionCode = 55;
+const _currentAppVersionCode = 60;
 const _androidPackageName = 'com.qldalert.app';
 const _releaseAdMobBottomBannerUnitId =
     'ca-app-pub-8561157852710726/9908440913';
@@ -147,6 +147,8 @@ const _inquiriesUrl =
     'https://billowing-band-06cd.nn46099080.workers.dev/inquiries';
 const _inquiriesReplyUrl =
     'https://billowing-band-06cd.nn46099080.workers.dev/inquiries/reply';
+const _inquiriesMessageUrl =
+    'https://billowing-band-06cd.nn46099080.workers.dev/inquiries/message';
 const _inquiriesPinUrl =
     'https://billowing-band-06cd.nn46099080.workers.dev/inquiries/pin';
 const _inquiriesDeleteUrl =
@@ -4256,6 +4258,7 @@ class _HomePageState extends State<HomePage>
   final closeGuessPriceController = TextEditingController();
   final closeGuessMessageController = TextEditingController();
   final homeScrollController = ScrollController();
+  final _sheetController = DraggableScrollableController();
 
   bool showPortfolioInput = false;
   bool showCloseGuessInput = false;
@@ -7831,6 +7834,7 @@ class _HomePageState extends State<HomePage>
     closeGuessPriceController.dispose();
     closeGuessMessageController.dispose();
     homeScrollController.dispose();
+    _sheetController.dispose();
     _exitDialogBannerAd?.dispose();
     if (_activeHomeScrollController == homeScrollController) {
       _activeHomeScrollController = null;
@@ -8667,32 +8671,28 @@ class _HomePageState extends State<HomePage>
       );
     }
 
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) {
-        return DraggableScrollableSheet(
-          initialChildSize: 0.86,
-          minChildSize: 0.35,
-          maxChildSize: 0.95,
-          snap: true,
-          snapSizes: const [0.35, 0.86, 0.95],
-          shouldCloseOnMinExtent: true,
-          builder: (context, scrollController) {
-            return Container(
-              decoration: BoxDecoration(
-                color: sheetBg,
-                borderRadius: const BorderRadius.vertical(
-                  top: Radius.circular(24),
-                ),
-                border: whiteMode ? Border.all(color: _lightLine) : null,
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) {
+          return Scaffold(
+            backgroundColor: sheetBg,
+            appBar: AppBar(
+              backgroundColor: sheetBg,
+              elevation: 0,
+              leading: IconButton(
+                icon: Icon(Icons.arrow_back_ios_new_rounded, color: primaryText, size: 20),
+                onPressed: () => Navigator.pop(context),
               ),
-              child: SafeArea(
-                top: false,
-                child: SingleChildScrollView(
-                  controller: scrollController,
-                  padding: const EdgeInsets.fromLTRB(24, 18, 24, 24),
+              title: Text(
+                l10n.basePosition,
+                style: TextStyle(color: primaryText, fontSize: 16, fontWeight: FontWeight.w800),
+              ),
+            ),
+            body: SafeArea(
+              child: SingleChildScrollView(
+                  controller: null,
+                  padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -8833,24 +8833,13 @@ class _HomePageState extends State<HomePage>
                           ],
                         ),
                       ),
-                      const SizedBox(height: 18),
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton(
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
-                          child: const Text('OK'),
-                        ),
-                      ),
                     ],
                   ),
                 ),
-              ),
-            );
-          },
-        );
-      },
+            ),
+          );
+        },
+      ),
     );
   }
 
@@ -9061,9 +9050,13 @@ class _HomePageState extends State<HomePage>
         : fearGreedColorForScore(homeFearGreedScore);
     final vixValueColor = vixPrice <= 0
         ? secondaryText
-        : vixPrice >= 20
-            ? _portfolioLossRed
-            : accentBlue;
+        : vixPrice >= 30
+            ? Colors.purple
+            : vixPrice >= 20
+                ? _portfolioLossRed
+                : vixPrice >= 12
+                    ? accentBlue
+                    : const Color(0xFF4ADE80);
     final vixValue = vixPrice > 0 ? vixPrice.toStringAsFixed(1) : '--';
     final scheduleLabel = nextMajorSchedule?.title ?? 'CPI';
     final scheduleValue = nextMajorSchedule == null
@@ -9083,6 +9076,183 @@ class _HomePageState extends State<HomePage>
         : whiteMode
             ? const Color(0xFF0F766E)
             : accentCyan;
+
+    final l10n = AppLocalizations.of(context)!;
+
+    // RSI
+    final latestRsi = qldMiniCandles.isEmpty ? null : qldMiniCandles.reversed.map((c) => c.rsi).firstWhere((r) => r != null, orElse: () => null);
+    final rsiText = latestRsi != null ? latestRsi.toStringAsFixed(1) : '--';
+    final rsiColor = latestRsi == null ? secondaryText : latestRsi >= 70 ? _portfolioLossRed : latestRsi <= 30 ? accentCyan : (whiteMode ? const Color(0xFF16A34A) : const Color(0xFF4ADE80));
+    final rsiLabel = latestRsi == null ? '' : latestRsi >= 70 ? l10n.rsiOverbought : latestRsi <= 30 ? l10n.rsiOversold : l10n.rsiNormal;
+
+    // 포트폴리오
+    final totalAssetDash = qldShares * qldPrice + cashAmount;
+    final profitLoss = qldAveragePrice > 0 && qldShares > 0 ? (qldPrice - qldAveragePrice) * qldShares : null;
+    final profitLossColor = profitLoss == null ? secondaryText : profitLoss >= 0 ? (whiteMode ? const Color(0xFF16A34A) : const Color(0xFF4ADE80)) : _portfolioLossRed;
+
+    // 장 카운트다운 (DST·공휴일·조기마감 반영)
+    final utcNow = DateTime.now().toUtc();
+    final ny = _toNewYorkTime(utcNow);
+    final session = _usMarketSessionFromUtc(utcNow);
+    final nyDate = ny.toString().substring(0, 10);
+    final isWeekend = ny.weekday == DateTime.saturday || ny.weekday == DateTime.sunday;
+    final isHoliday = !isWeekend && _isUsMarketClosedDate(nyDate);
+    final String marketCountdownLabel;
+    final String marketCountdownValue;
+    final Color marketCountdownColor;
+    if (session == _UsMarketSession.regular) {
+      final closeMin = _usMarketCloseMinute(ny);
+      final closeNy = DateTime.utc(ny.year, ny.month, ny.day, closeMin ~/ 60, closeMin % 60);
+      final diff = closeNy.difference(ny);
+      final h = diff.inHours;
+      final m = diff.inMinutes % 60;
+      final s = diff.inSeconds % 60;
+      marketCountdownLabel = l10n.marketToCloseLabel;
+      marketCountdownValue = h > 0 ? '${h}h ${m}m ${s}s' : '${m}m ${s}s';
+      marketCountdownColor = whiteMode ? const Color(0xFF16A34A) : const Color(0xFF4ADE80);
+    } else if (session == _UsMarketSession.pre) {
+      final openNy = DateTime.utc(ny.year, ny.month, ny.day, 9, 30);
+      final diff = openNy.difference(ny);
+      final h = diff.inHours;
+      final m = diff.inMinutes % 60;
+      final s = diff.inSeconds % 60;
+      marketCountdownLabel = l10n.marketPreOpenLabel;
+      marketCountdownValue = h > 0 ? '${h}h ${m}m ${s}s' : '${m}m ${s}s';
+      marketCountdownColor = whiteMode ? const Color(0xFFD97706) : Colors.amberAccent;
+    } else {
+      // closed / afterHours → 다음 거래일 9:30 ET까지
+      var nextOpen = DateTime.utc(ny.year, ny.month, ny.day, 9, 30).add(const Duration(days: 1));
+      for (int i = 0; i < 10; i++) {
+        final d = _dateString(nextOpen.year, nextOpen.month, nextOpen.day);
+        if (nextOpen.weekday >= DateTime.monday && nextOpen.weekday <= DateTime.friday && !_isUsMarketClosedDate(d)) break;
+        nextOpen = nextOpen.add(const Duration(days: 1));
+      }
+      final diff = nextOpen.difference(ny);
+      final h = diff.inHours;
+      final m = diff.inMinutes % 60;
+      final s = diff.inSeconds % 60;
+      marketCountdownLabel = isWeekend ? l10n.marketWeekendLabel : (isHoliday ? l10n.marketClosedLabel : l10n.marketPreOpenLabel);
+      marketCountdownValue = h > 0 ? '${h}h ${m}m ${s}s' : '${m}m ${s}s';
+      marketCountdownColor = secondaryText;
+    }
+
+    Widget buildIndicatorBox({
+      required IconData icon,
+      required String label,
+      required String value,
+      required Color valueColor,
+      required String description,
+      VoidCallback? onTap,
+    }) {
+      return GestureDetector(
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+          decoration: BoxDecoration(
+            color: whiteMode ? Colors.white : const Color(0xFF0D1926),
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: whiteMode ? Colors.transparent : const Color(0xFF1A2F42)),
+            boxShadow: [
+              BoxShadow(
+                color: whiteMode ? Colors.black.withValues(alpha: 0.08) : Colors.black.withValues(alpha: 0.20),
+                blurRadius: 10,
+                spreadRadius: 0,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(icon, size: 12, color: secondaryText),
+                  const SizedBox(width: 4),
+                  Expanded(
+                    child: Text(label, style: TextStyle(fontSize: 10, color: secondaryText, fontWeight: FontWeight.w600), maxLines: 1, overflow: TextOverflow.ellipsis, textAlign: TextAlign.center),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 4),
+              Text(value, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: valueColor), textAlign: TextAlign.center),
+              const SizedBox(height: 2),
+              Text(description, style: TextStyle(fontSize: 10, color: tertiaryText, fontWeight: FontWeight.w500), maxLines: 1, overflow: TextOverflow.ellipsis, textAlign: TextAlign.center),
+            ],
+          ),
+        ),
+      );
+    }
+
+    Widget buildIndicatorGrid() {
+      final fearGreedDesc = homeFearGreedScore == null ? l10n.noData : homeFearGreedScore <= 25 ? l10n.fearGreedExtremeFear : homeFearGreedScore <= 45 ? l10n.fearGreedFear : homeFearGreedScore <= 55 ? l10n.fearGreedNeutral : homeFearGreedScore <= 75 ? l10n.fearGreedGreed : l10n.fearGreedExtremeGreed;
+      final athValue = basePrice <= 0 || qldPrice <= 0
+          ? '--'
+          : dropPercent >= 0
+              ? '+${dropPercent.toStringAsFixed(2)}%'
+              : '${dropPercent.toStringAsFixed(2)}%';
+      final athColor = basePrice <= 0 || qldPrice <= 0
+          ? secondaryText
+          : dropPercent >= 0
+              ? (whiteMode ? const Color(0xFF16A34A) : const Color(0xFF4ADE80))
+              : _portfolioLossRed;
+      final athDesc = l10n.checkStrategyCard;
+      Widget athTargetPage() {
+        if (dropPercent <= -50) return const Minus50Page();
+        if (dropPercent <= -40) return const Minus40Page();
+        if (dropPercent <= -30) return const Minus30Page();
+        if (dropPercent <= -20) return const Minus20Page();
+        return const NoBuyZonePage();
+      }
+      return Padding(
+        padding: const EdgeInsets.fromLTRB(12, 4, 12, 6),
+        child: Column(
+          children: [
+            Row(children: [
+              Expanded(child: buildIndicatorBox(icon: Icons.psychology_rounded, label: l10n.indicatorCnnFearGreed, value: fearGreedValue, valueColor: fearGreedValueColor, description: fearGreedDesc, onTap: () => openFearGreedPage(context))),
+              const SizedBox(width: 8),
+              Expanded(child: buildIndicatorBox(icon: Icons.bolt_rounded, label: l10n.indicatorVix, value: vixValue, valueColor: vixValueColor, description: vixPrice <= 0 ? l10n.indicatorVixDefault : vixPrice >= 30 ? l10n.indicatorVixHigh : vixPrice >= 20 ? l10n.indicatorVixCaution : vixPrice >= 12 ? l10n.indicatorVixStable : l10n.indicatorVixLow, onTap: openVixTradingView)),
+            ]),
+            const SizedBox(height: 6),
+            Row(children: [
+              Expanded(child: buildIndicatorBox(icon: Icons.calendar_today_rounded, label: l10n.indicatorUsSchedule, value: scheduleValue, valueColor: scheduleValueColor, description: nextMajorSchedule?.title ?? l10n.noData, onTap: () => _showMajorUsScheduleSheet(context, onChanged: () { if (mounted) setState(() {}); }))),
+              const SizedBox(width: 8),
+              Expanded(child: buildIndicatorBox(icon: Icons.show_chart_rounded, label: l10n.indicatorTenYearYield, value: tenYearYieldValue, valueColor: tenYearYieldColor, description: l10n.indicatorTenYearDesc, onTap: openTenYearYieldTradingView)),
+            ]),
+            const SizedBox(height: 6),
+            Row(children: [
+              Expanded(child: buildIndicatorBox(icon: Icons.show_chart_rounded, label: l10n.from10yHigh, value: athValue, valueColor: athColor, description: athDesc, onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => athTargetPage())))),
+              const SizedBox(width: 8),
+              Expanded(child: buildIndicatorBox(icon: Icons.candlestick_chart_rounded, label: 'RSI', value: rsiText, valueColor: rsiColor, description: rsiLabel.isEmpty ? '70↑ ${l10n.rsiOverbought} / 30↓ ${l10n.rsiOversold}' : '$rsiLabel  (70↑${l10n.rsiOverbought} / 30↓${l10n.rsiOversold})', onTap: () {
+                showDialog<void>(
+                  context: context,
+                  builder: (dialogContext) {
+                    final wm = isWhiteModeEnabled(dialogContext);
+                    final bg = wm ? _lightSurface : _darkSurface;
+                    final pt = wm ? _lightText : _darkText;
+                    final st = wm ? _lightMuted : _darkMuted;
+                    return AlertDialog(
+                      backgroundColor: bg,
+                      title: Text('RSI(14)란?', style: TextStyle(color: pt, fontWeight: FontWeight.w900, fontSize: 16)),
+                      content: Text(
+                        'RSI(Relative Strength Index)는 최근 14일간의 상승폭과 하락폭을 비교해 현재 주가의 과열·침체 여부를 0~100으로 나타내는 지표입니다.\n\n'
+                        '• 70 이상 → 과매수 구간\n  단기 급등으로 조정 가능성이 높습니다.\n\n'
+                        '• 30 이하 → 과매도 구간\n  단기 급락으로 반등 가능성이 있습니다.\n\n'
+                        '• 30~70 → 정상 범위\n  과열·침체 신호 없음.',
+                        style: TextStyle(color: st, fontSize: 13, height: 1.55),
+                      ),
+                      actions: [
+                        FilledButton(onPressed: () => Navigator.pop(dialogContext), child: const Text('확인')),
+                      ],
+                    );
+                  },
+                );
+              })),
+            ]),
+          ],
+        ),
+      );
+    }
 
     Widget buildInlineInfoSegment({
       required String label,
@@ -9253,21 +9423,20 @@ class _HomePageState extends State<HomePage>
               ? const Center(
                   child: CircularProgressIndicator(),
                 )
-              : SingleChildScrollView(
-                  controller: homeScrollController,
-                  padding: const EdgeInsets.fromLTRB(12, 10, 12, 204),
-                  child: Column(
-                    children: [
+              : Stack(
+                  clipBehavior: Clip.hardEdge,
+                  children: [
+                      SingleChildScrollView(
+                      physics: const NeverScrollableScrollPhysics(),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
                       Container(
                         width: double.infinity,
-                        padding: const EdgeInsets.fromLTRB(18, 20, 18, 18),
+                        padding: const EdgeInsets.fromLTRB(18, 10, 18, 10),
                         decoration: BoxDecoration(
                           color: whiteMode ? cardBg : _darkSurface,
-                          borderRadius: BorderRadius.circular(26),
-                          border: Border.all(
-                            color: whiteMode ? cardLine : _darkLineSoft,
-                          ),
-                          boxShadow: cardShadow,
+                          borderRadius: BorderRadius.circular(0),
                         ),
                         child: Column(
                           children: [
@@ -9286,7 +9455,7 @@ class _HomePageState extends State<HomePage>
                                           fontWeight: FontWeight.w600,
                                         ),
                                       ),
-                                      const SizedBox(height: 10),
+                                      const SizedBox(height: 3),
                                       FittedBox(
                                         fit: BoxFit.scaleDown,
                                         child: Text(
@@ -9307,100 +9476,22 @@ class _HomePageState extends State<HomePage>
                                           fontWeight: FontWeight.w500,
                                         ),
                                       ),
-                                      const SizedBox(height: 5),
-                                      Column(
-                                        children: [
-                                          SizedBox(
-                                            height: 18,
-                                            child: Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.start,
-                                              children: [
-                                                Flexible(
-                                                  child: buildInlineInfoSegment(
-                                                    label: 'CNN F&G',
-                                                    value: fearGreedValue,
-                                                    valueColor:
-                                                        fearGreedValueColor,
-                                                    valueStyle:
-                                                        homeInfoEmphasisValueStyle,
-                                                    onTap: () =>
-                                                        openFearGreedPage(
-                                                      context,
-                                                    ),
-                                                  ),
-                                                ),
-                                                Padding(
-                                                  padding: const EdgeInsets
-                                                      .symmetric(
-                                                    horizontal: 5,
-                                                  ),
-                                                  child: Text(
-                                                    '|',
-                                                    style: homeInfoLabelStyle,
-                                                  ),
-                                                ),
-                                                Flexible(
-                                                  child: buildInlineInfoSegment(
-                                                    label: 'VIX',
-                                                    value: vixValue,
-                                                    valueColor: vixValueColor,
-                                                    valueStyle:
-                                                        homeInfoEmphasisValueStyle,
-                                                    onTap: openVixTradingView,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
+                                      const SizedBox(height: 8),
+                                      Center(
+                                        child: Text(
+                                          localizedPriceRefreshStatusWithCountdown(
+                                            Localizations.localeOf(context),
+                                            isRefreshing: isRefreshingPrice,
+                                            isCached: isUsingCachedPrice,
+                                            countdownSeconds: priceRefreshCountdownSeconds,
                                           ),
-                                          const SizedBox(height: 1),
-                                          SizedBox(
-                                            height: 18,
-                                            child: Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.start,
-                                              children: [
-                                                Flexible(
-                                                  child: buildInlineInfoSegment(
-                                                    label: scheduleLabel,
-                                                    value: scheduleValue,
-                                                    valueColor:
-                                                        scheduleValueColor,
-                                                    onTap: () =>
-                                                        _showMajorUsScheduleSheet(
-                                                      context,
-                                                      onChanged: () {
-                                                        if (mounted) {
-                                                          setState(() {});
-                                                        }
-                                                      },
-                                                    ),
-                                                  ),
-                                                ),
-                                                Padding(
-                                                  padding: const EdgeInsets
-                                                      .symmetric(
-                                                    horizontal: 5,
-                                                  ),
-                                                  child: Text(
-                                                    '|',
-                                                    style: homeInfoLabelStyle,
-                                                  ),
-                                                ),
-                                                Flexible(
-                                                  child: buildInlineInfoSegment(
-                                                    label: '10Y',
-                                                    value: tenYearYieldValue,
-                                                    valueColor:
-                                                        tenYearYieldColor,
-                                                    onTap:
-                                                        openTenYearYieldTradingView,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
+                                          textAlign: TextAlign.center,
+                                          style: TextStyle(
+                                            fontSize: 10,
+                                            color: isRefreshingPrice ? accentCyan : isUsingCachedPrice ? Colors.amberAccent : tertiaryText,
+                                            fontWeight: FontWeight.w600,
                                           ),
-                                        ],
+                                        ),
                                       ),
                                     ],
                                   ),
@@ -9479,7 +9570,7 @@ class _HomePageState extends State<HomePage>
                                           ),
                                         ],
                                       ),
-                                      const SizedBox(height: 10),
+                                      const SizedBox(height: 3),
                                       GestureDetector(
                                         onTap: openTradingView,
                                         behavior: HitTestBehavior.opaque,
@@ -9590,25 +9681,6 @@ class _HomePageState extends State<HomePage>
                                           ],
                                         ),
                                       ),
-                                      const SizedBox(height: 4),
-                                      Text(
-                                        localizedPriceRefreshStatusWithCountdown(
-                                          Localizations.localeOf(context),
-                                          isRefreshing: isRefreshingPrice,
-                                          isCached: isUsingCachedPrice,
-                                          countdownSeconds:
-                                              priceRefreshCountdownSeconds,
-                                        ),
-                                        style: TextStyle(
-                                          fontSize: 10,
-                                          color: isRefreshingPrice
-                                              ? accentCyan
-                                              : isUsingCachedPrice
-                                                  ? Colors.amberAccent
-                                                  : tertiaryText,
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      ),
                                     ],
                                   ),
                                 ),
@@ -9617,33 +9689,88 @@ class _HomePageState extends State<HomePage>
                           ],
                         ),
                       ),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 8, right: 2),
-                        child: Align(
-                          alignment: Alignment.centerRight,
-                          child: InkWell(
-                            onTap: showUsageGuideInfo,
-                            borderRadius: BorderRadius.circular(8),
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 4,
-                                vertical: 3,
-                              ),
-                              child: Text(
-                                '${AppLocalizations.of(context)!.usageGuideCardTitle} >',
-                                style: TextStyle(
-                                  color: accentCyan,
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w900,
-                                  decoration: TextDecoration.underline,
-                                  decorationColor: accentCyan,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
+                      buildIndicatorGrid(),
+                        ],
                       ),
-                      const SizedBox(height: 10),
+                      ), // SingleChildScrollView
+                      DraggableScrollableSheet(
+                        controller: _sheetController,
+                        initialChildSize: 0.70,
+                        minChildSize: 0.22,
+                        maxChildSize: 0.97,
+                        snap: true,
+                        snapSizes: const [0.22, 0.70, 0.97],
+                        builder: (context, scrollController) => AnimatedBuilder(
+                          animation: _sheetController,
+                          builder: (context, _) {
+                            final sheetSize = _sheetController.isAttached ? _sheetController.size : 0.70;
+                            final coverOpacity = ((0.97 - sheetSize) / (0.97 - 0.70)).clamp(0.0, 1.0);
+                            return Container(
+                          decoration: BoxDecoration(
+                            color: whiteMode ? _lightAppBg : _appBg,
+                            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+                            border: Border(
+                              top: BorderSide(color: whiteMode ? const Color(0xFFD0DAE6) : const Color(0xFF1E3448), width: 1),
+                              left: BorderSide(color: whiteMode ? const Color(0xFFD0DAE6) : const Color(0xFF1E3448), width: 1),
+                              right: BorderSide(color: whiteMode ? const Color(0xFFD0DAE6) : const Color(0xFF1E3448), width: 1),
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: whiteMode ? Colors.black.withValues(alpha: 0.10) : Colors.black.withValues(alpha: 0.35),
+                                blurRadius: 16,
+                                offset: const Offset(0, -4),
+                              ),
+                            ],
+                          ),
+                          child: ClipRRect(
+                            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+                            child: Stack(
+                              children: [
+                                CustomScrollView(
+                              controller: scrollController,
+                              physics: const AlwaysScrollableScrollPhysics(parent: ClampingScrollPhysics()),
+                              slivers: [
+                                SliverToBoxAdapter(child: Padding(
+                                  padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
+                                  child: Stack(
+                                    alignment: Alignment.center,
+                                    children: [
+                                      Center(
+                                        child: Container(
+                                          width: 40, height: 4,
+                                          decoration: BoxDecoration(
+                                            color: whiteMode ? Colors.black26 : Colors.white30,
+                                            borderRadius: BorderRadius.circular(2),
+                                          ),
+                                        ),
+                                      ),
+                                      Align(
+                                        alignment: Alignment.centerRight,
+                                        child: InkWell(
+                                          onTap: showUsageGuideInfo,
+                                          borderRadius: BorderRadius.circular(8),
+                                          child: Padding(
+                                            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 3),
+                                            child: Text(
+                                              '${AppLocalizations.of(context)!.usageGuideCardTitle} >',
+                                              style: TextStyle(
+                                                color: (whiteMode ? Colors.black : Colors.white).withValues(alpha: 0.28),
+                                                fontSize: 11,
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                )),
+                                SliverPadding(
+                                  padding: const EdgeInsets.fromLTRB(12, 8, 12, 80),
+                                  sliver: SliverList(delegate: SliverChildListDelegate([
+                        Column(
+                          children: [
+                      const SizedBox(height: 0),
                       GestureDetector(
                           onTap: showBasePositionInfo,
                           child: Container(
@@ -9799,7 +9926,7 @@ class _HomePageState extends State<HomePage>
                       buildChartGuideInfoStrip(),
                       const SizedBox(height: 14),
                       buildInvestmentCalculatorCard(),
-                      const SizedBox(height: 14),
+                      const SizedBox(height: 8),
                       if (DateTime.now().isBefore(DateTime(1900)))
                         Text(
                           '짤 2026 Dong Hwan. All rights reserved.',
@@ -9819,9 +9946,97 @@ class _HomePageState extends State<HomePage>
                           fontWeight: FontWeight.w500,
                         ),
                       ),
-                      const SizedBox(height: 144),
+                      const SizedBox(height: 32),
                     ],
                   ),
+                ]))
+                              ),
+                              ],
+                            ),
+                            // 커버 오버레이: 시트가 낮을 때 콘텐츠를 가리고 힌트를 표시
+                            if (coverOpacity > 0)
+                            Positioned.fill(
+                              top: 36,
+                              child: GestureDetector(
+                                behavior: HitTestBehavior.opaque,
+                                onVerticalDragUpdate: (details) {
+                                  if (!_sheetController.isAttached) return;
+                                  final screenH = MediaQuery.of(context).size.height;
+                                  final delta = -details.delta.dy / screenH;
+                                  final next = (_sheetController.size + delta).clamp(0.22, 0.97);
+                                  _sheetController.jumpTo(next);
+                                },
+                                onVerticalDragEnd: (details) {
+                                  if (!_sheetController.isAttached) return;
+                                  final velocity = details.primaryVelocity ?? 0;
+                                  final size = _sheetController.size;
+                                  final target = velocity > 300
+                                      ? 0.22
+                                      : velocity < -300
+                                          ? (size < 0.50 ? 0.70 : 0.97)
+                                          : (size > 0.85 ? 0.97 : size > 0.50 ? 0.70 : 0.22);
+                                  _sheetController.animateTo(target, duration: const Duration(milliseconds: 320), curve: Curves.easeOutCubic);
+                                },
+                                child: Opacity(
+                                  opacity: coverOpacity,
+                                  child: Container(
+                                    color: whiteMode ? _lightAppBg : _appBg,
+                                    child: Column(
+                                      mainAxisAlignment: MainAxisAlignment.start,
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        const SizedBox(height: 16),
+                                        Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Row(
+                                              mainAxisAlignment: MainAxisAlignment.center,
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                Icon(Icons.bar_chart_rounded, size: 13, color: whiteMode ? const Color(0xFF607D8B) : Colors.white60),
+                                                const SizedBox(width: 5),
+                                                Text(
+                                                  l10n.coverStrategyTab,
+                                                  style: TextStyle(
+                                                    color: whiteMode ? const Color(0xFF546E7A) : Colors.white70,
+                                                    fontSize: 12,
+                                                    fontWeight: FontWeight.w700,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            const SizedBox(height: 5),
+                                            Row(
+                                              mainAxisAlignment: MainAxisAlignment.center,
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                Icon(Icons.arrow_upward_rounded, size: 12, color: whiteMode ? const Color(0xFF1565C0) : const Color(0xFF42A5F5)),
+                                                const SizedBox(width: 4),
+                                                Text(
+                                                  l10n.coverStrategyHint,
+                                                  style: TextStyle(
+                                                    color: whiteMode ? const Color(0xFF90A4AE) : Colors.white54,
+                                                    fontSize: 12,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],    // Stack children
+                        ),      // Stack
+                      ),        // ClipRRect
+                    );          // Container (AnimatedBuilder builder return)
+                  },            // AnimatedBuilder builder
+                ),              // AnimatedBuilder
+                      ),        // DraggableScrollableSheet
+                  ],
                 ),
         ),
       _buildDraggableContentButton(),
@@ -9835,8 +10050,8 @@ class _HomePageState extends State<HomePage>
       builder: (context, constraints) {
         final maxX = constraints.maxWidth - 64;
         final maxY = constraints.maxHeight - 58;
-        if (contentWidgetButtonX < 0) contentWidgetButtonX = 16;
-        if (contentWidgetButtonY < 0) contentWidgetButtonY = maxY - 80;
+        if (contentWidgetButtonX < 0) contentWidgetButtonX = 0;
+        if (contentWidgetButtonY < 0) contentWidgetButtonY = maxY;
         return Stack(
           children: [
             Positioned(
@@ -10246,6 +10461,7 @@ class _HomePageState extends State<HomePage>
   }
 
   Widget buildQldMiniChart() {
+    final l10n = AppLocalizations.of(context)!;
     final whiteMode = isWhiteModeEnabled(context);
     final chartBg = whiteMode ? _lightSurface : _darkSurface;
     final chartLine = whiteMode ? _lightLine : _darkLineSoft;
@@ -10366,17 +10582,17 @@ class _HomePageState extends State<HomePage>
         ? const Color(0xFF16A34A)
         : const Color(0xFF4ADE80);
 
-    String rsiZoneLabel = '정상 범위';
-    String rsiStatusLabel = '중립';
+    String rsiZoneLabel = l10n.rsiNormalZone;
+    String rsiStatusLabel = l10n.rsiNormal;
     Color rsiStatusColor = chartSubText;
     if (latestRsi != null) {
       if (latestRsi >= 70) {
-        rsiZoneLabel = '과매수 구간';
-        rsiStatusLabel = '과매수';
+        rsiZoneLabel = l10n.rsiOverboughtZone;
+        rsiStatusLabel = l10n.rsiOverbought;
         rsiStatusColor = rsiOverboughtColor;
       } else if (latestRsi <= 30) {
-        rsiZoneLabel = '과매도 구간';
-        rsiStatusLabel = '과매도';
+        rsiZoneLabel = l10n.rsiOversoldZone;
+        rsiStatusLabel = l10n.rsiOversold;
         rsiStatusColor = rsiOversoldColor;
       }
     }
@@ -10686,7 +10902,7 @@ class _HomePageState extends State<HomePage>
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
-                              '과매수 / 과매도',
+                              l10n.rsiOverboughtOversold,
                               style: TextStyle(
                                 color: chartSubText,
                                 fontSize: 10,
@@ -12406,34 +12622,6 @@ class _HomePageState extends State<HomePage>
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  FittedBox(
-                    fit: BoxFit.scaleDown,
-                    alignment: Alignment.centerLeft,
-                    child: RichText(
-                      text: TextSpan(
-                        children: [
-                          TextSpan(
-                            text:
-                                '${AppLocalizations.of(context)!.from10yHigh} ',
-                            style: TextStyle(
-                              fontSize: 13,
-                              color: whiteMode ? _lightMuted : _darkMuted,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          TextSpan(
-                            text: '${dropPercent.toStringAsFixed(2)}%',
-                            style: TextStyle(
-                              fontSize: 18,
-                              color: Colors.redAccent,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 7),
                   Text(
                     title,
                     maxLines: 1,
@@ -14261,8 +14449,9 @@ class _JumpDodgeGamePageState extends State<JumpDodgeGamePage> {
       setState(() {
         // 10회 넘을 때마다 10%씩 속도 증가
         final speedMult = math.pow(1.10, score ~/ 10).toDouble();
-        // 중력만 배율 적용 → 빠를수록 공중 시간 단축
-        velocity -= 0.0038 * speedMult;
+        // 떨어질 때만 배율 적용 → 올라가는 시간은 고정, 내려오는 속도만 빨라짐
+        final gravity = velocity > 0 ? 0.0038 : 0.0038 * speedMult;
+        velocity -= gravity;
         playerY = (playerY + velocity).clamp(0.0, 0.62);
         if (playerY == 0 && velocity < 0) velocity = 0;
 
@@ -15111,6 +15300,7 @@ class _InquiryPageState extends State<InquiryPage> {
         .map(
           (item) => {
             'inquiryId': (item['inquiryId'] ?? '').toString(),
+            'uid': (item['uid'] ?? '').toString(),
             'id': (item['nickname'] ?? item['id'] ?? '').toString(),
             'content': (item['content'] ?? '').toString(),
             'createdAt':
@@ -15121,6 +15311,7 @@ class _InquiryPageState extends State<InquiryPage> {
             'answeredBy': (item['answeredBy'] ?? '').toString(),
             'pinned': item['pinned'] == true ? 'true' : 'false',
             'pinnedAt': formatInquiryDate((item['pinnedAt'] ?? '').toString()),
+            'messages': jsonEncode(item['messages'] ?? []),
           },
         )
         .where((item) => item['content']!.isNotEmpty)
@@ -15192,6 +15383,58 @@ class _InquiryPageState extends State<InquiryPage> {
       }
       final data = jsonDecode(response.body) as Map<String, dynamic>;
       applyInquiryResponse(data);
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(AppLocalizations.of(context)!.inquiryReplyError)),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          replyingInquiryIds.remove(inquiryId);
+        });
+      }
+    }
+  }
+
+  Future<void> submitInquiryUserMessage(
+      Map<String, String> item, TextEditingController controller) async {
+    final inquiryId = item['inquiryId'] ?? '';
+    if (inquiryId.isEmpty || replyingInquiryIds.contains(inquiryId)) return;
+
+    final content = controller.text.trim();
+    if (content.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(AppLocalizations.of(context)!.inquiryReplyEmpty)),
+      );
+      return;
+    }
+
+    final identity = await ensureAnonymousUserIdentity();
+    if (!mounted) return;
+
+    setState(() {
+      replyingInquiryIds.add(inquiryId);
+    });
+
+    try {
+      final response = await http
+          .post(
+            Uri.parse(_inquiriesMessageUrl),
+            headers: {'Content-Type': 'application/json'},
+            body: jsonEncode({
+              'uid': identity.uid,
+              'inquiryId': inquiryId,
+              'content': content,
+            }),
+          )
+          .timeout(const Duration(seconds: 8));
+      if (response.statusCode < 200 || response.statusCode >= 300) {
+        throw Exception('Inquiry message API ${response.statusCode}');
+      }
+      final data = jsonDecode(response.body) as Map<String, dynamic>;
+      applyInquiryResponse(data);
+      controller.clear();
     } catch (_) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -15510,17 +15753,34 @@ class _InquiryPageState extends State<InquiryPage> {
           ),
         );
 
-    void openInquiryDetail(Map<String, String> item) {
+    Future<void> openInquiryDetail(Map<String, String> item) async {
       final inquiryId = item['inquiryId'] ?? '';
       final answer = item['answer'] ?? '';
       final answeredAt = item['answeredAt'] ?? '';
       final pinned = item['pinned'] == 'true';
-      final canManageInquiry =
-          appUserAdminNotifier.value && inquiryId.isNotEmpty;
-      final replying = replyingInquiryIds.contains(inquiryId);
-      final deleting = deletingInquiryIds.contains(inquiryId);
-      final replyController =
-          canManageInquiry ? replyControllerFor(inquiryId, answer) : null;
+      final itemUid = item['uid'] ?? '';
+
+      final identity = await ensureAnonymousUserIdentity();
+      if (!mounted) return;
+
+      final isAdmin = appUserAdminNotifier.value;
+      final canManageInquiry = isAdmin && inquiryId.isNotEmpty;
+      final isOwner = !isAdmin && itemUid.isNotEmpty && itemUid == identity.uid;
+
+      final List<Map<String, dynamic>> messages = () {
+        try {
+          final raw = item['messages'] ?? '';
+          if (raw.isEmpty) return <Map<String, dynamic>>[];
+          final decoded = jsonDecode(raw);
+          if (decoded is! List) return <Map<String, dynamic>>[];
+          return decoded.whereType<Map>().map((m) => Map<String, dynamic>.from(m)).toList();
+        } catch (_) {
+          return <Map<String, dynamic>>[];
+        }
+      }();
+
+      final replyController = canManageInquiry ? replyControllerFor(inquiryId, answer) : null;
+      final userMsgController = isOwner ? TextEditingController() : null;
 
       showModalBottomSheet<void>(
         context: context,
@@ -15528,6 +15788,78 @@ class _InquiryPageState extends State<InquiryPage> {
         backgroundColor: Colors.transparent,
         builder: (detailContext) {
           final keyboardBottom = MediaQuery.viewInsetsOf(detailContext).bottom;
+          final replying = replyingInquiryIds.contains(inquiryId);
+          final deleting = deletingInquiryIds.contains(inquiryId);
+
+          Widget messageBubble(Map<String, dynamic> msg) {
+            final role = (msg['role'] ?? '').toString();
+            final isAdminMsg = role == 'admin';
+            final content = (msg['content'] ?? '').toString();
+            final createdAt = formatInquiryDate((msg['createdAt'] ?? '').toString());
+            if (content.isEmpty) return const SizedBox.shrink();
+            return Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: isAdminMsg
+                    ? accent.withValues(alpha: whiteMode ? 0.08 : 0.12)
+                    : cardBg,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: isAdminMsg
+                      ? accent.withValues(alpha: 0.28)
+                      : cardLine,
+                ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(
+                        isAdminMsg
+                            ? Icons.admin_panel_settings_rounded
+                            : Icons.person_outline_rounded,
+                        color: isAdminMsg ? accent : secondaryText,
+                        size: 14,
+                      ),
+                      const SizedBox(width: 5),
+                      Expanded(
+                        child: Text(
+                          isAdminMsg ? l10n.inquiryAdminReplyLabel : (msg['nickname'] ?? '').toString(),
+                          style: TextStyle(
+                            color: isAdminMsg ? accent : secondaryText,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w900,
+                          ),
+                        ),
+                      ),
+                      if (createdAt.isNotEmpty)
+                        Text(
+                          createdAt,
+                          style: TextStyle(
+                            color: secondaryText,
+                            fontSize: 10,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                    ],
+                  ),
+                  const SizedBox(height: 7),
+                  Text(
+                    content,
+                    style: TextStyle(
+                      color: primaryText,
+                      fontSize: 13,
+                      height: 1.45,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }
+
           return FractionallySizedBox(
             heightFactor: 0.92,
             child: Container(
@@ -15613,7 +15945,12 @@ class _InquiryPageState extends State<InquiryPage> {
                               ),
                             ),
                           ),
-                          if (answer.isNotEmpty) ...[
+                          if (messages.isNotEmpty) ...[
+                            for (final msg in messages) ...[
+                              const SizedBox(height: 10),
+                              messageBubble(msg),
+                            ],
+                          ] else if (answer.isNotEmpty) ...[
                             const SizedBox(height: 12),
                             Container(
                               width: double.infinity,
@@ -15762,13 +16099,67 @@ class _InquiryPageState extends State<InquiryPage> {
                           ],
                         ),
                       ),
+                    if (isOwner && userMsgController != null)
+                      AnimatedPadding(
+                        duration: const Duration(milliseconds: 180),
+                        curve: Curves.easeOutCubic,
+                        padding: EdgeInsets.fromLTRB(16, 8, 16, 12 + keyboardBottom),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Expanded(
+                              child: TextField(
+                                controller: userMsgController,
+                                minLines: 1,
+                                maxLines: 4,
+                                textInputAction: TextInputAction.newline,
+                                style: TextStyle(color: primaryText, fontSize: 13),
+                                decoration: inputDecoration(l10n.inquiryUserReplyLabel),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            SizedBox(
+                              height: 48,
+                              width: 48,
+                              child: FilledButton(
+                                style: FilledButton.styleFrom(
+                                  backgroundColor: accent,
+                                  foregroundColor: whiteMode ? Colors.white : _appBg,
+                                  padding: EdgeInsets.zero,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                                onPressed: replying
+                                    ? null
+                                    : () async {
+                                        await submitInquiryUserMessage(item, userMsgController);
+                                        if (detailContext.mounted) {
+                                          Navigator.pop(detailContext);
+                                        }
+                                      },
+                                child: replying
+                                    ? SizedBox(
+                                        width: 14,
+                                        height: 14,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                          color: whiteMode ? Colors.white : _appBg,
+                                        ),
+                                      )
+                                    : const Icon(Icons.send_rounded, size: 18),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                   ],
                 ),
               ),
             ),
           );
         },
-      );
+      ).whenComplete(() => userMsgController?.dispose());
     }
 
     Widget inquiryItem(Map<String, String> item) {

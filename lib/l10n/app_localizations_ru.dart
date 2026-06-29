@@ -191,6 +191,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get buySignalMessage => 'Сигналы покупки появятся здесь.';
 
   @override
+  String get checkStrategyCard =>
+      'Ознакомьтесь с карточкой стратегии для вашей зоны.';
+
+  @override
   String get currentPrice => 'Текущая цена';
 
   @override
@@ -1298,4 +1302,86 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get inquirySubmitButton => 'Отправить';
+
+  @override
+  String get inquiryUserReplyLabel => 'Add a follow-up message...';
+
+  @override
+  String get indicatorCnnFearGreed => 'CNN Страх & Жадность';
+
+  @override
+  String get indicatorVix => 'VIX Волатильность';
+
+  @override
+  String get indicatorUsSchedule => 'Важные события США';
+
+  @override
+  String get indicatorTenYearYield => 'Доходность США 10 лет';
+
+  @override
+  String get indicatorUsMarketTime => 'Время рынка США';
+
+  @override
+  String get indicatorVixHigh => 'Высокая волатильность';
+
+  @override
+  String get indicatorVixStable => 'Нормальная зона';
+
+  @override
+  String get indicatorVixDefault => 'Индикатор тревоги рынка';
+
+  @override
+  String get indicatorVixLow => 'Очень низкая волатильность';
+
+  @override
+  String get indicatorVixCaution => 'Зона осторожности';
+
+  @override
+  String get indicatorTenYearDesc => 'Ставка облигаций США 10 лет';
+
+  @override
+  String get marketWeekendLabel => 'Выходные · До открытия';
+
+  @override
+  String get marketPreOpenLabel => 'До открытия';
+
+  @override
+  String get marketToCloseLabel => 'До закрытия';
+
+  @override
+  String get marketClosedLabel => 'Рынок закрыт';
+
+  @override
+  String get marketClosedValue => 'Закрыто';
+
+  @override
+  String get noData => 'Нет данных';
+
+  @override
+  String get rsiOverbought => 'Перекуплено';
+
+  @override
+  String get rsiOversold => 'Перепродано';
+
+  @override
+  String get rsiNormal => 'Нейтрально';
+
+  @override
+  String get rsiOverboughtZone => 'Зона перекупленности';
+
+  @override
+  String get rsiOversoldZone => 'Зона перепроданности';
+
+  @override
+  String get rsiNormalZone => 'Нормальный диапазон';
+
+  @override
+  String get rsiOverboughtOversold => 'Перекупл. / Перепродано';
+
+  @override
+  String get coverStrategyTab => 'Вкладка стратегии';
+
+  @override
+  String get coverStrategyHint =>
+      'Проведите вверх, чтобы открыть вкладку стратегии';
 }

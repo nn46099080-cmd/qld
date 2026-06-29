@@ -122,7 +122,7 @@ abstract class AppLocalizations {
   /// No description provided for @noBuyZone.
   ///
   /// In en, this message translates to:
-  /// **'No Buy Zone'**
+  /// **'No Additional Buy Zone'**
   String get noBuyZone;
 
   /// No description provided for @tapToViewStrategy.
@@ -356,7 +356,7 @@ abstract class AppLocalizations {
   /// No description provided for @holdQLDPlusCash.
   ///
   /// In en, this message translates to:
-  /// **'QLD + 30% Cash'**
+  /// **'QLD 70% + 30% Cash'**
   String get holdQLDPlusCash;
 
   /// No description provided for @basePositionDescription.
@@ -455,6 +455,12 @@ abstract class AppLocalizations {
   /// **'Buy signals will automatically appear here.'**
   String get buySignalMessage;
 
+  /// No description provided for @checkStrategyCard.
+  ///
+  /// In en, this message translates to:
+  /// **'Check the strategy card for your current zone.'**
+  String get checkStrategyCard;
+
   /// No description provided for @currentPrice.
   ///
   /// In en, this message translates to:
@@ -482,7 +488,7 @@ abstract class AppLocalizations {
   /// No description provided for @noBuyZoneTitle.
   ///
   /// In en, this message translates to:
-  /// **'No Buy Zone'**
+  /// **'No Additional Buy Zone'**
   String get noBuyZoneTitle;
 
   /// No description provided for @strategyOverview.
@@ -2422,6 +2428,168 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Submit'**
   String get inquirySubmitButton;
+
+  /// No description provided for @inquiryUserReplyLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a follow-up message...'**
+  String get inquiryUserReplyLabel;
+
+  /// No description provided for @indicatorCnnFearGreed.
+  ///
+  /// In en, this message translates to:
+  /// **'CNN Fear & Greed'**
+  String get indicatorCnnFearGreed;
+
+  /// No description provided for @indicatorVix.
+  ///
+  /// In en, this message translates to:
+  /// **'VIX Volatility'**
+  String get indicatorVix;
+
+  /// No description provided for @indicatorUsSchedule.
+  ///
+  /// In en, this message translates to:
+  /// **'Major U.S. Events'**
+  String get indicatorUsSchedule;
+
+  /// No description provided for @indicatorTenYearYield.
+  ///
+  /// In en, this message translates to:
+  /// **'U.S. 10Y Yield'**
+  String get indicatorTenYearYield;
+
+  /// No description provided for @indicatorUsMarketTime.
+  ///
+  /// In en, this message translates to:
+  /// **'U.S. Market Time'**
+  String get indicatorUsMarketTime;
+
+  /// No description provided for @indicatorVixHigh.
+  ///
+  /// In en, this message translates to:
+  /// **'High volatility'**
+  String get indicatorVixHigh;
+
+  /// No description provided for @indicatorVixStable.
+  ///
+  /// In en, this message translates to:
+  /// **'Normal zone'**
+  String get indicatorVixStable;
+
+  /// No description provided for @indicatorVixDefault.
+  ///
+  /// In en, this message translates to:
+  /// **'Market anxiety index'**
+  String get indicatorVixDefault;
+
+  /// No description provided for @indicatorVixLow.
+  ///
+  /// In en, this message translates to:
+  /// **'Very low volatility'**
+  String get indicatorVixLow;
+
+  /// No description provided for @indicatorVixCaution.
+  ///
+  /// In en, this message translates to:
+  /// **'Caution zone'**
+  String get indicatorVixCaution;
+
+  /// No description provided for @indicatorTenYearDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'10-year bond rate'**
+  String get indicatorTenYearDesc;
+
+  /// No description provided for @marketWeekendLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Weekend · To Open'**
+  String get marketWeekendLabel;
+
+  /// No description provided for @marketPreOpenLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'To Open'**
+  String get marketPreOpenLabel;
+
+  /// No description provided for @marketToCloseLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'To Close'**
+  String get marketToCloseLabel;
+
+  /// No description provided for @marketClosedLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Market Closed'**
+  String get marketClosedLabel;
+
+  /// No description provided for @marketClosedValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Closed'**
+  String get marketClosedValue;
+
+  /// No description provided for @noData.
+  ///
+  /// In en, this message translates to:
+  /// **'No data'**
+  String get noData;
+
+  /// No description provided for @rsiOverbought.
+  ///
+  /// In en, this message translates to:
+  /// **'Overbought'**
+  String get rsiOverbought;
+
+  /// No description provided for @rsiOversold.
+  ///
+  /// In en, this message translates to:
+  /// **'Oversold'**
+  String get rsiOversold;
+
+  /// No description provided for @rsiNormal.
+  ///
+  /// In en, this message translates to:
+  /// **'Neutral'**
+  String get rsiNormal;
+
+  /// No description provided for @rsiOverboughtZone.
+  ///
+  /// In en, this message translates to:
+  /// **'Overbought zone'**
+  String get rsiOverboughtZone;
+
+  /// No description provided for @rsiOversoldZone.
+  ///
+  /// In en, this message translates to:
+  /// **'Oversold zone'**
+  String get rsiOversoldZone;
+
+  /// No description provided for @rsiNormalZone.
+  ///
+  /// In en, this message translates to:
+  /// **'Normal range'**
+  String get rsiNormalZone;
+
+  /// No description provided for @rsiOverboughtOversold.
+  ///
+  /// In en, this message translates to:
+  /// **'Overbought / Oversold'**
+  String get rsiOverboughtOversold;
+
+  /// No description provided for @coverStrategyTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Strategy Tab'**
+  String get coverStrategyTab;
+
+  /// No description provided for @coverStrategyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Swipe up to view the Strategy Tab'**
+  String get coverStrategyHint;
 }
 
 class _AppLocalizationsDelegate
