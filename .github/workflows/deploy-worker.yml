@@ -1,0 +1,41 @@
+name: Deploy Cloudflare Worker
+
+on:
+  workflow_dispatch:
+    inputs:
+      deploy_type:
+        description: 'Deploy type'
+        required: true
+        default: 'worker'
+        type: choice
+        options:
+          - worker
+          - kv-update
+      kv_version:
+        description: 'latestVersionCode (kv-update 선택 시)'
+        required: false
+        default: ''
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deploy Worker
+        if: ${{ inputs.deploy_type == 'worker' }}
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          workingDirectory: cloudflare-worker
+          wranglerVersion: '3'
+
+      - name: Update KV app-config
+        if: ${{ inputs.deploy_type == 'kv-update' && inputs.kv_version != '' }}
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          workingDirectory: cloudflare-worker
+          wranglerVersion: '3'
+          command: kv key put "app-config" '{"latestVersionCode":${{ inputs.kv_version }},"forceUpdate":false,"updateUrl":"https://play.google.com/store/apps/details?id=com.qldalert.app","announcement":{"enabled":false}}' --namespace-id f5254cd9cfde4f6397dd16c89cff1349 --remote
