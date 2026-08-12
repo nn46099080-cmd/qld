@@ -2297,7 +2297,8 @@ class _ChartPageState extends State<ChartPage> {
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
                   borderSide: BorderSide(
-                    color: (whiteMode ? _lightBlue : _blue).withValues(alpha: 0.65),
+                    color: (whiteMode ? _lightBlue : _blue)
+                        .withValues(alpha: 0.65),
                   ),
                 ),
               ),
@@ -2378,9 +2379,8 @@ class _ChartPageState extends State<ChartPage> {
                                 isFavorite
                                     ? Icons.star_rounded
                                     : Icons.star_border_rounded,
-                                color: isFavorite
-                                    ? Colors.amberAccent
-                                    : faintText,
+                                color:
+                                    isFavorite ? Colors.amberAccent : faintText,
                                 size: 20,
                               ),
                               onPressed: () => toggleFavorite(item),
@@ -2403,7 +2403,9 @@ class _ChartPageState extends State<ChartPage> {
                               padding: const EdgeInsets.only(left: 10),
                               child: Icon(
                                 Icons.search_rounded,
-                                color: whiteMode ? const Color(0xFFCBD5E1) : Colors.white24,
+                                color: whiteMode
+                                    ? const Color(0xFFCBD5E1)
+                                    : Colors.white24,
                                 size: 20,
                               ),
                             ),

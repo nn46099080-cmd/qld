@@ -61,3 +61,6 @@ app.*.map.json
 .wrangler/
 .xdg/
 build/
+
+시크릿 키 클라우드 플레어.txt
+명령어.txt

@@ -1073,6 +1073,2369 @@ A Sentence to Remember
     ),
   ];
 
+  static const _japaneseBodies = <String>[
+    // Ch1. 投資と投機の違い
+    '''市場に参加した人は全員、投資家なのだろうか？
+ドットコムバブルは、「インターネット」という言葉さえつければ株価が上がる時代だった。売上もなく、利益もなく、ビジネスモデルさえ不明確な企業が存在した。それでも投資家たちは熱狂した。株価は毎日上がった。メディアは新しい富豪の話を次々と報じた。大学生は教室よりも株式掲示板を見る時間のほうが長く、サラリーマンは昼休みのたびに銘柄の話をした。
+
+当時、多くの人が自分を投資家だと思っていた。しかし私がその光景を見ていたなら、こう言っていただろう。「彼らは投資家ではない。」彼らは投機師だった。
+
+2000年にバブルが崩壊すると、数多くの企業が消えた。一夜にして数十パーセントの損失が発生し、生涯かけて積み上げた資産を失った人も少なくない。興味深いのは、損失を出した人々のほとんどが、自分が何を買ったのか正確に説明できなかったという事実だ。彼らは企業を買ったのではなく、価格の上昇を買ったのだ。これこそが投資と投機の違いである。
+
+投資と投機はまったく異なるゲームだ
+
+ほとんどの人は投資と投機を似たようなものだと考えている。株を買えば投資で、コインを買えば投機だと考える人もいる。しかし私はまったく違う考え方をする。私はこの文章の中で、投資とは次の三つの条件を満たさなければならないと述べている。
+
+第一に、十分な分析が必要である。第二に、元本保護が考慮されなければならない。第三に、満足できるリターンが期待できなければならない。この条件を満たさないものはすべて投機だと私は定義する。
+
+重要なのは何を買うかではない。どんな考えで買うかが重要だ。アップルの株を買っても、理由が「明日上がりそうだから」なら投機だ。逆にETFを買っても、企業の成長性と長期的な経済発展を分析した結果であれば投資に近い。商品が投資と投機を分けるのではない。考え方が分けるのだ。
+
+価格は毎日変わるが、価値はゆっくり変わる
+
+株式市場に初めて入った人々は、ほとんどが価格に集中する。今日何パーセント上がったか、今週いくら儲かったか、他の人はどんな銘柄を買っているか。しかし投資家は価格よりも価値を見る。
+
+例を挙げよう。あなたがソウルの江南に建物を一棟所有していると仮定しよう。ある日、誰かが来て50億ウォンで買うと言う。翌日は40億ウォンで買うと言う。そして一週間後、また55億ウォンで買うと言う。建物そのものは何も変わっていない。家賃も同じだ。立地も同じだ。建物の価値も大きく変わっていない。変わったのは提示価格だけだ。
+
+株も同じだ。市場価格は毎日動く。しかし企業の価値はそれほど速く変わらない。投資家は価値を見る。投機師は価格だけを見る。
+
+人間はもともと投機が好きだ
+
+投資が難しい理由は人間の本能にある。人々はゆっくり金持ちになることを嫌う。年10%のリターンを20年間維持する話は退屈だ。しかし1ヶ月で300%上昇した銘柄の話は面白い。だから人々は自然に投機に引き寄せられる。
+
+私たちの脳はもともと即座な報酬を好むように設計されている。今日1%を稼ぐよりも、明日100%を稼げる可能性に対してより興奮する。問題は市場がその心理を絶えず利用しているという点だ。
+
+上昇相場では誰もが天才のように見える。どんな銘柄を買っても上がる。周囲の人々はお金を稼いでいる。SNSは利益報告で溢れかえる。その瞬間、投資家は知らず知らずのうちに考える。「自分だけ取り残されているのではないか？」まさにその瞬間から分析は消え、感情が投資の意思決定を支配し始める。
+
+なぜウォーレン・バフェットは富を築いたのか
+
+多くの人はウォーレン・バフェットが並外れた投資スキルを持っていると考えている。もちろん事実だ。しかし彼の最も強力な武器は銘柄選定能力ではない。時間だ。
+
+バフェットは若い頃から良い企業を見つけ、長期間保有した。彼は翌日の株価を予測しようとしなかった。来月の金利を当てようとしなかった。来四半期の業績を予測しようともしなかった。彼はシンプルな問いに集中した。「この企業は10年後も強いだろうか？」「20年後も生き残っているだろうか？」この問いが彼の人生を変えた。実際、バフェットの資産のほとんどは60歳以降に築かれた。複利が機能する時間を十分に与えたからだ。投機師は時間を敵だと考える。投資家は時間を友にする。
+
+現代の投資家にETFが重要な理由
+
+私が初めて投資を学んだ頃は、ほとんどがファンドだった。しかし今日の個人投資家はずっと有利な環境にある。QQQ、SPY、VOO、そしてQLDのようなETFが存在する。これらの商品は数十、数百の企業に自動的に分散投資することを可能にしてくれる。
+
+しかし一つだけ変わらないことがある。ETFも投資として使うことができるし、投機として使うこともできるという点だ。毎日価格だけを眺めているなら、ETFも投機のツールになる。逆に、長期的な経済成長に参加するという観点でアプローチすれば、優れた投資手段となる。
+
+QLD投資家は何に投資しているのか
+
+多くの人はQLDを単なるレバレッジETFだと考えている。しかしそれは半分しか正しくない。QLDはナスダック100指数の約2倍のリターンを追求する。つまり、QLDを保有するということは単にETFを保有することではなく、アメリカの技術革新に参加することだ。アップル、マイクロソフト、エヌビディア、アマゾン、メタ、ブロードコム——これらの企業が今後も成長すると信じるなら、QLDは投資対象になり得る。しかし単に「来月上がりそうだ」という理由でアプローチするなら、それは投機に過ぎない。同じ商品、異なる考え方。結果はまったく異なる。
+
+投資家の最大の敵
+
+初心者投資家は市場を恐れる。暴落を恐れる。経済危機を恐れる。しかし時間が経つと、本当の敵が誰なのかわかってくる。投資家の最大の敵は市場ではない。自分自身だ。恐怖、貪欲、焦り、後悔、嫉妬——これらの感情が数多くの投資家を市場の外へ追い出す。市場は最終的に回復することが多い。しかし恐怖に打ち負かされた投資家は回復しない。だから投資の本質は銘柄選択ではない。心理管理だ。
+
+第1章 まとめ
+投資と投機はまったく異なる。
+投資家は価値を買い、投機師は価格を買う。
+価格は毎日変わるが、価値はゆっくり変わる。
+人間の本性は投機を好む。
+バフェットの最大の武器は予測ではなく時間だった。
+ETFも投資手段になり得るし、投機手段にもなり得る。
+QLDはアメリカの技術革新への長期投資の観点でアプローチすべきだ。
+投資家の最大の敵は市場ではなく自分の感情だ。
+
+覚えておくべき言葉
+
+「投資は未来を当てるゲームではない。良い資産を適切な価格で買い、十分な時間を与えるプロセスだ。」''',
+    // Ch2. なぜほとんどの投資家は失敗するのか
+    '''市場は難しくない。しかし人間の感情は難しい。
+最も危険なのは無知ではない
+
+多くの人は、投資に失敗する理由は情報不足だと考えている。良い銘柄を知らないから、経済を知らないから、専門家ではないから。だから投資に成功するには膨大な知識が必要だと信じる。もちろん知識は重要だ。しかし投資の歴史を振り返ると、驚くべき事実が見えてくる。ほとんどの投資家は知らないことで失敗するのではない。知っていても失敗するのだ。
+
+人々は「安く買って高く売るべきだ」という事実を知っている。長期投資が重要だという事実も知っている。恐怖で売ってはいけないという事実も知っている。しかし実際の状況になると、まったく反対の行動をとる。株価が上がるときはもっと上がりそうだから買い、株価が下がるときはもっと下がりそうだから売る。結果として高く買って安く売る。問題は情報ではない。問題は行動だ。そして行動を決めるのは感情だ。
+
+人間の脳は投資に不利なように設計されている
+
+人間はもともと投資家になるように進化したのではない。数十万年の間、人間は生存のために即座な危険に反応しなければならなかった。森の中で猛獣が現れたら逃げなければならなかった。火が起きたら避けなければならなかった。危険を過大に認識することが生存に有利だった。
+
+しかし金融市場は違う。市場の下落は猛獣ではない。株価が20%下落しても、明日すぐに굶え死にするわけではない。しかし人間の脳はそう受け取らない。株式口座が赤く染まり始めると、脳は実際の危険と似たレベルのストレスを感じる。だから恐怖に陥る。そして恐怖は合理的な判断を麻痺させる。これが多くの投資家が暴落時に売却する理由だ。
+
+ドットコムバブルが残した教訓
+
+1990年代後半のアメリカではインターネット革命が始まっていた。新しい技術が登場し、世界は急速に変わっていた。人々はインターネットが未来だと信じた。その信念自体は間違っていなかった。実際、インターネットは世界を変えた。問題は人々が未来を信じたのではなく、価格に酔いしれたという点だ。
+
+当時は企業名に「.com」がついただけで株価が急騰した。売上がなくても、利益がなくても、ビジネスモデルがなくても構わなかった。人々は「どうせ上がり続けるだろう」と考えた。しかし現実は違った。2000年にバブルが崩壊し始めた。数多くのインターネット企業が消えた。ナスダック指数は約80%近くも暴落した。当時市場に初めて参入した多くの個人投資家が大きな損失を被った。興味深いのは、彼らがバカではなかったという事実だ。むしろ賢い人も多かった。しかし群集心理に勝てなかった。人々が稼いでいる姿を見て遅れて飛び込んだ。そして結果として最も高い価格で買った。
+
+金融危機はまた別の姿を見せた
+
+2008年の金融危機はドットコムバブルとは反対だった。今度は貪欲ではなく恐怖が市場を支配した。ニュースでは毎日経済崩壊を語っていた。大手金融機関が倒産した。失業率は急上昇した。人々は現金を持っていなければ安全でないと考えた。当時多くの投資家が「今回は本当に違う」と言った。しかし歴史的に市場は常に似た言葉を聞いてきた。1929年にも、1973年にも、1987年にも、2000年にも、そして2008年にも。恐怖はいつも特別に見える。しかしほとんどの場合、市場は結局回復した。問題は多くの投資家が回復を待てなかったことだ。彼らは最悪のタイミングで売却した。そして回復が始まった後、また高い価格で戻ってきた。
+
+コロナ暴落は人間の心理を改めて証明した
+
+2020年のコロナパンデミックはまた一つの実験だった。わずか数週間で市場は急落した。都市が封鎖され、工場が止まり、飛行機が止まり、経済活動が停止した。当時多くの専門家が長期の不況を予想した。しかし市場は予想よりもはるかに早く回復した。恐怖で売却した人々は衝撃を受けた。彼らが市場の外で待っている間に市場は再び上昇し始めた。一方、原則を守った投資家は回復の恩恵を受けた。コロナ暴落は重要な事実を改めて示した。投資の成功は未来を当てる能力ではなく、原則を守る能力だという事実だ。
+
+私の警告
+
+私は投資家の最大の敵が自分自身である可能性があると考える。多くの人は市場に勝とうとする。しかし実際には自分の感情に勝つことのほうがずっと難しい。市場は強制的に売らせることはしない。決断を下すのは結局投資家自身だ。したがって投資家は市場よりも自分の心理をまず理解しなければならない。恐怖に陥ったときにどんな行動をとるか、貪欲を感じたときにどんなミスを犯すか——自分の弱点を知らなければならない。
+
+バフェットが特別な理由
+
+バフェットは自分が未来を正確に予測できないことをよく知っている。だから彼は予測よりも原則に頼る。良い企業、強い競争力、健全な財務構造、合理的な価格。彼は数十年間同じ原則を繰り返した。市場が恐怖に陥っても原則を捨てなかった。彼の強みは知能よりも一貫性にあった。
+
+ETF投資家も同じミスを繰り返す
+
+多くの人はETFを買えば自動的に成功すると考える。しかしETFも結局人間が投資する。ETF投資家も恐怖に陥ることができる。実際に多くの投資家がETFを最も高い時期に買い、最も安い時期に売る。ETFは良いツールだ。しかしツールがユーザーの感情を取り除いてくれるわけではない。長期投資に成功するためにはETFより重要なものがある。それは行動だ。
+
+QLD投資家が必ず知っておくべきこと
+
+QLDは一般的なETFよりもボラティリティが大きい。上昇するときは速く上昇するが、下落するときも速く下落する。したがって感情に従って行動する投資家は長期的に生き残ることが難しい。QLD投資家は下落を例外ではなくプロセスとして受け入れなければならない。-20%も、-30%も、-40%も、場合によってはそれ以上もあり得る。重要なのは下落ではなく対応だ。あらかじめ原則を決めておいた投資家は揺れない。しかし原則のない投資家は市場とともに揺れる。
+
+第2章 まとめ
+ほとんどの投資家は情報不足よりも感情のために失敗する。
+人間の脳はもともと投資に不利なように設計されている。
+ドットコムバブルは貪欲の危険性を示す。
+金融危機とコロナ暴落は恐怖の危険性を示す。
+私は投資家の最大の敵が自分自身だと言う。
+バフェットの強みは予測能力ではなく原則を守る能力だった。
+ETF投資家も感情をコントロールできなければ失敗することがある。
+QLD投資家はボラティリティを受け入れ、計画に従って行動すべきだ。
+
+覚えておくべき言葉
+
+「市場はあなたを破滅させない。恐怖と貪欲に揺れるあなたの行動があなたを破滅させる。」''',
+    // Ch3. 市場
+    '''市場はあなたの主人ではなく、下僕だ
+毎朝ドアをノックする不思議な男
+
+想像してみよう。あなたがある優れたビジネスの共同オーナーだと仮定しよう。ビジネスは安定的に成長している。毎年売上が増え、収益も着実に伸びている。しかし一つ不思議なことがある。毎朝一人の男があなたの家のドアをノックする。その男の名前は市場だ。
+
+彼は毎日同じ質問をする。「今日、あなたの持ち分を買います。」または「今日、私の持ち分を買いますか？」問題は彼が提示する価格が毎日変わるということだ。ある日は非常に楽観的だ。ビジネスの見通しが明るいとして法外に高い価格を提示する。一方、ある日はまったく落ち込んで、安値で売ろうとする。ビジネス自体は何も変わっていないのに価格だけが大きく変わるのだ。
+
+私はまさにこの比喩を通じて株式市場の本質を説明する。私はこの不思議な男を「市場氏(Mr. Market)」と呼ぶ。
+
+ほとんどの人は市場を誤解している
+
+私にとって市場は単なるツールだ。しかしほとんどの人は彼を師匠のように扱う。市場価格が上がると喜び、市場価格が下がると不安になる。まるで市場が真実を知っているかのように行動する。しかし市場は予言者ではない。市場はただ価格を提示するだけだ。その価格が必ずしも正しいわけではない。むしろ歴史的に市場は数え切れないほど間違ってきた。
+
+ドットコムバブル時代の市場
+
+1999年、市場は世界で最も楽観的な人物になった。インターネットが世界を変えるという信念は事実だった。問題はその信念が狂気に変わったことだ。売上もなく利益もない企業が数十億ドルの価値を認められた。企業名に「.com」がついただけで株価が急騰した。当時市場は毎日より高い価格を叫び、人々は「市場がこれだけ評価しているのだから間違いのはずがない」と考えた。しかし市場は間違っていた。2000年にバブルが崩壊すると数多くの企業が消えた。当時の価格は企業価値ではなく集団的な興奮を反映した数字に過ぎなかった。
+
+金融危機時代の市場
+
+2008年になると状況は一変した。今度は貪欲ではなく恐怖が市場を支配した。市場は毎日より低い価格を提示した。多くの投資家は市場が何かを知っていると思い急いで売却した。しかし実際にはそうではなかった。優良企業は依然として製品を売っていた。従業員は依然として出勤していた。変わったのは人々の感情だけだった。数年後、市場は回復し新たな最高値を記録した。結局間違っていたのは企業ではなく市場の感情だった。
+
+コロナ暴落は何を示したか
+
+2020年のコロナパンデミックは市場のまた別の姿を見せた。わずか数週間で市場は急落した。ニュースは毎日最悪のシナリオを語り、人々は現金を持って逃げ出した。その瞬間市場は完全に恐怖に陥っていた。しかしわずか数ヶ月後に市場は反発し始め、1年後には史上最高値を更新した。興味深いのは企業の本質的な価値がそれほど速く変わったのではないという事実だ。変わったのは人々の感情だった。市場はその感情を価格として表現しただけだ。
+
+バフェットはなぜ市場が好きだったのか
+
+ウォーレン・バフェットは市場がとても好きだった。しかしほとんどの投資家とは理由が違った。人々は市場が上がると喜び下がると嫌がる。バフェットはむしろ市場が非合理的であるほど喜んだ。なぜなら機会が生まれるからだ。良い企業が恐怖のために安く取引されているなら、それは長期投資家への贈り物のようなものだ。バフェットは常に価格と価値を区別した。市場が低い価格を提示しても価値が低くなるわけではないと考えた。彼は市場を参考にはしたが、決して従うことはなかった。
+
+QLD投資家にとって市場はさらに重要だ
+
+QLDはナスダック100の約2倍の動きを追求する。したがって市場の感情がより極端に反映される。ナスダックが10%下落すれば、QLDははるかに大きく下落することがある。その瞬間多くの投資家は「これは間違っているのではないか？」「もっと下がるのではないか？」「今からでも売るべきか？」という考えをする。しかしこのときこそ市場の本質を理解しなければならない。価格は感情だ。価値は別の問題だ。もしアメリカのテクノロジー企業の長期的な競争力が維持されているなら、価格の下落が即座に価値の下落を意味するわけではない。むしろ長期投資家にとってはより良い参入機会になることもある。
+
+賢明な投資家は市場を利用する
+
+ほとんどの人は市場に利用される。市場が興奮すると一緒に興奮し、市場が恐怖に陥ると一緒に恐怖に陥る。しかし私は違う行動をする。市場が過熱すると警戒し、市場が恐怖に陥ると機会を探す。私は市場の気分についていかない。市場の気分を活用する。これこそが私の言う市場の真の意味だ。
+
+第3章 まとめ
+市場は毎日価格を提示するが、常に正しいわけではない。
+価格と価値は異なる。
+ドットコムバブルは市場の貪欲を示す。
+金融危機とコロナ暴落は市場の恐怖を示す。
+バフェットは市場の感情を利用した。
+ETF投資家も市場心理に振り回されることがある。
+QLD投資家は価格よりも価値に集中すべきだ。
+市場は主人ではなく下僕だ。
+
+覚えておくべき言葉
+
+「市場はあなたに価格を提示するだけだ。その価格を受け入れるかどうかはあなたの選択だ。」''',
+    // Ch4. 安全マージン
+    '''偉大な投資家がまず考えたのは収益ではなく生存だった
+飛行機に予備燃料がある理由
+
+あなたが飛行機でソウルからニューヨークへ行くと仮定しよう。パイロットは出発前に燃料を計算する。ソウルからニューヨークまで必要な燃料を正確に計算することは難しくない。それでも航空会社はちょうど必要なだけの燃料しか積まない、ということはしない。常に余裕分を準備する。天候が悪化することもあるし、空港が混雑することもあるし、予期しない問題が発生することもあるからだ。もし必要な分だけの燃料しか積んでいなければ、たった一つの変数だけで致命的な結果が生じることがある。
+
+投資も同じだ。問題はほとんどの投資家が利回りには執着しながら安全余裕には関心がないということだ。彼らはより高いリターンを求め、より速い富を求める。そしてその過程で最も重要なことを忘れる。それは生存だ。
+
+私が最も重要だと考える概念
+
+この文章を読んでいる人なら必ず覚えておくべき言葉がある。それは安全マージン(Margin of Safety)だ。私は数多くの投資原則を語るが、結局すべての哲学は安全マージンに帰結する。私は人間が未来を正確に予測することはできないと考える。経済の見通しも、企業業績の予測も、専門家の分析も、さらには自分の判断も間違いうる。だから私は常に問いかける。「私が間違えても生き残ることができるか？」この問いこそが安全マージンの始まりだ。
+
+なぜほとんどの投資家は安全マージンを無視するのか
+
+理由は単純だ。安全マージンは退屈だからだ。現金を保有すると利回りが低く見える。分散投資をすると大当たりが難しくなりそうだ。レバレッジを減らすと成長速度が遅くなりそうだ。人々は即座な結果を求めるため、リスクを過小評価する。
+
+上昇相場では特にそうだ。市場が上がり続けるときは誰もが天才のように見える。保守的な投資家は出遅れているように見え、現金を持っている人はバカのように見える。しかし市場は常に同じ方法で人々を欺く。上昇相場ではリスクが見えない。下落相場が来て初めてリスクが見える。そしてそのときにはすでに手遅れの場合が多い。
+
+バフェットが絶対にしないこと
+
+ウォーレン・バフェットは世界最高の投資家の一人だが、意外にもしないことが多い。彼は理解できないビジネスには投資しない。過度な負債を嫌う。全財産を一つのアイデアに賭けない。バフェットが臆病者だからではない。彼はリスクを正確に理解しているからだ。
+
+バフェットはこう言った。「ルール1：お金を失うな。ルール2：ルール1を忘れるな。」もちろん投資では損失が発生することもある。バフェットの言う本当の意味は、回復不可能な損失を避けよということだ。50%の損失が発生したら、元本を回復するには100%の上昇が必要だ。80%の損失なら400%の上昇が必要だ。95%の損失なら回復はほぼ不可能だ。だから偉大な投資家たちは利回りよりも生存を先に考える。
+
+ドットコムバブルと金融危機が教えてくれたこと
+
+1999年には安全マージンという概念自体が無視された。利益もない企業が数十億ドルの価値を認められ、人々は「今回は違う」と言った。歴史上最も危険な言葉の一つだ。2000年にバブルが崩壊すると数多くの企業が消えた。問題はインターネットではなかった。問題は安全マージンがなかったことだ。
+
+2008年の金融危機も同じ教訓を残した。当時多くの金融機関が過大なレバレッジを使った。安全余裕がなかった。市場が少し揺れただけで崩れる構造だったため、結局崩れた。一方、十分な現金を保有していた企業は生き残った。さらに危機を機会として活用することもあった。危機はいつも安全マージンの重要性を証明する。
+
+QLD投資家に安全マージンが重要な理由
+
+QLDはナスダック100の約2倍のリターンを追求する。長期的に高い成長可能性があるが、ボラティリティも大きい。だから安全マージンがさらに重要だ。もしすべての資産をQLDに投資していれば、ナスダックが大幅に下落した場合、極度の心理的プレッシャーを受けることになる。多くの人がその瞬間に計画を諦める。逆に現金を保有していれば話が違う。下落は危機ではなく機会になる。
+
+例えばQLD -20%で少額買い付け、-30%で現金の一部を投入、-40%で積極的な買い付け、-50%で長期的な観点の機会検討——このような戦略は結局安全マージンから出発する。現金は単なる待機資金ではない。機会を買える権利だ。
+
+本当のリスクとは何か
+
+多くの投資家はボラティリティをリスクだと考える。しかし私は違う考え方をする。本当のリスクは価格変動ではない。永続的な資本損失だ。株価が一時的に30%下落することはリスクではないかもしれない。しかし恐怖のために底値で売ること、良い企業を理解せずに投資すること、過大なレバレッジを使うこと——これが本当のリスクだ。安全マージンのない状態で投資することが本当のリスクだ。
+
+第4章 まとめ
+安全マージンは私の哲学の核心だ。
+未来は予測できないため、常に余裕を持つべきだ。
+利回りよりも生存が重要だ。
+バフェットはリスクよりも生存確率を先に見る。
+ドットコムバブルと金融危機は安全マージンの重要性を示す。
+現金は機会を買える権利だ。
+ETF投資家にも安全マージンが必要だ。
+QLD投資家は特に現金とルールに基づく戦略が重要だ。
+
+覚えておくべき言葉
+
+「優れた投資家は最も多くの金を稼ぐ人ではない。最も長く生き残って複利の力を享受する人だ。」''',
+    // Ch5. 群集心理と投資
+    '''市場は数字で動くように見えるが、結局は人間の感情で動く
+人々はなぜ同じミスを繰り返すのか
+
+1637年のオランダで、チューリップの球根一つが家一軒分の価格で取引された。1929年のアメリカで、人々は借金をして株を買った。2000年のドットコムバブルで、収益のないインターネット企業が数十億ドルの価値を認められた。2021年のミーム株ブームで、業績とは関係なくインターネットコミュニティの熱狂によって株価が急騰した。
+
+時代も異なり国も異なる。投資対象も異なる。しかし驚くほど共通点がある。人々はいつも同じミスを繰り返す。なぜだろうか？その理由は、市場は数字で動くように見えるが実際には人間の感情で動くからだ。恐怖、貪欲、希望、後悔、嫉妬——こうした感情が集まって価格を作る。そして投資家は思っている以上に感情に弱い。
+
+人間はもともと群れに従うように進化した
+
+数万年前、人類にとって群れに従うことは生存戦略だった。部族全体が一方向へ逃げるときに一人で残るのは危険だった。だから人間の脳は本能的に多数の行動を信頼するように発達した。
+
+問題は金融市場がこの本能を利用するという点だ。市場で全員が同じ方向に動くとき、人々は強い心理的プレッシャーを感じる。周囲の人々が稼いでいると不安になり、SNSで利益報告が溢れると焦り、ニュースで新しい投資ブームを語ると取り残される感じがする。この感情を投資の世界ではFOMO（Fear Of Missing Out）、機会を逃しそうな恐れと呼ぶ。興味深いのは投資失敗の多くがこの感情から始まるという事実だ。
+
+ドットコムバブルが示した群集心理の力
+
+1999年のアメリカではインターネットが世界を変えるという信念が広がっていた。実はこの信念自体は間違っていなかった。インターネットは実際に世界を変えた。問題は人々が未来の可能性を現実よりもはるかに大きく評価したという点だ。インターネット企業なら無条件に上がると信じた。企業名に「.com」がつくだけで投資家が殺到した。人々は企業を分析しなかった。ただ他の人が買っているから従って買った。
+
+群衆はお互いを説得した。「今回は違う。」「新しい時代が来た。」「昔の基準では説明できない。」そしていつもそうであるように市場は現実に戻ってきた。バブルは崩壊し、数多くの企業が消え、多くの投資家が財産の大部分を失った。群集心理は上昇相場で最も危険だ。なぜならその瞬間、全員が自分が正しいと信じているからだ。
+
+金融危機は恐怖の群集心理を示した
+
+ドットコムバブルが貪欲の事例なら、2008年の金融危機は恐怖の事例だった。当時人々は経済システム自体が崩壊すると考えた。ニュースでは毎日危機のニュースを伝えた。銀行が倒産し、失業率が上昇し、株価は下がり続けた。多くの投資家が恐怖に駆られて最も悪いタイミングで売却した。
+
+上昇相場では群衆が貪欲であり、下落相場では群衆が恐怖的だ。しかし結果は似ている。どちらも誤った判断を生む。貪欲は過度に高い価格で買わせ、恐怖は過度に安い価格で売らせる。
+
+私のアドバイス
+
+私は市場の感情を理解することが重要だと言う。しかしより重要なのは感情に従わないことだ。私は投資家が群衆の意見を基準に判断してはならないと考える。ほとんどの人が買うからといって良い投資でもなく、ほとんどの人が売るからといって悪い投資でもない。重要なのは価値だ。市場参加者の数ではない。私は独立した思考を強調する。投資家は自ら判断しなければならない。群衆ではなく事実に基づかなければならない。
+
+バフェットはなぜ反対の行動をしたのか
+
+バフェットが特別な理由の一つは群衆と反対の行動ができたことだ。彼は市場が過熱したとき興奮しなかった。逆に市場が恐怖に陥ったとき機会を探した。2008年の金融危機当時、多くの投資家が市場を去るときバフェットは積極的に投資した。彼は他の人々の感情ではなく企業の価値を見た。恐怖が極度に高まる時期に買い付けることは人間の本能に反する行動だ。しかし長期投資家は本能よりも原則に従わなければならない。バフェットはそれを生涯実践した。
+
+QLD投資家が必ず理解すべき心理
+
+QLDは一般的なETFよりもボラティリティがはるかに大きい。したがって群集心理の影響をより強く受ける。QLDが急騰すると「今買わなければ遅れる」「今回は上がり続ける」という考えが浮かぶ。逆にQLDが急落すると「もっと下がりそうだ」「今からでも売るべきか」という恐怖が訪れる。しかしこのような感情は過去にも数えきれないほど繰り返され、これからも繰り返されるだろう。長期投資家は感情をなくそうとするのではない。代わりに感情に従って行動しない方法を学ぶ。それが核心だ。
+
+感情ではなくルールで投資せよ
+
+群集心理を完全になくすことはできない。人間だからだ。しかし影響を減らすことはできる。最良の方法はルールを作ることだ。QLD -20%で少額買い付け、-30%で現金の一部を投入、-40%で積極的な買い付け、-50%で計画された比率の投資——このようなルールがあれば感情が介入する余地が減る。市場が恐怖に陥っても行動基準が明確だ。ルールは感情の敵だ。そして長期投資家の最も強力な武器でもある。
+
+第5章 まとめ
+人間は本能的に群れに従うように設計されている。
+投資失敗の多くは群集心理から始まる。
+ドットコムバブルは貪欲の危険性を示す。
+金融危機は恐怖の危険性を示す。
+私は独立した思考を強調する。
+バフェットは群衆と反対の行動ができた。
+ETF投資家も群集心理に振り回されることがある。
+QLD投資家はルールに基づく投資が特に重要だ。
+
+覚えておくべき言葉
+
+「群衆が確信に満ちているときに最も注意せよ。そして群衆が絶望に陥っているときに最も冷静であれ。」''',
+    // Ch6. 市場はなぜ長期的に上昇するのか
+    '''暴落は繰り返されるが、なぜ市場は最高値を更新し続けるのか
+「今回は本当に終わったようだ」
+
+投資人生の中で一度は、こんな考えが頭をよぎる。株式市場が暴落する。ニュースでは危機を語り、専門家たちは景気後退を警告し、人々は現金を持って逃げ出す。そして多くの投資家が同じ言葉を口にする。「今回は本当に終わったようだ。」
+
+興味深い事実は、この言葉がほぼすべての時代に繰り返されてきたということだ。1929年の大恐慌、1973年のオイルショック、1987年のブラックマンデー、2000年のドットコムバブル、2008年の金融危機、2020年のコロナ暴落——毎回人々は世界が終わるかのように語った。しかし市場は結局回復した。そしてより高い場所へ上昇した。なぜだろうか？
+
+市場は単なる数字ではない
+
+多くの人は株式市場をチャートでしか見ない。しかし市場はチャートではない。市場は経済そのものだ。より正確に言えば、数多くの企業の集合体だ。アップル、マイクロソフト、エヌビディア、アマゾン、メタ、グーグル——これらの企業が毎日新しい製品を作り、サービスを改善し、顧客を増やしている。株価はその結果を反映する数字に過ぎない。したがって市場が長期的に上昇するということは、結局企業が成長しているということを意味する。企業が成長する限り、市場も成長する。
+
+人類は絶えず発展してきた
+
+100年前を考えてみよう。当時の人々はスマートフォンが何なのか知らなかった。インターネットもなかった。GPSもなかった。人工知能はSFにしか登場しなかった。しかし今私たちは手のひらの中のデバイスで全世界とつながり、数秒で情報を検索し、家から物を注文し、AIに質問をする。人類は絶えず生産性を高めてきた。そして生産性の向上は結局企業利益の増加につながった。企業利益が増加すれば株価も長期的に上昇する。市場上昇の最も根本的な原因はまさに生産性革新だ。
+
+歴史を見れば常に革新があった。1800年代には鉄道が、1900年代には自動車が世界を変えた。電気は産業構造を変え、コンピューターは業務の仕方を変え、インターネットは情報の流れを変え、スマートフォンは生活様式を変えた。そして今AIが登場しつつある。もちろんすべての企業が生き残るわけではない。しかし経済全体は発展する。市場はその発展の果実を反映する。
+
+危機の中でも市場は成長した
+
+1929年のアメリカ大恐慌は歴史上最も深刻な経済危機の一つだった。失業率は20%を超え、銀行が崩壊し、数多くの人々が仕事を失った。当時の人々は資本主義自体が終わったと考えた。しかし資本主義は終わらなかった。企業は生き残るために変化し、新しい産業が登場し、経済は回復した。
+
+多くの人はドットコムバブルを失敗として記憶する。しかしインターネットは失敗したのだろうか？いや。インターネットは人類の歴史上最も強力な革新の一つになった。失敗したのはインターネットではなかった。過大な期待だった。バブルは崩壊することがあるが、革新は残る。
+
+2008年の金融危機のとき、人々はアメリカ経済が崩壊すると考えた。しかし危機はむしろ企業をより強くした。コスト構造を改善し、効率を高め、新しい技術を導入した結果、生き残った企業は以前より強くなった。市場は危機を通じて浄化されることもある。
+
+ナスダックが特別な理由
+
+QLD投資家なら必ず理解すべき部分だ。ナスダックは単なる株価指数ではない。世界で最も革新的な企業が集まる場所だ。アップル、マイクロソフト、エヌビディア、アマゾン、メタ、ブロードコム——これらの企業の共通点は未来を作るという点だ。技術革新の中心にあるという点だ。したがってナスダックは人類の生産性向上の直接的な恩恵を受ける。
+
+QLDを保有するということは単にETFを保有することではない。人類の発展を信じることだ。技術革新を信じることだ。もちろん途中には暴落も来るし、バブルも来るし、恐怖も来る。しかし長期投資家はそのすべてを含めて投資する。暴落がないと信じるのではない。暴落があっても結局革新は続くと信じる。
+
+市場は直線的に上がらない。階段のように上がる。上昇、調整、暴落、回復、そして再び上昇——このプロセスが繰り返される。多くの投資家は暴落を異常だと考える。しかし歴史的に暴落は正常だ。むしろ暴落のない市場が異常だ。したがって長期投資家は暴落をなくそうとするのではない。暴落を含めた状態で投資計画を立てる。
+
+第6章 まとめ
+市場は企業成長の結果を反映する。
+長期的な市場上昇の原因は生産性の向上だ。
+鉄道、自動車、インターネット、AIはすべて市場成長の原動力だった。
+大恐慌、金融危機、コロナも市場の上昇を止めることができなかった。
+革新は残り、バブルは消える。
+ナスダックは世界の革新企業の集合体だ。
+QLD投資家は技術革新に投資しているのだ。
+暴落は例外ではなく市場の一部だ。
+
+覚えておくべき言葉
+
+「市場は危機のために成長するのではなく、危機の中でも発展し続ける人間の能力のために成長する。」''',
+    // Ch7. ドットコムバブルの教訓
+    '''未来を正しく見た人でもお金を失う可能性がある
+インターネットが世界を変えるという信念
+
+1990年代後半、インターネットは世界で最も熱い話題だった。今日私たちはインターネットがどれほど重要かを知っている。オンラインショッピング、検索エンジン、メール、クラウド、人工知能——すべての出発点にインターネットがあった。したがって当時の人々がインターネットの未来を信じたことは間違いではなかった。むしろ彼らは正しかった。問題は未来を正しく見ることと投資に成功することはまったく別の問題だということだった。
+
+全員が天才になった時代
+
+1998年から2000年初頭にかけてアメリカの株式市場は狂乱に近い上昇を経験した。特にインターネット関連企業は爆発的に上昇した。売上がなくても、利益がなくても、ビジネスモデルが不明確でも構わなかった。企業名に「.com」がついているだけで投資家が殺到した。
+
+当時はこんな言葉が流行した。「インターネット時代には昔の方式で企業価値を評価することはできない。」「売上よりも成長性が重要だ。」「利益は後で考えればよい。」今見ると危険な話のように聞こえるが当時は常識として受け入れられた。人々は毎日金持ちになっていた。タクシー運転手も大学生もサラリーマンも株の話をした。株をやっていない人のほうがおかしく見えるほどだった。
+
+上昇相場が長引くほど人々は自分が賢くなったと錯覚する。実際には市場が上げてくれたものなのに、自分の実力だと信じる。しかしほとんどは企業を分析しなかった。ただ価格が上がっていたから買った。そして歴史的に「今回は違う」という言葉が出るたびにリスクは高まった。
+
+バブルはどのように崩壊するか
+
+2000年3月、雰囲気が変わり始めた。投資家たちは少しずつ現実を見始めた。多くのインターネット企業がまだ収益を上げていなかった。株価が下落し始めた。最初は誰も気にしなかった。「すぐまた上がるだろう。」しかし下落は止まらなかった。そして恐怖が始まった。
+
+上昇相場では貪欲が伝染する。下落相場では恐怖が伝染する。売りが売りを呼び、恐怖が恐怖を呼ぶ。結局ナスダック指数は約80%近くの下落を経験した。多くの投資家が市場を去った。
+
+ドットコムバブルから最も重要な教訓はこれだ。インターネットは失敗しなかった。投資家が失敗したのだ。この違いは非常に重要だ。インターネットはその後世界を完全に変えた。アマゾンは世界最大の電子商取引企業になった。グーグルはインターネット検索の中心になった。ネットフリックスはエンターテインメント産業を変えた。革新は実際に成功した。しかし多くの投資家はその成功を経験できなかった。なぜならバブルが崩壊する過程で諦めたからだ。
+
+バフェットの視点
+
+ウォーレン・バフェットはドットコムバブルの時期に多くの批判を受けた。人々はバフェットが時代遅れだと考えた。インターネット企業に投資しなかったからだ。バフェットは自分が理解できないビジネスには投資しなかった。当時はこの決断がバカのように見えた。しかしバブルが崩壊した後、状況は一変した。バフェットは生き残り、その後も成長し続けた。彼が特別なのは最も熱い市場でも原則を諦めなかったからだ。
+
+AIブームとQLD投資家の教訓
+
+今日多くの投資家が問う。「今のAIブームはドットコムバブルと同じだろうか？」AIは実際の革新だ。この点は疑う余地がない。しかし投資家は常に覚えておかなければならない。革新と投資収益は同じ概念ではない。良い技術だからといって必ず良い投資になるわけではない。重要なのは価格だ。革新を疑う必要はない。しかし価格は常に疑うべきだ。
+
+ドットコムバブルは単なる歴史的な出来事ではない。すべての投資家が繰り返し学ぶべき事例だ。なぜなら人間の心理は変わらないからだ。これからも新しいバブルが登場するだろう。そして人々はまた「今回は違う」と言うだろう。バフェットならその瞬間ドットコムバブルを思い浮かべてこう問うただろう。「今革新に投資しているのか？それとも単に価格上昇に酔いしれているのか？」
+
+第7章 まとめ
+インターネット革命は現実だったが、バブルも現実だった。
+革新と投資の成功は同じ意味ではない。
+価格と価値は異なる。
+バブルは群集心理から始まる。
+バフェットは最も熱い時期でも原則を守った。
+革新は残り、バブルは消える。
+AI時代にも同じ原則が適用される。
+QLD投資家は革新だけでなく価格も考慮すべきだ。
+
+覚えておくべき言葉
+
+「未来を正しく見るだけでは十分ではない。正しい価格で投資しなければならない。」''',
+    // Ch8. 金融危機の教訓
+    '''市場が崩壊するように見えるとき、投資家は何をすべきか
+「今回は本当に終わった」
+
+2008年9月15日、アメリカの巨大投資銀行リーマン・ブラザーズが破産を申請した。当時人々は信じられなかった。158年の歴史を持つ巨大な金融会社が一夜にして崩壊したのだ。ニュースは毎日衝撃的な話を伝えた。銀行が揺れ、不動産価格が暴落し、企業は採用を中断した。失業者は急増し、株式市場は毎日暴落した。
+
+世界中の投資家が同じ考えをした。「今回は本当に終わったようだ。」多くの人々は資本主義システム自体が崩壊する可能性があると信じた。今振り返ると誇張した考えのように聞こえるかもしれない。しかし当時現場にいた人々にとっては現実だった。恐怖はいつも論理より強い。
+
+金融危機はどのように始まったのか
+
+興味深いことに、金融危機は突然発生したのではなかった。危機の種はそれよりずっと以前に蒔かれていた。アメリカの不動産市場は長い間上昇していた。人々は住宅価格が絶対に下がらないと信じ始め、銀行もそう考えた。信用力の乏しい人々にも貸し付けを始めた。「どうせ住宅価格が上がるから大丈夫だ。」この論理が市場全体を支配した。
+
+最初は問題がなかった。住宅価格は上がり続け、全員がお金を稼いでいた。しかしそれが問題だった。リスクが消えたように見えたからだ。実はリスクは消えたのではなく隠れていただけだった。
+
+ほとんどの人は下落相場を危険だと考える。しかし歴史的に最も危険な時期はむしろ上昇相場の場合が多かった。上昇相場では警戒心が消える。人々は借金を増やし、より多くのリスクを負い、安全装置を外しながら「市場が上がり続けているのに何が問題だ？」と合理化する。2008年の金融危機以前にもまったく同じことが起きていた。
+
+バフェットの行動
+
+2008年の金融危機当時、ほとんどの人々が市場を去っていた。恐怖が極限に達していた。しかしウォーレン・バフェットは違う行動をとった。彼は良い企業を探していた。多くの人々が株を投げるときに彼は買い付けの機会を探していた。これが可能な理由は単純だ。彼は市場の感情よりも企業の価値を信じていたからだ。そして実際に危機は過ぎ去った。経済は回復し、市場は新たな最高値を記録した。バフェットはまたも原則の力を証明した。
+
+下落相場で人々はなぜミスを犯すのか
+
+下落相場が来ると人々は未来を悲観的に見る。株価が下がるとさらに下がりそうだし、ニュースが悪ければ状況がさらに悪化するように感じる。しかし市場は現在ではなく未来を反映する。最大の問題は、人々が未来を最も悲観的に見るタイミングが、しばしば最大の機会になるタイミングだということだ。2008年末、2020年3月——歴史的に最大の機会はほとんど恐怖の真只中にあった。しかしその瞬間には誰もそれを機会だとは思えない。
+
+QLD投資家は金融危機をどのように見るべきか
+
+QLDはナスダック100の約2倍の動きを追求する。したがって金融危機のような状況では下落幅もより大きく現れることがある。しかし本当のリスクはボラティリティではない。ボラティリティに対する自分の反応だ。もし投資家が下落に耐えられず底値で売却するならそれがリスクだ。逆に現金を準備しておいて計画された戦略を実行するなら暴落は機会にもなり得る。QLD -20%で分割買い付け開始、-30%で追加買い付け、-40%で積極的な買い付け、-50%で長期的な機会の検討——重要なのは感情ではなく計画だ。危機のときに必要なのは予測能力ではなく準備だ。
+
+金融危機は人間の心理の歴史だ。人々は上昇相場でリスクを忘れ、下落相場で希望を忘れる。そして繰り返し同じミスを犯す。一方、成功した投資家たちは原則を守る。恐怖の中でも冷静さを保つ。時間が経つとその差は圧倒的な結果として現れる。
+
+第8章 まとめ
+金融危機は突然発生したのではなく、リスクを無視した結果だった。
+上昇相場がむしろ最も危険な時期である場合がある。
+私は安全マージンの重要性を強調する。
+バフェットは恐怖の中に機会を見つけた。
+暴落は投資家の心理を試す。
+ETFがあっても危機はなくならない。
+QLD投資家はボラティリティよりも自分の行動を管理すべきだ。
+危機を生き残った人が結局複利の勝者になる。
+
+覚えておくべき言葉
+
+「危機は投資家を破滅させることもあるが、準備ができた投資家を富裕にすることもある。」''',
+    // Ch9. コロナ暴落の教訓
+    '''世界が止まったように見えた瞬間、市場は未来を見ていた
+誰も予想しなかった危機
+
+2020年初頭、ほとんどの投資家は平凡な一年になると思っていた。アメリカ経済は堅調で、失業率は低く、企業業績も良好だった。ナスダックは史上最高値に向かっていた。そのとき中国の武漢から始まった小さなニュースが世界を揺るがし始めた。最初は多くの人々が大したことではないと考えた。過去にも感染症は存在した。すぐ終わるだろうと考えた。
+
+しかし状況は予想よりもはるかに速く悪化した。国々が国境を閉ざし始めた。都市が封鎖された。学校が閉まった。工場が止まり、飛行機が消え、人々は家の外に出られなくなった。現代経済の歴史上前例のない状況だった。
+
+歴史上最も速い暴落
+
+2020年2月末から市場は急激に揺れ始めた。そして3月、恐怖はパニックに変わった。S&P500はわずか数週間で30%以上下落した。ナスダックも急落した。QLDのようなレバレッジETFはより大きく揺れた。口座は毎日減り続け、ニュースはさらに暗くなった。人々は絶えず同じ質問をした。「今回は本当に違うのではないか？」「経済が完全に止まったのではないか？」「株をすべて売るべきか？」
+
+以前の危機とコロナ危機が違った点は明確だった。金融危機は金融システムの問題だったし、ドットコムバブルはテクノロジー企業のバブル問題だった。しかしコロナは経済活動自体を止めてしまった。レストランが閉まり、航空会社が止まり、ホテルが空き、人々が消費できなくなった。経済のエンジンが消えたように見えた。
+
+株式市場にはもともとボラティリティが存在する。しかしコロナ暴落は速度が速すぎた。ほとんどの投資家は暴落に適応する時間さえなかった。このような状況で人間の脳は本能的に反応する。「逃げなければならない。」恐怖は論理を圧倒する。多くの投資家が損失に耐えきれず市場を去った。
+
+市場はなぜ反発したのか
+
+コロナ暴落を理解するためには市場の本質を理解しなければならない。市場は現在を反映しない。市場は未来を反映する。2020年3月、投資家は二つの選択ができた。現在だけを見ること——病院は混雑し、経済は止まり、人々は不安だ。または未来を見ること——いつかはワクチンが開発されるだろうし、経済が再開されるだろうし、人々はまた消費するだろう。市場は結局二番目を選んだ。そして驚くべきことに市場は経済よりも先に回復し始めた。
+
+バフェットはいつも同じ哲学を維持した。彼はアメリカ経済が長期的に成長すると信じた。彼は人類が問題を解決すると信じた。大恐慌も、世界大戦も、金融危機も克服した。コロナも結局克服した。バフェットが信じたのは短期的なニュースではなく、人間の適応能力だった。
+
+コロナ後の世界はより強くなった
+
+興味深いことに、コロナは一部の企業をむしろより強くした。リモートワークが広がり、クラウド産業が成長し、電子商取引が爆発的に拡大し、AI技術への投資も加速した。マイクロソフトとアマゾンはさらに成長し、エヌビディアはその後AI革命の中心に立つことになった。危機はいつも変化を生む。そして変化は新たな機会を生む。
+
+コロナ暴落はETF投資家にとって非常に重要な教訓を残した。市場は予想以上に下落することがある。しかし同時に予想よりも速く回復することもある。ほとんどの投資家は回復のタイミングを合わせようとするが、歴史的にそれはほぼ不可能だった。最良の戦略はほとんどの場合シンプルだった。良い資産を保有して耐えること。そして必要であれば下落相場で追加買い付けをすること。
+
+QLD投資家にコロナが教えてくれたこと
+
+QLD投資家にとってコロナ暴落は特別な意味がある。レバレッジETFは恐怖をより大きく感じさせるからだ。ナスダックが下落するとQLDはより大きく揺れる。だから投資家は自分の原則を試される。本当に長期投資家なのか？本当に技術革新を信じているのか？本当に計画を守ることができるのか？コロナはこうした問いを投げかけた。そして市場は結局答えを示した。長期的な技術革新は止まらなかった。むしろ速くなった。
+
+歴史を見ればすべての危機に共通点がある。その時期には永遠に終わらないように見える。しかし結局終わった。重要なのは危機を予測する能力ではない。危機の中でも原則を守る能力だ。長期投資家は未来を予言しない。代わりに、どんな未来が来ても生き残れるように準備する。
+
+第9章 まとめ
+コロナ暴落は現代の歴史上最も速い市場崩壊の一つだった。
+市場は現在よりも未来を反映する。
+優良企業の価値と市場価格は異なる場合がある。
+バフェットは価格と価値を区別するよう強調する。
+バフェットは人間の適応能力を信じた。
+危機は新しい革新を加速させることもある。
+ETF投資家は市場のタイミングよりも原則が重要だ。
+QLD投資家はボラティリティの中でも長期的な技術革新を見据えるべきだ。
+
+覚えておくべき言葉
+
+「市場が最も暗く見える瞬間にも、未来は作られ続けている。」''',
+    // Ch10. AI革命と現在の市場
+    '''私たちはまた一つの歴史的な変曲点に立っているのか
+人々はいつも未来を過小評価してきた
+
+1903年、ライト兄弟が飛行機を作ったとき、多くの人は笑った。「人が空を飛ぶ？」それは非現実的な話のように聞こえた。1980年代にパーソナルコンピューターが登場したときも似ていた。ほとんどの人々はコンピューターが一部の専門家だけが使う機器になると考えた。1990年代のインターネットも同様だった。多くの人々はインターネットが単なる流行だと考えた。
+
+しかし歴史は繰り返し同じ事実を示してきた。人間は短期的な変化は過大評価し、長期的な変化は過小評価する。そして今私たちはまた一つの巨大な変化の前に立っている。それが人工知能(AI)だ。
+
+AIはなぜ特別なのか
+
+過去の技術革新はほとんどが人間の肉体労働を助けるものだった。蒸気機関は重労働を代わりにし、自動車は移動を助け、コンピューターは計算を助け、インターネットは情報伝達を助けた。しかしAIは少し違う。AIは人間の知的労働を助ける。文章を書き、翻訳をし、分析をし、コードを書き、画像を作り、さらには意思決定を補助することもある。これは単なる技術発展ではない。生産性革命の始まりである可能性がある。
+
+株式市場が長期的に上昇する理由は結局生産性にある。一人の人がより多くの価値を生み出せるようになれば企業利益が増加する。企業利益が増加すれば企業価値が増加する。そして結局株価が上昇する。産業革命、電気、コンピューター、インターネット——すべてが生産性を高めた。AIも同じ道を歩んでいる。したがって長期投資家は単にAI企業に投資するのではなく、生産性革命に投資しているのだ。
+
+ドットコムバブルとAIは同じものか
+
+多くの投資家が問う。「今のAIブームはドットコムバブルではないですか？」答えは単純ではない。AIは実際の革新だ。同様にインターネットも実際の革新だった。問題は技術と株価が常に同じ速度で動くわけではないということだ。ドットコムバブル当時、インターネットは本物だったが、一部の企業の価格は非現実的だった。今日のAIにも似たリスクが存在する可能性がある。良い技術が必ず良い投資収益を意味するわけではない。私が強調した理由もここにある。革新を信じることと、どんな価格でも投資することはまったく別の話だ。
+
+エヌビディアが象徴するもの
+
+2020年代のAI革命を語るとき最初に思い浮かぶ企業はエヌビディアだ。ほんの数年前まで、エヌビディアはゲームグラフィックカード会社というイメージが強かった。しかしAI時代が開けると状況は一変した。エヌビディアのGPUはAI産業の核心インフラになった。世界中の企業がAIモデルを開発するためにエヌビディアのチップを購入し始めた。重要なのは株価ではない。AIが実際の経済活動に影響を及ぼし始めたという事実だ。
+
+バフェットはいつも新しい技術には慎重だった。彼は理解できる企業に集中し、流行を追いかけなかった。企業の競争力と収益創出能力を見た。だからいつも同じ問いを投げかけた。「この価格は合理的か？」「期待が過度に反映されているのではないか？」「安全マージンは存在するか？」これがバフェットの投資哲学の核心だ。
+
+AI時代のETF投資とQLD
+
+ほとんどの個人投資家はAI産業の最終的な勝者を当てることが難しい。10年後にどの企業が最も強いか正確に予測することはほぼ不可能だ。だからETFが重要だ。ETFは特定の企業ではなく産業全体の成長に参加させてくれる。ナスダック100にはAI革命の核心企業が多数含まれている。アップル、マイクロソフト、エヌビディア、アマゾン、メタ、ブロードコム——これらはすべてAI革命の恩恵を受ける可能性が高い。ETF投資家は個別の勝者を当てる負担なく革新の流れに参加できる。
+
+QLD投資家にとってAIは非常に重要なテーマだ。QLDはナスダック100の約2倍の動きを追求するからだ。AI革命が成功するほどQLDは大きな恩恵を受ける可能性がある。しかし同時に期待が過熱するとボラティリティも大きくなる可能性がある。だから長期投資家は二つのことを同時に覚えておかなければならない。第一に、AIは実際の革新である可能性が高い。第二に、市場は短期的に過熱することがある。
+
+多くの投資家はAIがどこまで発展するか予測しようとする。しかし歴史的に最も成功した投資家は未来を正確に予測した人々ではなかった。彼らは変化の方向を理解した人々だった。重要なのは明日の株価ではない。今後10年、20年の間に生産性がどのように変わるかを考えることだ。AIの真の価値は新しい製品ではない。生産性の向上だ。より少ない時間でより多くのことができるようにすることだ。人類の歴史を振り返ると生産性革命は常に経済成長を導いてきた。長期投資家はまさにここに投資する人だ。
+
+第10章 まとめ
+AIは単なる流行ではなく生産性革命である可能性が高い。
+市場は長期的に生産性の向上を反映する。
+ドットコムバブルの教訓は革新と価格を区別せよということだ。
+エヌビディアはAI革命の代表的な事例だ。
+私はいつも価格と安全マージンを強調する。
+バフェットは流行よりも競争力を見る。
+ETFはAI革命に参加する効率的な方法になり得る。
+QLD投資家はAI革命の恩恵とボラティリティを同時に理解しなければならない。
+
+覚えておくべき言葉
+
+「偉大な投資家は未来を正確に予測する人ではなく、未来を作りゆく変化に着実に参加する人だ。」''',
+  ];
+
+  static List<_BookChapter> _withJaTitles() {
+    const jaTitles = [
+      'Ch1. 投資と投機の違い',
+      'Ch2. なぜほとんどの投資家は失敗するのか',
+      'Ch3. 市場',
+      'Ch4. 安全マージン',
+      'Ch5. 群集心理と投資',
+      'Ch6. 市場はなぜ長期的に上昇するのか',
+      'Ch7. ドットコムバブルの教訓',
+      'Ch8. 金融危機の教訓',
+      'Ch9. コロナ暴落の教訓',
+      'Ch10. AI革命と現在の市場',
+    ];
+    return List.generate(
+      _japaneseBodies.length,
+      (i) => _BookChapter(title: jaTitles[i], body: _japaneseBodies[i]),
+    );
+  }
+
+  // ── Spanish ──────────────────────────────────────────────────────────────
+
+  static const _spanishBodies = <String>[
+    // Ch1
+    '''¿Todo el que entra al mercado es realmente un inversor?
+La burbuja puntocom fue una época en la que cualquier empresa que llevara la palabra "internet" veía subir sus acciones. Algunas no tenían ingresos ni beneficios, y sus modelos de negocio eran poco claros. Aun así, los inversores estaban eufóricos. Los precios subían cada día. Los medios publicaban historias de nuevos millonarios. Los universitarios pasaban más tiempo en foros bursátiles que en las aulas.
+
+En aquel momento, mucha gente se creía inversora. Pero yo diría: no eran inversores, eran especuladores.
+
+Cuando la burbuja estalló en el año 2000, incontables empresas desaparecieron. Las pérdidas de decenas de puntos porcentuales llegaron de la noche a la mañana, y muchos perdieron los ahorros de toda su vida. Lo más llamativo es que la mayoría no sabía explicar bien qué había comprado. No compraron empresas: compraron subidas de precios. Esa es exactamente la diferencia entre inversión y especulación.
+
+La inversión y la especulación son juegos completamente distintos
+
+La mayoría cree que invertir y especular son cosas similares. Pero para mí, la inversión debe cumplir tres condiciones: primero, un análisis exhaustivo; segundo, contemplar la protección del capital; tercero, esperar un rendimiento satisfactorio. Todo lo que no cumpla estas condiciones es, por definición, especulación.
+
+Lo importante no es qué compras, sino con qué mentalidad. Comprar acciones de Apple es especulación si el motivo es "creo que subirán mañana". Pero comprar un ETF como resultado de analizar el potencial de crecimiento de las empresas se acerca a la inversión. No es el producto lo que distingue inversión de especulación. Es la manera de pensar.
+
+Los precios cambian cada día; el valor cambia despacio
+
+Los que se inician en la bolsa se fijan principalmente en el precio. Pero el inversor mira el valor, no el precio. Imagina que posees un edificio en el corazón de Seúl. Un día te ofrecen 5.000 millones, al día siguiente 4.000 millones y una semana después 5.500 millones. El edificio no ha cambiado en nada. Solo ha cambiado el precio ofrecido. Con las acciones pasa lo mismo. El inversor mira el valor. El especulador solo mira el precio.
+
+Los seres humanos son especuladores por naturaleza
+
+Invertir es difícil porque va en contra de nuestros instintos. A la gente no le gusta enriquecerse despacio. La historia de mantener un 10% anual durante 20 años es aburrida, pero la de una acción que sube un 300% en un mes resulta emocionante. Nuestro cerebro prefiere recompensas inmediatas. El mercado explota constantemente esa psicología.
+
+En un mercado alcista, todos parecen genios. Las redes sociales están llenas de capturas de ganancias. En ese momento, el inversor se pregunta sin darse cuenta: "¿Me estoy quedando atrás?" A partir de ese instante, el análisis desaparece y las emociones empiezan a gobernar las decisiones.
+
+¿Por qué se hizo rico Warren Buffett?
+
+Su arma más poderosa no es la capacidad de elegir valores. Es el tiempo. Desde joven, Buffett encontraba buenas empresas y las mantenía durante mucho tiempo. Se centraba en una pregunta sencilla: "¿Seguirá siendo fuerte esta empresa dentro de 10 años?" De hecho, la mayor parte de su riqueza se acumuló después de los 60 años, porque le dio al interés compuesto el tiempo suficiente para actuar. El especulador ve el tiempo como un enemigo. El inversor lo convierte en su aliado.
+
+Por qué los ETF son importantes para el inversor moderno
+
+Hoy existen ETF como QQQ, SPY, VOO y QLD que permiten diversificar automáticamente en cientos de empresas. Pero una cosa no ha cambiado: los ETF pueden usarse para invertir y también para especular. Si cada día miras solo el precio, un ETF también se convierte en herramienta especulativa. Pero si lo abordas desde la perspectiva de participar en el crecimiento económico a largo plazo, es un excelente vehículo de inversión.
+
+¿En qué invierte un inversor de QLD?
+
+QLD busca aproximadamente el doble de la rentabilidad del Nasdaq 100. Tener QLD no es solo poseer un ETF: es participar en la innovación tecnológica estadounidense. Apple, Microsoft, Nvidia, Amazon, Meta, Broadcom... si crees que estas empresas seguirán creciendo, QLD puede ser una inversión válida. Pero si te acercas a él porque "creo que subirá el mes que viene", eso es especulación. El mismo producto, una mentalidad diferente. El resultado es completamente distinto.
+
+El mayor enemigo del inversor
+
+El mayor enemigo del inversor no es el mercado. Es uno mismo. El miedo, la codicia, la impaciencia, el arrepentimiento, la envidia... estas emociones empujan a incontables inversores fuera del mercado. Los mercados suelen recuperarse con el tiempo. Pero el inversor que sucumbe al miedo no se recupera. Por eso la esencia de la inversión no es la selección de valores. Es la gestión psicológica.
+
+Resumen del capítulo 1
+La inversión y la especulación son completamente distintas.
+El inversor compra valor; el especulador compra precio.
+Los precios cambian cada día; el valor cambia despacio.
+La naturaleza humana tiende a la especulación.
+La mayor arma de Buffett no fue la predicción, sino el tiempo.
+Los ETF pueden ser tanto inversión como especulación.
+QLD debe abordarse como inversión a largo plazo en la innovación tecnológica.
+El mayor enemigo del inversor no es el mercado, sino sus propias emociones.
+
+Frase para recordar
+
+"Invertir no es adivinar el futuro. Es comprar buenos activos a un precio razonable y darles el tiempo suficiente."''',
+    // Ch2
+    '''El mercado no es difícil. Pero las emociones humanas sí lo son.
+Lo más peligroso no es la ignorancia
+
+Muchos creen que fracasan en las inversiones por falta de información. Pero la historia demuestra algo sorprendente: la mayoría no fracasa por lo que no sabe, sino por lo que sabe y no aplica.
+
+La gente sabe que hay que "comprar barato y vender caro". Sabe que la inversión a largo plazo es importante. Sabe que no debe vender con pánico. Sin embargo, cuando llega el momento, hace exactamente lo contrario: compra cuando todo sube porque cree que seguirá subiendo, y vende cuando cae porque cree que caerá más. El problema no es la información. Es el comportamiento. Y el comportamiento lo gobiernan las emociones.
+
+El cerebro humano está diseñado en contra de la inversión
+
+El ser humano no evolucionó para ser inversor. Durante cientos de miles de años, la supervivencia dependía de reaccionar de inmediato a los peligros. Sin embargo, el mercado financiero es diferente: que la bolsa caiga un 20% no es una amenaza inmediata. Pero el cerebro no lo entiende así. Cuando la cuenta empieza a ponerse en rojo, el cerebro genera un estrés similar al de un peligro real. Eso paraliza el juicio racional y lleva a vender en el peor momento.
+
+Las lecciones de la burbuja puntocom
+
+A finales de los 90, la creencia de que internet cambiaría el mundo era acertada. El problema fue que la gente no creyó en el futuro, sino que se emborrachó con los precios. Bastaba añadir ".com" al nombre de una empresa para que la acción se disparara. La gente no analizaba: compraba porque los demás compraban. Cuando la burbuja estalló en 2000, el Nasdaq cayó cerca de un 80%. Muchos inversores listos perdieron casi todo porque no pudieron resistir la psicología de masas.
+
+La crisis financiera mostró otra cara
+
+2008 fue lo opuesto de la burbuja puntocom. Esta vez fue el miedo, no la codicia, lo que dominó el mercado. Las noticias hablaban de colapso económico cada día. Muchos vendieron en el peor momento, cuando los activos estaban más baratos. Pero el mercado se recuperó y alcanzó nuevos máximos. El problema es que muchos no esperaron la recuperación: vendieron en el suelo y volvieron a comprar a precios altos.
+
+El crash del COVID confirmó la psicología humana
+
+En 2020, el mercado cayó en pocas semanas como nunca antes. Muchos expertos predijeron una recesión prolongada. Pero el mercado se recuperó mucho más rápido de lo esperado. Quienes vendieron con pánico se sorprendieron al ver cómo el mercado subía mientras ellos esperaban fuera. Los que mantuvieron sus principios disfrutaron de la recuperación. El éxito en la inversión no es predecir el futuro: es mantener los principios.
+
+Mi advertencia
+
+El mayor enemigo del inversor puede ser uno mismo. El mercado no te obliga a vender: la decisión la toma siempre el inversor. Por eso hay que entender la propia psicología antes que el mercado. Saber cómo reaccionas ante el miedo y ante la codicia es fundamental para evitar errores repetitivos.
+
+Por qué Buffett es especial
+
+Buffett sabe que no puede predecir el futuro con precisión. Por eso se apoya en principios, no en predicciones: buenas empresas, fuerte ventaja competitiva, finanzas sanas, precio razonable. Ha repetido los mismos principios durante décadas sin abandonarlos ni en las peores crisis. Su fortaleza no está en la inteligencia, sino en la consistencia.
+
+Lo que el inversor de QLD debe saber
+
+QLD tiene mayor volatilidad que un ETF normal. El inversor que actúa según sus emociones difícilmente sobrevivirá a largo plazo. QLD puede caer un -20%, un -30%, incluso un -50%. Lo importante no es la caída, sino la respuesta. El inversor con un plan previo no se tambalea. El que no tiene plan se tambalea con el mercado.
+
+Resumen del capítulo 2
+La mayoría fracasa por emociones, no por falta de información.
+El cerebro humano está diseñado en contra de la inversión.
+La burbuja puntocom muestra el peligro de la codicia.
+La crisis financiera y el COVID muestran el peligro del miedo.
+El mayor enemigo del inversor es uno mismo.
+La fortaleza de Buffett no es la predicción, sino mantener los principios.
+También los inversores en ETF pueden fracasar si no controlan sus emociones.
+El inversor de QLD debe aceptar la volatilidad y actuar según un plan.
+
+Frase para recordar
+
+"El mercado no te destruye. Lo que te destruye es tu propio comportamiento gobernado por el miedo y la codicia."''',
+    // Ch3
+    '''El mercado no es tu amo, sino tu sirviente.
+El extraño hombre que llama a tu puerta cada mañana
+
+Imagina que eres copropietario de un negocio sólido y en crecimiento. Cada mañana llama a tu puerta un hombre extraño llamado "el Mercado". Cada día te ofrece comprar tu parte o venderte la suya, pero el precio que propone cambia constantemente. Algunos días es exageradamente optimista y pide precios desorbitados. Otros días está completamente abatido y quiere vender a precio de saldo. El negocio en sí no ha cambiado, pero el precio varía enormemente.
+
+Así es el mercado. Yo lo llamo "Mr. Market". Y lo importante es entender que su precio no siempre refleja el valor real.
+
+La mayoría malentiende el mercado
+
+Para mí, el mercado es una simple herramienta. Pero la mayoría lo trata como a un maestro: se alegra cuando sube y se angustia cuando baja, como si el mercado supiera la verdad. Pero el mercado no es un profeta. Solo ofrece precios. Y esos precios no siempre son correctos. Históricamente, el mercado se ha equivocado incontables veces.
+
+El mercado durante la burbuja puntocom
+
+En 1999, el mercado se convirtió en el ser más optimista del mundo. Empresas sin ingresos valían miles de millones. Bastaba añadir ".com" para que la acción se disparara. La gente pensaba: "Si el mercado lo valora así, no puede estar equivocado." Pero sí estaba equivocado. Los precios de entonces no reflejaban valor empresarial, sino euforia colectiva.
+
+El mercado durante la crisis financiera
+
+En 2008, el miedo dominó el mercado. Cada día ofrecía precios más bajos. Muchos inversores pensaban que el mercado sabía algo y vendían deprisa. Pero las empresas sólidas seguían vendiendo productos y sus empleados seguían trabajando. Lo único que había cambiado era el sentimiento de la gente. Años después, el mercado se recuperó y alcanzó nuevos máximos. Lo que estaba equivocado no eran las empresas, sino las emociones del mercado.
+
+Lo que mostró el crash del COVID
+
+En 2020, el mercado se hundió en pocas semanas. Pero pocos meses después empezó a recuperarse y al año siguiente marcó nuevos máximos. El valor de las empresas no cambió tan rápido: lo que cambió fue el sentimiento de las personas. El mercado solo expresó ese sentimiento en forma de precio.
+
+Por qué Buffett amaba el mercado
+
+Buffett amaba el mercado, pero por razones distintas a las de la mayoría. La gente se alegra cuando sube y se molesta cuando baja. Buffett prefería que el mercado fuera irracional, porque eso creaba oportunidades. Siempre distinguía entre precio y valor: el precio bajo que ofrece el mercado no significa que el valor haya bajado. Él usaba el mercado como referencia, pero nunca lo seguía ciegamente.
+
+El mercado es más importante para el inversor de QLD
+
+QLD busca el doble del movimiento del Nasdaq 100, así que las emociones del mercado se amplifican. Cuando el Nasdaq cae un 10%, QLD puede caer mucho más. En ese momento muchos piensan: "¿Debo vender ya?" Pero es justo entonces cuando hay que entender la naturaleza del mercado. El precio es emoción. El valor es otra cosa. Si la competitividad de las empresas tecnológicas estadounidenses se mantiene, una caída de precios no significa necesariamente una caída de valor.
+
+El inversor inteligente usa el mercado
+
+La mayoría es usada por el mercado: cuando el mercado se emociona, ellos se emocionan; cuando el mercado entra en pánico, ellos entran en pánico. Yo actúo de otra manera. Me vuelvo cauteloso cuando el mercado se recalienta y busco oportunidades cuando el mercado entra en pánico. No sigo el humor del mercado. Lo aprovecho.
+
+Resumen del capítulo 3
+El mercado ofrece precios cada día, pero no siempre son correctos.
+Precio y valor son cosas distintas.
+La burbuja puntocom muestra la codicia del mercado.
+La crisis financiera y el COVID muestran el miedo del mercado.
+Buffett aprovechó las emociones del mercado.
+También los inversores en ETF pueden dejarse llevar por la psicología del mercado.
+El inversor de QLD debe centrarse en el valor, no en el precio.
+El mercado es un sirviente, no un amo.
+
+Frase para recordar
+
+"El mercado solo te ofrece un precio. Aceptarlo o no es tu decisión."''',
+    // Ch4
+    '''Los grandes inversores pensaron primero en sobrevivir, no en ganar.
+Por qué los aviones llevan combustible de reserva
+
+Cuando un avión vuela de Seúl a Nueva York, el piloto no carga exactamente el combustible justo. Siempre lleva un margen extra, porque el tiempo puede empeorar, el aeropuerto puede estar congestionado o pueden surgir imprevistos. Si solo llevara el combustible estrictamente necesario, cualquier variable podría ser fatal.
+
+La inversión funciona igual. El problema es que la mayoría de los inversores está obsesionada con la rentabilidad pero ignora el margen de seguridad. Quieren más rendimiento, más riqueza más rápida. Y en ese proceso olvidan lo más importante: sobrevivir.
+
+El concepto que más me importa
+
+Hay una palabra que todo el que lea esto debe recordar: margen de seguridad (Margin of Safety). Toda mi filosofía converge en él. Creo que el ser humano no puede predecir el futuro con precisión. Ni las perspectivas económicas, ni los resultados empresariales, ni el análisis de los expertos, ni el propio juicio son infalibles. Por eso siempre me pregunto: "¿Podré sobrevivir aunque me equivoque?" Esa es la esencia del margen de seguridad.
+
+Por qué la mayoría ignora el margen de seguridad
+
+La razón es simple: el margen de seguridad es aburrido. Tener efectivo parece reducir la rentabilidad. Diversificar parece alejar los grandes golpes. En un mercado alcista, el inversor conservador parece quedarse atrás. Pero el mercado siempre engaña a la gente de la misma manera: el riesgo se vuelve invisible en los mercados alcistas y solo se ve cuando llega la caída. Y entonces suele ser demasiado tarde.
+
+Lo que Buffett nunca hace
+
+Buffett no invierte en negocios que no entiende. Detesta el exceso de deuda. No pone toda su fortuna en una sola idea. No es que sea miedoso: es que entiende el riesgo con precisión. Su famosa regla: "Regla 1: no pierdas dinero. Regla 2: no olvides la regla 1." Si pierdes un 50%, necesitas ganar un 100% solo para recuperarte. Si pierdes un 80%, necesitas un 400%. Por eso los grandes inversores piensan primero en sobrevivir.
+
+Lo que enseñaron la burbuja puntocom y la crisis financiera
+
+En 1999, el concepto de margen de seguridad fue ignorado. Empresas sin ingresos valían miles de millones. "Esta vez es diferente", decía la gente. Esas son las palabras más peligrosas de la historia financiera. Cuando el mercado colapsó en 2000, incontables empresas desaparecieron. El problema no era internet: el problema era que no había margen de seguridad.
+
+La crisis de 2008 dejó la misma lección. Muchas instituciones financieras usaban un apalancamiento excesivo. No tenían margen de seguridad. Bastó que el mercado se tambalease un poco para que todo se derrumbase. En cambio, las empresas con suficiente liquidez no solo sobrevivieron: aprovecharon la crisis como oportunidad.
+
+Por qué el margen de seguridad es crucial para el inversor de QLD
+
+QLD tiene una gran volatilidad. Si has invertido todos tus activos en QLD, una gran caída del Nasdaq te someterá a una presión psicológica enorme. Muchos en ese momento abandonan el plan. Pero si tienes efectivo disponible, la caída deja de ser una crisis y se convierte en oportunidad. Por ejemplo: comprar un poco con QLD al -20%, invertir parte del efectivo al -30%, comprar activamente al -40%, revisar las oportunidades a largo plazo al -50%. Esta estrategia parte del margen de seguridad. El efectivo no es capital en espera: es el derecho a aprovechar las oportunidades.
+
+¿Cuál es el verdadero riesgo?
+
+Muchos inversores creen que la volatilidad es el riesgo. Yo lo veo de otra manera: el verdadero riesgo no es la fluctuación del precio, sino la pérdida permanente de capital. Que el precio caiga temporalmente un 30% puede no ser un riesgo. Pero vender por pánico en el suelo, invertir en empresas que no entiendes, usar un apalancamiento excesivo... eso sí es riesgo real.
+
+Resumen del capítulo 4
+El margen de seguridad es el núcleo de mi filosofía.
+Hay que dejar siempre un margen porque el futuro no se puede predecir.
+Sobrevivir es más importante que la rentabilidad.
+Buffett mira primero la probabilidad de supervivencia.
+La burbuja puntocom y la crisis financiera demuestran la importancia del margen de seguridad.
+El efectivo es el derecho a aprovechar las oportunidades.
+Los inversores en ETF también necesitan margen de seguridad.
+Para el inversor de QLD, el efectivo y una estrategia basada en reglas son especialmente importantes.
+
+Frase para recordar
+
+"El gran inversor no es el que más dinero gana, sino el que sobrevive más tiempo para aprovechar el poder del interés compuesto."''',
+    // Ch5
+    '''El mercado parece moverse por números, pero en realidad lo mueven las emociones humanas.
+¿Por qué la gente repite los mismos errores?
+
+En 1637 en Holanda, un bulbo de tulipán se vendió al precio de una casa. En 1929 en EE.UU., la gente pedía préstamos para comprar acciones. En 2000, empresas sin ingresos valían miles de millones. En 2021, las acciones "meme" se dispararon impulsadas por la euforia de comunidades en internet.
+
+Las épocas son distintas, los países son distintos, los activos son distintos. Pero hay una sorprendente coincidencia: la gente siempre repite los mismos errores. ¿Por qué? Porque el mercado no se mueve por números, sino por emociones humanas: miedo, codicia, esperanza, arrepentimiento, envidia. Estas emociones crean los precios. Y el inversor es mucho más vulnerable a las emociones de lo que cree.
+
+El ser humano evolucionó para seguir a la manada
+
+Hace decenas de miles de años, seguir al grupo era una estrategia de supervivencia. Quedarse solo cuando toda la tribu huía era peligroso. Por eso, el cerebro humano aprendió a confiar instintivamente en el comportamiento de la mayoría.
+
+El problema es que el mercado financiero explota ese instinto. Cuando todos en el mercado se mueven en la misma dirección, la presión psicológica es enorme. Si los de alrededor ganan dinero, nos ponemos nerviosos. Si las redes sociales explotan con ganancias, nos apresuramos. Si las noticias hablan de una nueva fiebre inversora, sentimos que nos quedamos atrás. A esto se le llama FOMO (Fear Of Missing Out). Y una parte importante de los fracasos inversores comienza ahí.
+
+El poder de la psicología de masas en la burbuja puntocom
+
+En 1999, la creencia de que internet cambiaría el mundo era acertada. Pero la gente no creyó en el futuro: se emborrachó con los precios. Se decía: "Con internet siempre se sube." Las empresas se valoraban sin análisis. Se compraba porque los demás compraban.
+
+Las masas se convencían entre sí: "Esta vez es diferente." "Ha llegado una nueva era." "Las reglas antiguas ya no sirven." Y como siempre, el mercado regresó a la realidad. La burbuja estalló, incontables empresas desaparecieron y muchos inversores perdieron casi todo su patrimonio. La psicología de masas es más peligrosa en los mercados alcistas, porque en ese momento todos creen que tienen razón.
+
+La crisis financiera mostró la psicología de masas del miedo
+
+Si la burbuja puntocom fue un caso de codicia, la crisis de 2008 fue un caso de miedo. La gente creía que el sistema económico entero colapsaría. Las noticias hablaban de crisis cada día. Muchos inversores, dominados por el pánico, vendieron en el peor momento.
+
+En los mercados alcistas, las masas son codiciosas; en los bajistas, son temerosas. Pero el resultado es similar: ambas situaciones generan decisiones equivocadas. La codicia lleva a comprar demasiado caro; el miedo, a vender demasiado barato.
+
+Mi consejo
+
+Entender las emociones del mercado es importante. Pero más importante es no dejarse llevar por ellas. Los inversores no deben juzgar según la opinión de las masas. Que la mayoría compre no significa que sea una buena inversión, y que la mayoría venda no significa que sea mala. Lo que importa es el valor. No el número de participantes del mercado. Enfatizo el pensamiento independiente: hay que juzgar por uno mismo, basarse en los hechos, no en la manada.
+
+Por qué Buffett actuó a contracorriente
+
+Una de las razones por las que Buffett es especial es que podía actuar en sentido contrario a las masas. No se emocionaba cuando el mercado estaba sobrecalentado. Al contrario, buscaba oportunidades cuando el mercado entraba en pánico. En la crisis de 2008, mientras muchos inversores huían, Buffett invertía activamente. Miraba el valor de las empresas, no las emociones de la gente. Comprar en momentos de miedo extremo va en contra del instinto humano. Pero el inversor a largo plazo debe seguir principios, no instintos.
+
+La psicología que el inversor de QLD debe entender
+
+QLD tiene una volatilidad mucho mayor que un ETF normal, por lo que la influencia de la psicología de masas es más fuerte. Cuando QLD se dispara, piensas: "Si no compro ahora, me quedo atrás." Cuando cae bruscamente, te asalta el miedo: "¿Debo vender ya?" Pero estas emociones se han repetido innumerables veces en el pasado y seguirán repitiéndose. El inversor a largo plazo no trata de eliminar sus emociones, sino de aprender a no actuar según ellas.
+
+Invierte según reglas, no según emociones
+
+No se puede eliminar totalmente la psicología de masas: somos humanos. Pero sí se puede reducir su influencia. La mejor manera es tener reglas claras: comprar un poco al -20%, invertir parte del efectivo al -30%, comprar activamente al -40%, invertir según el plan al -50%. Con reglas así, hay menos espacio para que las emociones intervengan. Las reglas son el antídoto de las emociones. Y la arma más poderosa del inversor a largo plazo.
+
+Resumen del capítulo 5
+El ser humano está diseñado para seguir a la manada.
+Muchos fracasos inversores comienzan en la psicología de masas.
+La burbuja puntocom muestra el peligro de la codicia.
+La crisis financiera muestra el peligro del miedo.
+Yo enfatizo el pensamiento independiente.
+Buffett pudo actuar en sentido contrario a las masas.
+Los inversores en ETF también pueden dejarse llevar por la psicología de masas.
+Para el inversor de QLD, la inversión basada en reglas es especialmente importante.
+
+Frase para recordar
+
+"Sé más cauteloso cuando las masas tienen plena certeza, y más frío cuando las masas están desesperadas."''',
+    // Ch6
+    '''Los mercados caen una y otra vez, pero ¿por qué siguen alcanzando nuevos máximos?
+"Esta vez parece que ha terminado de verdad"
+
+En algún momento de la vida inversora, uno tiene ese pensamiento. La bolsa se hunde. Las noticias hablan de crisis, los expertos advierten de recesión, la gente huye con el dinero en efectivo. Y muchos inversores dicen lo mismo: "Esta vez parece que ha terminado de verdad."
+
+Lo fascinante es que esa frase se ha repetido en casi todas las épocas: la Gran Depresión de 1929, el choque del petróleo de 1973, el Lunes Negro de 1987, la burbuja puntocom de 2000, la crisis financiera de 2008, el crash del COVID de 2020. Cada vez, la gente hablaba como si fuera el fin del mundo. Pero el mercado terminó recuperándose y alcanzando cotas aún más altas. ¿Por qué?
+
+El mercado no son simples números
+
+Muchas personas solo ven el mercado a través de gráficos. Pero el mercado no es un gráfico. El mercado es la economía en sí misma. Más precisamente, es el conjunto de incontables empresas. Apple, Microsoft, Nvidia, Amazon, Meta, Google... estas empresas crean nuevos productos cada día, mejoran sus servicios y amplían su base de clientes. El precio de las acciones es el número que refleja ese resultado. Por lo tanto, que el mercado suba a largo plazo significa que las empresas están creciendo. Mientras las empresas crezcan, el mercado también crecerá.
+
+La humanidad no ha dejado de avanzar
+
+Piensa en hace cien años. La gente no sabía qué era un smartphone. No había internet, ni GPS. La inteligencia artificial solo aparecía en la ciencia ficción. Sin embargo, hoy conectamos con todo el mundo desde la palma de la mano, buscamos información en segundos, pedimos productos desde casa y hacemos preguntas a la IA. La humanidad ha mejorado constantemente su productividad. Y esa mejora de productividad ha llevado al aumento de los beneficios empresariales. Cuando aumentan los beneficios, el precio de las acciones sube a largo plazo. La causa más fundamental del alza del mercado es precisamente la innovación en productividad.
+
+La historia siempre ha tenido innovaciones. En el siglo XIX, el ferrocarril cambió el mundo; en el XX, el automóvil; después llegaron la electricidad, el ordenador, internet, el smartphone. Y ahora llega la IA. No todas las empresas sobreviven. Pero la economía en su conjunto avanza. Y el mercado refleja ese avance.
+
+El mercado creció incluso en medio de las crisis
+
+La Gran Depresión americana de 1929 fue una de las peores crisis económicas de la historia. El desempleo superó el 20%, los bancos quebraron, millones de personas perdieron sus empleos. La gente creía que el capitalismo había llegado a su fin. Pero no fue así. Las empresas se transformaron para sobrevivir, surgieron nuevas industrias y la economía se recuperó.
+
+Muchos recuerdan la burbuja puntocom como un fracaso. Pero ¿fracasó internet? En absoluto. Internet se convirtió en una de las innovaciones más poderosas de la historia humana. Lo que fracasó no fue internet, sino las expectativas excesivas. Las burbujas pueden estallar, pero la innovación permanece.
+
+Cuando llegó la crisis financiera de 2008, la gente creía que la economía americana se derrumbaría. Pero la crisis hizo a las empresas más fuertes: mejoraron sus estructuras de costes, aumentaron la eficiencia y adoptaron nuevas tecnologías. Las empresas que sobrevivieron salieron más fuertes que antes.
+
+Por qué el Nasdaq es especial
+
+El inversor de QLD debe entender bien esta parte. El Nasdaq no es un simple índice bursátil. Es donde se reúnen las empresas más innovadoras del mundo: Apple, Microsoft, Nvidia, Amazon, Meta, Broadcom... Lo que estas empresas tienen en común es que crean el futuro. Están en el centro de la innovación tecnológica. Por eso el Nasdaq se beneficia directamente de la mejora de la productividad humana.
+
+Tener QLD no es solo poseer un ETF. Es creer en el progreso de la humanidad. Es creer en la innovación tecnológica. Claro que habrá caídas, burbujas y momentos de pánico. Pero el inversor a largo plazo los asume todos. No cree que no habrá caídas. Cree que, aunque las haya, la innovación continuará.
+
+El mercado no sube en línea recta: sube como escalones. Subida, corrección, caída, recuperación y de nuevo subida. Muchos consideran las caídas algo anormal. Pero históricamente, las caídas son normales. Lo anormal sería un mercado sin caídas. Por eso el inversor a largo plazo no trata de eliminar las caídas. Planifica su inversión asumiendo que las habrá.
+
+Resumen del capítulo 6
+El mercado refleja el resultado del crecimiento empresarial.
+La causa del alza del mercado a largo plazo es la mejora de la productividad.
+El ferrocarril, el automóvil, internet y la IA han sido motores del crecimiento del mercado.
+Ni la Gran Depresión, ni la crisis financiera, ni el COVID detuvieron el alza del mercado.
+La innovación permanece; las burbujas desaparecen.
+El Nasdaq es el conjunto de las empresas más innovadoras del mundo.
+Invertir en QLD es invertir en la innovación tecnológica.
+Las caídas no son una excepción, sino parte del mercado.
+
+Frase para recordar
+
+"El mercado no crece por las crisis, sino por la capacidad humana de seguir avanzando incluso en medio de ellas."''',
+    // Ch7
+    '''Incluso quien ve bien el futuro puede perder dinero.
+La creencia de que internet cambiaría el mundo
+
+A finales de los años 90, internet era el tema más candente del mundo. Hoy sabemos perfectamente lo importante que es: el comercio electrónico, los motores de búsqueda, el correo electrónico, la nube, la inteligencia artificial... todo tiene sus raíces en internet. Por tanto, que la gente de entonces creyera en el futuro de internet no fue un error. De hecho, tenían razón. El problema es que ver bien el futuro y tener éxito invirtiendo son cosas completamente distintas.
+
+La época en que todos se volvieron genios
+
+Entre 1998 y principios de 2000, el mercado bursátil estadounidense vivió una subida casi febril. Especialmente las empresas relacionadas con internet crecieron de forma explosiva. No importaba que no tuvieran ingresos, ni beneficios, ni un modelo de negocio claro. Bastaba añadir ".com" al nombre para que los inversores acudieran en tropel.
+
+Por aquel entonces circulaban frases como: "En la era de internet no se puede valorar una empresa con métodos antiguos." "El crecimiento importa más que las ventas." "Los beneficios ya vendrán." Hoy suenan peligrosas, pero entonces se aceptaban como verdades comunes. Mucha gente se enriquecía cada día. Los taxistas, los universitarios, los trabajadores... todos hablaban de bolsa. Quien no invertía parecía el raro.
+
+Cuanto más dura un mercado alcista, más cree la gente que se ha vuelto inteligente. En realidad, es el mercado el que los ha llevado arriba, pero ellos creen que es su habilidad. La mayoría no analizaba las empresas: compraba simplemente porque el precio subía. Y cada vez que aparecía la frase "esta vez es diferente", el riesgo crecía.
+
+¿Cómo se derrumba una burbuja?
+
+En marzo de 2000, el ambiente empezó a cambiar. Los inversores empezaron a ver la realidad poco a poco. Muchas empresas de internet seguían sin ganar dinero. Los precios comenzaron a caer. Al principio nadie le dio importancia. "Ya volverá a subir." Pero la caída no se detuvo. Y empezó el pánico.
+
+En los mercados alcistas, la codicia es contagiosa. En los bajistas, lo es el miedo. Las ventas atraen más ventas, el pánico atrae más pánico. Al final, el Nasdaq cayó cerca de un 80%. Muchos inversores abandonaron el mercado.
+
+La lección más importante de la burbuja puntocom es esta: internet no fracasó. Fracasaron los inversores. La diferencia es fundamental. Internet después cambió el mundo por completo. Amazon se convirtió en la mayor empresa de comercio electrónico del mundo. Google, en el centro de la búsqueda en internet. Netflix transformó la industria del entretenimiento. La innovación sí tuvo éxito. Pero muchos inversores no llegaron a verlo, porque se rindieron cuando la burbuja estalló.
+
+La perspectiva de Buffett
+
+Warren Buffett recibió muchas críticas durante la burbuja puntocom. La gente creía que se había quedado obsoleto porque no invertía en empresas de internet. Buffett no invertía en negocios que no entendía. En ese momento, esa decisión parecía de ignorante. Pero cuando la burbuja estalló, la situación cambió por completo. Buffett sobrevivió y siguió creciendo después. Su secreto: no abandonó sus principios ni en el mercado más caliente.
+
+La fiebre de la IA y la lección para el inversor de QLD
+
+Hoy muchos inversores preguntan: "¿La fiebre de la IA es como la burbuja puntocom?" La IA es una innovación real. De eso no hay duda. Pero el inversor siempre debe recordar: la innovación y la rentabilidad de la inversión no son lo mismo. Una buena tecnología no garantiza una buena inversión. Lo que importa es el precio. No hay que dudar de la innovación. Pero sí hay que cuestionar siempre el precio.
+
+La burbuja puntocom no es un simple hecho histórico. Es un caso de estudio que todos los inversores deben revisar repetidamente, porque la psicología humana no cambia. En el futuro surgirán nuevas burbujas. Y la gente volverá a decir "esta vez es diferente". Buffett en ese momento pensaría en la burbuja puntocom y preguntaría: "¿Estás invirtiendo en la innovación? ¿O simplemente estás embriagado por la subida del precio?"
+
+Resumen del capítulo 7
+La revolución de internet fue real, pero también lo fue la burbuja.
+Innovación e inversión exitosa no son lo mismo.
+Precio y valor son distintos.
+Las burbujas nacen de la psicología de masas.
+Buffett mantuvo sus principios incluso en el momento más caliente.
+La innovación permanece; las burbujas desaparecen.
+Los mismos principios se aplican en la era de la IA.
+El inversor de QLD debe considerar tanto la innovación como el precio.
+
+Frase para recordar
+
+"No basta con ver bien el futuro. Hay que invertir al precio correcto."''',
+    // Ch8
+    '''Cuando parece que el mercado se derrumba, ¿qué debe hacer el inversor?
+"Esta vez ha terminado de verdad"
+
+El 15 de septiembre de 2008, el gigante banco de inversión Lehman Brothers solicitó la quiebra. Nadie podía creerlo. Una enorme empresa financiera con 158 años de historia se derrumbó de la noche a la mañana. Las noticias eran impactantes cada día. Los bancos tambalean, los precios inmobiliarios se desploman, las empresas dejan de contratar. El desempleo se disparó y la bolsa caía cada jornada.
+
+Los inversores de todo el mundo pensaban lo mismo: "Esta vez parece que ha terminado de verdad." Muchos creían que podía colapsar el propio sistema capitalista. En retrospectiva puede sonar exagerado, pero para los que lo vivieron en ese momento era muy real. El miedo siempre es más fuerte que la lógica.
+
+¿Cómo empezó la crisis financiera?
+
+La crisis no apareció de la nada. Sus semillas se sembraron mucho antes. El mercado inmobiliario estadounidense llevaba tiempo subiendo. La gente empezó a creer que los precios de las casas nunca bajarían, y los bancos pensaron lo mismo. Comenzaron a conceder préstamos incluso a personas con poca solvencia. "De todos modos, los precios subirán, así que no hay problema." Esa lógica dominó todo el mercado.
+
+Al principio no hubo problemas. Los precios subían y todos ganaban dinero. Pero eso era precisamente el problema: el riesgo parecía haber desaparecido. En realidad, no desaparecía: se escondía.
+
+La mayoría piensa que los mercados bajistas son peligrosos. Pero históricamente, los períodos más peligrosos suelen ser los alcistas. En los alcistas, desaparece la precaución. La gente se endeuda más, asume más riesgos, elimina las salvaguardas y se justifica diciendo: "¿Qué problema hay si el mercado sigue subiendo?" Exactamente eso pasó antes de 2008.
+
+La acción de Buffett
+
+Mientras la mayoría huía del mercado en 2008, Buffett hacía algo diferente: buscaba buenas empresas. Cuando muchos arrojaban las acciones, él buscaba oportunidades de compra. La razón es sencilla: creía en el valor de las empresas más que en las emociones del mercado. Y la crisis pasó. La economía se recuperó y el mercado alcanzó nuevos máximos. Buffett demostró una vez más el poder de los principios.
+
+¿Por qué la gente comete errores en los mercados bajistas?
+
+Cuando llega un mercado bajista, la gente se vuelve pesimista sobre el futuro. Si el precio baja, parece que caerá más; si las noticias son malas, parece que la situación empeorará. Pero el mercado no refleja el presente, sino el futuro. El mayor problema es que el momento en que la gente es más pesimista suele ser el que ofrece las mejores oportunidades. Finales de 2008, marzo de 2020... las mejores oportunidades históricas estaban en medio del miedo. Pero en ese momento nadie las ve como oportunidades.
+
+¿Cómo debe ver el inversor de QLD la crisis financiera?
+
+QLD busca el doble del movimiento del Nasdaq 100. En situaciones como una crisis financiera, las caídas pueden ser mucho más pronunciadas. Pero el verdadero riesgo no es la volatilidad. Es la reacción a la volatilidad. Si el inversor no aguanta la caída y vende en el suelo, eso sí es peligroso. En cambio, si tiene efectivo preparado y ejecuta su estrategia planificada, la caída puede convertirse en oportunidad. QLD -20%: empezar a comprar por partes; -30%: compra adicional; -40%: compra activa; -50%: revisar oportunidades a largo plazo. Lo importante no es la emoción, sino el plan.
+
+La crisis financiera es la historia de la psicología humana. En los mercados alcistas la gente olvida el riesgo; en los bajistas olvida la esperanza. Y repite los mismos errores una y otra vez. En cambio, los inversores exitosos mantienen sus principios. Se mantienen fríos incluso en el pánico. Con el tiempo, esa diferencia produce resultados enormes.
+
+Resumen del capítulo 8
+La crisis financiera no fue repentina: fue el resultado de ignorar los riesgos.
+Los mercados alcistas pueden ser el período más peligroso.
+Yo enfatizo la importancia del margen de seguridad.
+Buffett encontró oportunidades en medio del pánico.
+Las caídas ponen a prueba la psicología del inversor.
+Los ETF no eliminan las crisis.
+El inversor de QLD debe gestionar su propio comportamiento más que la volatilidad.
+Quien sobrevive a la crisis termina ganando con el interés compuesto.
+
+Frase para recordar
+
+"La crisis destruye a unos inversores, pero enriquece a los que estaban preparados."''',
+    // Ch9
+    '''En el momento en que el mundo parecía detenerse, el mercado miraba al futuro.
+Una crisis que nadie predijo
+
+A principios de 2020, la mayoría de los inversores pensaba que sería un año tranquilo. La economía americana era sólida, el desempleo era bajo y los resultados empresariales eran buenos. El Nasdaq avanzaba hacia máximos históricos. Entonces, una pequeña noticia proveniente de Wuhan, China, empezó a sacudir el mundo. Al principio muchos no le dieron importancia. Ya había habido epidemias antes. Creían que terminaría pronto.
+
+Pero la situación empeoró mucho más rápido de lo esperado. Los países cerraron fronteras. Las ciudades se confinaron. Las escuelas cerraron. Las fábricas pararon, los aviones desaparecieron, las personas no podían salir de casa. Era una situación sin precedentes en la historia económica moderna.
+
+La caída más rápida de la historia
+
+A finales de febrero de 2020, el mercado empezó a tambalear bruscamente. En marzo, el miedo se convirtió en pánico. El S&P500 cayó más de un 30% en pocas semanas. El Nasdaq también cayó bruscamente. Los ETF apalancados como QLD se sacudieron aún más. Las cuentas se reducían cada día y las noticias eran cada vez más sombrías. La gente se preguntaba sin cesar: "¿Esta vez es realmente diferente?" "¿La economía se ha detenido completamente?" "¿Debo venderlo todo?"
+
+Lo que diferenciaba el COVID de las crisis anteriores era claro. La crisis financiera fue un problema del sistema financiero; la burbuja puntocom fue el problema de una burbuja en las empresas tecnológicas. Pero el COVID paralizó la actividad económica en sí misma. Los restaurantes cerraron, las aerolíneas pararon, los hoteles quedaron vacíos y la gente no podía consumir. El motor de la economía parecía apagarse.
+
+En el pasado, los mercados siempre habían tenido volatilidad. Pero el crash del COVID fue demasiado rápido. La mayoría de los inversores no tuvo tiempo ni de adaptarse. En esas circunstancias, el cerebro humano reacciona por instinto: "Hay que escapar." El miedo aplasta a la lógica. Muchos inversores no aguantaron las pérdidas y abandonaron el mercado.
+
+¿Por qué se recuperó el mercado?
+
+Para entender el crash del COVID hay que entender la naturaleza del mercado: el mercado no refleja el presente, sino el futuro. En marzo de 2020, los inversores podían elegir entre dos perspectivas. Ver solo el presente: los hospitales estaban saturados, la economía estaba paralizada, la gente estaba angustiada. O ver el futuro: algún día se desarrollaría una vacuna, la economía se reactivaría y la gente volvería a consumir. El mercado eligió la segunda perspectiva. Y sorprendentemente, el mercado empezó a recuperarse antes que la economía real.
+
+Buffett mantuvo siempre la misma filosofía. Creía que la economía americana crecería a largo plazo. Creía que la humanidad resolvería sus problemas. Habían superado la Gran Depresión, las guerras mundiales, la crisis financiera. El COVID también lo superaron al final. Lo que Buffett creía no era en las noticias a corto plazo, sino en la capacidad de adaptación humana.
+
+El mundo después del COVID se hizo más fuerte
+
+Curiosamente, el COVID hizo a algunas empresas más fuertes. El teletrabajo se extendió, la industria cloud creció, el comercio electrónico se expandió explosivamente y se aceleró la inversión en tecnología de IA. Microsoft y Amazon crecieron aún más, y Nvidia pasó a estar en el centro de la revolución de la IA. Las crisis siempre generan cambios. Y los cambios crean nuevas oportunidades.
+
+El crash del COVID dejó una lección muy importante para los inversores en ETF: el mercado puede caer más de lo esperado. Pero al mismo tiempo puede recuperarse más rápido de lo esperado. La mayoría intenta acertar el momento de la recuperación, pero históricamente eso ha sido casi imposible. La mejor estrategia ha sido casi siempre sencilla: mantener buenos activos y aguantar. Y si es necesario, comprar más en los mercados bajistas.
+
+Lo que el COVID enseñó al inversor de QLD
+
+El crash del COVID tiene un significado especial para el inversor de QLD. Los ETF apalancados hacen que el miedo se sienta aún más intensamente. Cuando el Nasdaq cae, QLD se sacude aún más. Por eso se pone a prueba al inversor: ¿eres realmente un inversor a largo plazo? ¿Realmente crees en la innovación tecnológica? ¿Realmente puedes ceñirte a tu plan? El COVID lanzó esas preguntas. Y el mercado al final dio la respuesta. La innovación tecnológica a largo plazo no se detuvo. Al contrario, se aceleró.
+
+Si miramos la historia, todas las crisis tienen algo en común: en aquel momento parecen interminables. Pero siempre terminaron. Lo importante no es la capacidad de predecir la crisis. Es la capacidad de mantener los principios incluso en medio de ella. El inversor a largo plazo no profetiza el futuro. En cambio, se prepara para sobrevivir a cualquier futuro que llegue.
+
+Resumen del capítulo 9
+El crash del COVID fue uno de los desplomes de mercado más rápidos de la historia moderna.
+El mercado refleja el futuro más que el presente.
+El valor de las empresas sólidas y el precio del mercado pueden divergir.
+Buffett enfatiza distinguir entre precio y valor.
+Buffett creía en la capacidad de adaptación humana.
+Las crisis también pueden acelerar nuevas innovaciones.
+Para los inversores en ETF, los principios son más importantes que el timing del mercado.
+El inversor de QLD debe mirar a la innovación tecnológica a largo plazo, incluso en la volatilidad.
+
+Frase para recordar
+
+"Incluso en el momento en que el mercado parece más oscuro, el futuro se sigue construyendo."''',
+    // Ch10
+    '''¿Estamos ante otro punto de inflexión histórico?
+La humanidad siempre ha subestimado el futuro
+
+En 1903, cuando los hermanos Wright construyeron el avión, mucha gente se rió. "¿Que una persona va a volar?" En los años 80, cuando aparecieron los ordenadores personales, la mayoría pensó que solo los usarían algunos expertos. En los 90, muchos creyeron que internet no era más que una moda pasajera.
+
+Pero la historia ha demostrado lo mismo una y otra vez: los seres humanos sobreestimamos los cambios a corto plazo y subestimamos los cambios a largo plazo. Y ahora estamos ante otra transformación gigantesca: la inteligencia artificial (IA).
+
+¿Por qué la IA es especial?
+
+Las innovaciones tecnológicas del pasado ayudaban principalmente al trabajo físico del ser humano. La máquina de vapor hacía el trabajo duro, el automóvil facilitaba los desplazamientos, el ordenador ayudaba con los cálculos e internet facilitaba la transmisión de información. Pero la IA es algo diferente. La IA ayuda al trabajo intelectual del ser humano: escribe textos, traduce, analiza, escribe código, crea imágenes e incluso asiste en la toma de decisiones. Esto no es simplemente un avance tecnológico. Podría ser el inicio de una revolución de la productividad.
+
+La razón por la que el mercado bursátil sube a largo plazo es, en última instancia, la productividad. Cuando una persona puede crear más valor, aumentan los beneficios empresariales. Cuando aumentan los beneficios, aumenta el valor de la empresa. Y en última instancia, sube el precio de las acciones. La Revolución Industrial, la electricidad, el ordenador, internet... todos mejoraron la productividad. La IA recorre el mismo camino. Por tanto, el inversor a largo plazo no invierte simplemente en empresas de IA: invierte en la revolución de la productividad.
+
+¿La IA y la burbuja puntocom son lo mismo?
+
+Muchos inversores preguntan: "¿La fiebre de la IA no es una burbuja puntocom?" La respuesta no es sencilla. La IA es una innovación real. Igual que internet era una innovación real. El problema es que la tecnología y los precios no siempre avanzan al mismo ritmo. En la época de la burbuja puntocom, internet era real, pero el precio de algunas empresas era irreal. Hoy la IA también puede tener riesgos similares. Una buena tecnología no garantiza una buena rentabilidad de la inversión. Por eso he enfatizado este punto. Creer en la innovación e invertir a cualquier precio son cosas completamente distintas.
+
+Lo que simboliza Nvidia
+
+Cuando se habla de la revolución de la IA en la década de 2020, la empresa que viene primero a la mente es Nvidia. Hace solo unos años, Nvidia se percibía principalmente como una empresa de tarjetas gráficas para juegos. Pero cuando llegó la era de la IA, la situación cambió por completo. Las GPU de Nvidia se convirtieron en la infraestructura clave de la industria de la IA. Las empresas de todo el mundo empezaron a comprar chips de Nvidia para desarrollar modelos de IA. Lo importante no es el precio de la acción. Es el hecho de que la IA ha empezado a influir en la actividad económica real.
+
+Buffett siempre fue cauteloso con las nuevas tecnologías. Se centraba en empresas que entendía y no seguía las modas. Miraba la ventaja competitiva de la empresa y su capacidad de generar beneficios. Por eso siempre hacía las mismas preguntas: "¿Es razonable este precio?" "¿No refleja demasiadas expectativas?" "¿Existe margen de seguridad?" Esa es la esencia de la filosofía inversora de Buffett.
+
+La inversión en ETF y QLD en la era de la IA
+
+La mayoría de los inversores particulares no pueden adivinar quién será el ganador final de la industria de la IA. Es casi imposible predecir con exactitud qué empresa será la más fuerte dentro de diez años. Por eso son importantes los ETF. Los ETF permiten participar en el crecimiento de toda la industria, no de una empresa específica. El Nasdaq 100 incluye a muchas de las empresas clave de la revolución de la IA: Apple, Microsoft, Nvidia, Amazon, Meta, Broadcom... todas tienen una alta probabilidad de beneficiarse de la revolución de la IA. El inversor en ETF puede participar en la corriente de la innovación sin la carga de acertar con los ganadores individuales.
+
+La IA es un tema muy importante para el inversor de QLD, porque QLD busca el doble del movimiento del Nasdaq 100. Cuanto más exitosa sea la revolución de la IA, más probabilidades tiene QLD de verse beneficiado. Pero al mismo tiempo, si las expectativas se recalientan, la volatilidad también puede aumentar. Por eso el inversor a largo plazo debe recordar dos cosas a la vez: primero, la IA tiene una alta probabilidad de ser una innovación real; segundo, el mercado puede recalentarse a corto plazo.
+
+Muchos inversores intentan predecir hasta dónde llegará la IA. Pero históricamente, los inversores más exitosos no fueron los que predijeron el futuro con precisión. Fueron los que entendieron la dirección del cambio. Lo importante no es el precio de mañana. Es pensar en cómo cambiará la productividad en los próximos 10 o 20 años. El verdadero valor de la IA no son los nuevos productos. Es la mejora de la productividad. Poder hacer más en menos tiempo. Si miramos la historia de la humanidad, las revoluciones de la productividad siempre han impulsado el crecimiento económico. El inversor a largo plazo es quien invierte precisamente en eso.
+
+Resumen del capítulo 10
+La IA probablemente no sea solo una moda, sino una revolución de la productividad.
+El mercado refleja a largo plazo la mejora de la productividad.
+La lección de la burbuja puntocom es distinguir entre innovación y precio.
+Nvidia es el ejemplo más representativo de la revolución de la IA.
+Yo siempre enfatizo el precio y el margen de seguridad.
+Buffett mira la ventaja competitiva más que las modas.
+Los ETF pueden ser una forma eficiente de participar en la revolución de la IA.
+El inversor de QLD debe entender tanto los beneficios de la revolución de la IA como su volatilidad.
+
+Frase para recordar
+
+"El gran inversor no es el que predice el futuro con precisión, sino el que participa de forma constante en los cambios que crean el futuro."''',
+  ];
+
+  static List<_BookChapter> _withEsTitles() {
+    const esTitles = [
+      'Ch1. La diferencia entre inversión y especulación',
+      'Ch2. Por qué la mayoría de inversores fracasan',
+      'Ch3. El mercado',
+      'Ch4. El margen de seguridad',
+      'Ch5. La psicología de masas y la inversión',
+      'Ch6. Por qué el mercado sube a largo plazo',
+      'Ch7. Las lecciones de la burbuja puntocom',
+      'Ch8. Las lecciones de la crisis financiera',
+      'Ch9. Las lecciones del crash del COVID',
+      'Ch10. La revolución de la IA y el mercado actual',
+    ];
+    return List.generate(
+      _spanishBodies.length,
+      (i) => _BookChapter(title: esTitles[i], body: _spanishBodies[i]),
+    );
+  }
+
+  // ── Portuguese ───────────────────────────────────────────────────────────
+
+  static const _portugueseBodies = <String>[
+    // Ch1
+    '''Todos que entram no mercado são realmente investidores?
+A bolha das pontocom foi uma época em que qualquer empresa que tivesse a palavra "internet" no nome via suas ações subirem. Algumas não tinham receita, nem lucro, e seus modelos de negócio eram pouco claros. Mesmo assim, os investidores estavam eufóricos. Os preços subiam todos os dias. A mídia publicava histórias de novos milionários. Os universitários passavam mais tempo em fóruns de ações do que em sala de aula.
+
+Naquele momento, muita gente se achava investidora. Mas eu diria: não eram investidores. Eram especuladores.
+
+Quando a bolha estourou em 2000, inúmeras empresas desapareceram. Perdas de dezenas de pontos percentuais aconteceram da noite para o dia, e muitos perderam as economias de uma vida inteira. O mais impressionante é que a maioria dos que perderam dinheiro não conseguia explicar bem o que havia comprado. Não compraram empresas: compraram valorização de preços. Essa é exatamente a diferença entre investimento e especulação.
+
+Investimento e especulação são jogos completamente diferentes
+
+A maioria acha que investir e especular são coisas parecidas. Mas para mim, o investimento precisa satisfazer três condições: primeiro, análise aprofundada; segundo, consideração da proteção do capital; terceiro, expectativa de retorno satisfatório. Tudo que não cumpre essas condições é, por definição, especulação.
+
+O importante não é o que você compra, mas com qual mentalidade. Comprar ações da Apple é especulação se o motivo for "acho que vai subir amanhã". Mas comprar um ETF como resultado de analisar o potencial de crescimento das empresas se aproxima de investimento. Não é o produto que distingue investimento de especulação. É a forma de pensar.
+
+Os preços mudam todo dia; o valor muda devagar
+
+Quem está entrando na bolsa pela primeira vez foca principalmente no preço. Mas o investidor olha o valor, não o preço. Imagine que você possui um prédio no centro de Seul. Um dia te oferecem 5 bilhões de won. No dia seguinte, 4 bilhões. Uma semana depois, 5,5 bilhões. O prédio não mudou nada. Só o preço oferecido mudou. Com ações é a mesma coisa. O investidor olha o valor. O especulador olha apenas o preço.
+
+Os seres humanos são naturalmente atraídos pela especulação
+
+Investir é difícil porque vai contra nosso instinto. As pessoas não gostam de enriquecer devagar. A história de manter 10% de retorno anual por 20 anos é entediante. Mas a de uma ação que subiu 300% em um mês é empolgante. Nosso cérebro prefere recompensas imediatas. O mercado explora constantemente essa psicologia.
+
+Em um mercado em alta, todos parecem gênios. As redes sociais estão cheias de prints de lucro. Nesse momento, o investidor pensa sem perceber: "Estou ficando para trás?" A partir daí, a análise desaparece e as emoções passam a governar as decisões de investimento.
+
+Por que Warren Buffett ficou rico?
+
+Sua arma mais poderosa não é a habilidade de escolher ações. É o tempo. Desde jovem, Buffett encontrava boas empresas e as mantinha por muito tempo. Ele focava em uma pergunta simples: "Esta empresa ainda será forte em 10 anos?" De fato, a maior parte da riqueza de Buffett foi acumulada depois dos 60 anos, porque ele deu ao juro composto tempo suficiente para agir. O especulador vê o tempo como inimigo. O investidor o transforma em aliado.
+
+Por que os ETFs são importantes para o investidor moderno
+
+Hoje existem ETFs como QQQ, SPY, VOO e QLD que permitem diversificar automaticamente em centenas de empresas. Mas uma coisa não mudou: os ETFs podem ser usados para investir e também para especular. Se você olha só o preço todo dia, um ETF também vira ferramenta especulativa. Mas se você o aborda como participação no crescimento econômico de longo prazo, é um excelente veículo de investimento.
+
+Em que investe um investidor de QLD?
+
+QLD busca aproximadamente o dobro do retorno do Nasdaq 100. Ter QLD não é só possuir um ETF: é participar da inovação tecnológica americana. Apple, Microsoft, Nvidia, Amazon, Meta, Broadcom... se você acredita que essas empresas continuarão crescendo, QLD pode ser um alvo de investimento. Mas se você se aproxima dele porque "acho que vai subir no próximo mês", isso é especulação. Mesmo produto, mentalidade diferente. O resultado é completamente diferente.
+
+O maior inimigo do investidor
+
+O maior inimigo do investidor não é o mercado. É você mesmo. Medo, ganância, impaciência, arrependimento, inveja... essas emoções empurram inúmeros investidores para fora do mercado. Os mercados costumam se recuperar com o tempo. Mas o investidor destruído pelo medo não se recupera. Por isso a essência do investimento não é a seleção de ativos. É o gerenciamento psicológico.
+
+Resumo do capítulo 1
+Investimento e especulação são completamente diferentes.
+O investidor compra valor; o especulador compra preço.
+Os preços mudam todo dia; o valor muda devagar.
+A natureza humana tende à especulação.
+A maior arma de Buffett não foi a previsão, mas o tempo.
+Os ETFs podem ser tanto investimento quanto especulação.
+QLD deve ser abordado como investimento de longo prazo na inovação tecnológica.
+O maior inimigo do investidor não é o mercado, mas suas próprias emoções.
+
+Frase para lembrar
+
+"Investir não é adivinhar o futuro. É comprar bons ativos a um preço razoável e dar a eles tempo suficiente."''',
+    // Ch2
+    '''O mercado não é difícil. Mas as emoções humanas são.
+O mais perigoso não é a ignorância
+
+Muitos acreditam que fracassam nos investimentos por falta de informação. Mas a história revela algo surpreendente: a maioria não fracassa pelo que não sabe, mas pelo que sabe e não aplica.
+
+As pessoas sabem que precisam "comprar barato e vender caro". Sabem que o investimento de longo prazo é importante. Sabem que não devem vender com pânico. No entanto, quando chega o momento, fazem exatamente o contrário. O problema não é a informação. É o comportamento. E o comportamento é governado pelas emoções.
+
+O cérebro humano é projetado contra o investimento
+
+O ser humano não evoluiu para ser investidor. Durante centenas de milhares de anos, a sobrevivência dependia de reagir imediatamente aos perigos. Mas o mercado financeiro é diferente: que a bolsa caia 20% não é uma ameaça imediata. Porém o cérebro não entende assim. Quando a conta começa a ficar no vermelho, o cérebro gera um estresse similar ao de um perigo real. Isso paralisa o julgamento racional e leva a vender no pior momento.
+
+As lições da bolha das pontocom
+
+No final dos anos 90, a crença de que a internet mudaria o mundo estava correta. O problema foi que as pessoas não acreditaram no futuro: ficaram embriagadas pelos preços. Quando a bolha estourou em 2000, o Nasdaq caiu cerca de 80%. Muitos investidores inteligentes perderam quase tudo porque não conseguiram resistir à psicologia de massa.
+
+A crise financeira mostrou outra face
+
+2008 foi o oposto da bolha das pontocom. Desta vez foi o medo, não a ganância, que dominou o mercado. Muitos venderam no pior momento. Mas o mercado se recuperou e atingiu novos máximos. O problema é que muitos não esperaram a recuperação: venderam no fundo e voltaram a comprar a preços altos.
+
+O crash da COVID confirmou a psicologia humana
+
+Em 2020, o mercado caiu em poucas semanas como nunca antes. Mas o mercado se recuperou muito mais rápido do que o esperado. Quem vendeu com pânico ficou surpreso ao ver o mercado subir enquanto esperava de fora. Os que mantiveram seus princípios aproveitaram a recuperação. O sucesso no investimento não é prever o futuro: é manter os princípios.
+
+Resumo do capítulo 2
+A maioria fracassa por emoções, não por falta de informação.
+O cérebro humano é projetado contra o investimento.
+A bolha das pontocom mostra o perigo da ganância.
+A crise financeira e a COVID mostram o perigo do medo.
+O maior inimigo do investidor é ele mesmo.
+A força de Buffett não é a previsão, mas manter os princípios.
+Também os investidores em ETF podem fracasar se não controlarem suas emoções.
+O investidor de QLD deve aceitar a volatilidade e agir segundo um plano.
+
+Frase para lembrar
+
+"O mercado não te destrói. O que te destrói é seu próprio comportamento governado pelo medo e pela ganância."''',
+    // Ch3
+    '''O mercado não é seu senhor, mas seu servo.
+Imagine que você é coproprietário de um negócio sólido e crescente. Todo dia de manhã bate à sua porta um homem estranho chamado "o Mercado". Cada dia ele oferece comprar sua parte ou te vender a dele, mas o preço que propõe muda constantemente. Alguns dias está extremamente otimista e pede preços absurdos. Outros está completamente abatido e quer vender a preço de liquidação. O negócio em si não mudou, mas o preço varia enormemente.
+
+É assim que eu chamo esse homem estranho: "Sr. Mercado". E o importante é entender que seu preço nem sempre reflete o valor real.
+
+A maioria mal entende o mercado
+
+Para mim, o mercado é uma simples ferramenta. Mas a maioria o trata como mestre: se alegra quando sobe e fica angustiada quando cai, como se o mercado soubesse a verdade. Mas o mercado não é profeta. Ele só oferece preços. E esses preços nem sempre estão corretos. Historicamente, o mercado errou incontáveis vezes.
+
+O que Buffett amava no mercado
+
+Buffett amava o mercado, mas por razões diferentes da maioria. Ele preferia quando o mercado era irracional, porque isso criava oportunidades. Uma boa empresa sendo negociada a preço baixo por causa do pânico é como um presente para o investidor de longo prazo. Ele sempre distinguiu entre preço e valor: o preço baixo oferecido pelo mercado não significa que o valor diminuiu.
+
+O investidor inteligente usa o mercado
+
+A maioria é usada pelo mercado: quando o mercado se empolga, eles se empolgam; quando entra em pânico, eles entram em pânico. Eu ajo de forma diferente. Fico cauteloso quando o mercado superaquece e busco oportunidades quando o mercado entra em pânico. Não sigo o humor do mercado. Eu o aproveito.
+
+Resumo do capítulo 3
+O mercado oferece preços todo dia, mas nem sempre estão corretos.
+Preço e valor são coisas diferentes.
+A bolha das pontocom mostra a ganância do mercado.
+A crise financeira e a COVID mostram o medo do mercado.
+Buffett aproveitou as emoções do mercado.
+O investidor de QLD deve focar no valor, não no preço.
+O mercado é servo, não senhor.
+
+Frase para lembrar
+
+"O mercado só te oferece um preço. Aceitá-lo ou não é sua decisão."''',
+    // Ch4
+    '''Os grandes investidores pensaram primeiro em sobreviver, não em ganhar.
+A margem de segurança é o núcleo de toda minha filosofia. Acredito que o ser humano não pode prever o futuro com precisão. Por isso sempre me pergunto: "Vou conseguir sobreviver mesmo que eu esteja errado?" Essa é a essência da margem de segurança.
+
+A regra de Buffett: "Regra 1: não perca dinheiro. Regra 2: não esqueça a regra 1." Se você perde 50%, precisa ganhar 100% só para se recuperar. Se perde 80%, precisa de 400%. Por isso os grandes investidores pensam primeiro em sobrevivir.
+
+Em 1999, o conceito de margem de segurança foi ignorado. Empresas sem receita valiam bilhões. "Desta vez é diferente", dizia o pessoal. Essas são as palavras mais perigosas da história financeira. Em 2008, muitas instituições financeiras usavam alavancagem excessiva. Não tinham margem de segurança. Quando o mercado vacilou um pouco, tudo desabou. Em contrapartida, as empresas com liquidez suficiente não só sobreviveram como aproveitaram a crise como oportunidade.
+
+Para o investidor de QLD, se você investiu todos os seus ativos em QLD, uma grande queda do Nasdaq vai exercer enorme pressão psicológica. Mas se você tem dinheiro disponível, a queda deixa de ser crise e vira oportunidade. O dinheiro não é capital em espera: é o direito de aprovechar as oportunidades.
+
+Resumo do capítulo 4
+A margem de segurança é o núcleo de minha filosofia.
+Deixe sempre uma margem porque o futuro não pode ser previsto.
+Sobreviver é mais importante que a rentabilidade.
+Buffett olha primeiro a probabilidade de sobrevivência.
+A bolha das pontocom e a crise financeira demonstram a importância da margem de segurança.
+O dinheiro é o direito de aproveitar as oportunidades.
+O investidor de QLD precisa especialmente de dinheiro e estratégia baseada em regras.
+
+Frase para lembrar
+
+"O grande investidor não é o que mais ganha. É o que sobrevive mais tempo para aproveitar o poder dos juros compostos."''',
+    // Ch5
+    '''O mercado parece se mover por números, mas na verdade se move pelas emoções humanas.
+Em 1637, na Holanda, um bulbo de tulipa foi vendido pelo preço de uma casa. Em 1929, as pessoas pediam empréstimos para comprar ações. Em 2000, empresas sem receita valiam bilhões. Em 2021, as ações meme dispararam impulsionadas pelo entusiasmo de comunidades na internet.
+
+As épocas são diferentes, os países são diferentes, os ativos são diferentes. Mas há uma surpreendente semelhança: as pessoas sempre repetem os mesmos erros. Por quê? Porque o mercado não se move por números, mas pelas emoções humanas.
+
+O ser humano evoluiu para seguir o grupo
+
+Há dezenas de milhares de anos, seguir o grupo era estratégia de sobrevivência. O cérebro humano aprendeu a confiar instintivamente no comportamento da maioria. O problema é que o mercado financeiro explora esse instinto. A isso se chama FOMO (Fear Of Missing Out). E grande parte dos fracassos nos investimentos começa aí.
+
+Por que Buffett agiu na contramão
+
+Uma das razões pelas quais Buffett é especial é que ele conseguia agir ao contrário das massas. Na crise de 2008, enquanto muitos investidores fugiam, Buffett investia ativamente. Ele olhava o valor das empresas, não as emoções das pessoas. Comprar em momentos de medo extremo vai contra o instinto humano. Mas o investidor de longo prazo deve seguir princípios, não instintos.
+
+Invista segundo regras, não segundo emoções
+
+A melhor maneira de reduzir a influência da psicologia de massa é ter regras claras: comprar um pouco ao -20%, investir parte do dinheiro ao -30%, comprar ativamente ao -40%, investir conforme o plano ao -50%. Com regras assim, há menos espaço para as emoções intervirem. As regras são o antídoto das emoções. E a arma mais poderosa do investidor de longo prazo.
+
+Resumo do capítulo 5
+O ser humano é projetado para seguir o grupo.
+Muitos fracassos nos investimentos começam na psicologia de massa.
+A bolha das pontocom mostra o perigo da ganância.
+A crise financeira mostra o perigo do medo.
+Buffett conseguiu agir na contramão das massas.
+O investidor de QLD precisa especialmente de investimento baseado em regras.
+
+Frase para lembrar
+
+"Seja mais cauteloso quando as massas têm plena certeza, e mais frio quando as massas estão desesperadas."''',
+    // Ch6
+    '''Os mercados caem repetidamente, mas por que continuam atingindo novos máximos?
+O mercado não é simples números. É a economia em si mesma. Mais precisamente, é o conjunto de inúmeras empresas. Apple, Microsoft, Nvidia, Amazon, Meta, Google... essas empresas criam novos produtos todo dia, melhoram serviços e ampliam sua base de clientes. Portanto, que o mercado suba no longo prazo significa que as empresas estão crescendo.
+
+A humanidade melhorou constantemente sua produtividade. Há cem anos, ninguém sabia o que era smartphone. Não havia internet nem GPS. A IA só aparecia na ficção científica. Hoje nos conectamos com o mundo todo pela palma da mão. Quando a produtividade melhora, os lucros das empresas aumentam. E quando os lucros aumentam, as ações sobem a longo prazo. As bolhas podem estourar, mas a inovação fica.
+
+O Nasdaq concentra as empresas mais inovadoras do mundo: Apple, Microsoft, Nvidia, Amazon, Meta, Broadcom. Ter QLD não é só possuir um ETF. É acreditar no progresso da humanidade. Claro que haverá quedas, bolhas e momentos de pânico. Mas o investidor de longo prazo os assume todos.
+
+Resumo do capítulo 6
+O mercado reflete o resultado do crescimento empresarial.
+A causa da alta do mercado no longo prazo é a melhora de produtividade.
+Ferrovia, automóvel, internet e IA foram motores do crescimento do mercado.
+Nem a Grande Depressão, nem a crise financeira, nem a COVID pararam a alta do mercado.
+A inovação fica; as bolhas desaparecem.
+O Nasdaq é o conjunto das empresas mais inovadoras do mundo.
+Investir em QLD é investir na inovação tecnológica.
+As quedas não são exceção, mas parte do mercado.
+
+Frase para lembrar
+
+"O mercado não cresce por causa das crises, mas pela capacidade humana de continuar avançando mesmo em meio a elas."''',
+    // Ch7
+    '''Mesmo quem vê o futuro corretamente pode perder dinheiro.
+A crença de que a internet mudaria o mundo era correta. Mas ver o futuro corretamente e ter sucesso nos investimentos são coisas completamente diferentes. A bolha das pontocom mostrou isso com clareza. A internet não falhou. Os investidores falharam. Essa diferença é fundamental.
+
+Entre 1998 e início de 2000, qualquer empresa com ".com" no nome via investidores correndo para comprar. Ninguém analisava: comprava porque os preços subiam. Quando a bolha estourou, o Nasdaq caiu cerca de 80%. A lição mais importante: a inovação teve sucesso real — Amazon, Google, Netflix mudaram o mundo. Mas muitos investidores não viveram para ver isso, porque desistiram durante a queda.
+
+A febre da IA e a lição para o investidor de QLD
+
+A IA é uma inovação real. Mas o investidor sempre deve lembrar: inovação e rentabilidade do investimento não são a mesma coisa. Uma boa tecnologia não garante um bom investimento. O que importa é o preço. Não é preciso duvidar da inovação. Mas sempre questione o preço.
+
+Resumo do capítulo 7
+A revolução da internet foi real, mas a bolha também foi.
+Inovação e investimento bem-sucedido não são a mesma coisa.
+Preço e valor são diferentes.
+Buffett manteve seus princípios mesmo no momento mais quente.
+A inovação fica; as bolhas desaparecem.
+Os mesmos princípios se aplicam na era da IA.
+
+Frase para lembrar
+
+"Não basta ver o futuro corretamente. É preciso investir ao preço certo."''',
+    // Ch8
+    '''Quando o mercado parece desmoronar, o que o investidor deve fazer?
+Em 15 de setembro de 2008, o Lehman Brothers pediu falência. Uma empresa financeira com 158 anos de história desmoronou de um dia para o outro. Os investidores do mundo inteiro pensavam: "Desta vez parece que acabou de verdade."
+
+A crise financeira não surgiu de repente. As sementes da crise foram plantadas muito antes, quando os bancos começaram a emprestar até para pessoas com pouca solvência, acreditando que os preços dos imóveis nunca cairiam. Quando o mercado imobiliário cedeu, tudo desmoronou.
+
+Enquanto a maioria fugia do mercado em 2008, Buffett fazia algo diferente: buscava boas empresas para comprar. A razão é simples: ele acreditava no valor das empresas mais do que nas emoções do mercado. E a crise passou. A economia se recuperou e o mercado atingiu novos máximos.
+
+Para o investidor de QLD, a queda pode ser muito maior em situações de crise. Mas o verdadeiro risco não é a volatilidade. É sua reação à volatilidade. Se você tem dinheiro preparado e executa sua estratégia planejada, a queda pode virar oportunidade. O importante não é a emoção, mas o plano.
+
+Resumo do capítulo 8
+A crise financeira não foi repentina: foi resultado de ignorar os riscos.
+Os mercados em alta podem ser o período mais perigoso.
+Buffett encontrou oportunidades em meio ao pânico.
+O investidor de QLD deve gerenciar seu próprio comportamento mais do que a volatilidade.
+Quem sobrevive à crise acaba ganhando com os juros compostos.
+
+Frase para lembrar
+
+"A crise destrói alguns investidores, mas enriquece os que estavam preparados."''',
+    // Ch9
+    '''No momento em que o mundo parecia parar, o mercado olhava para o futuro.
+No início de 2020, a maioria dos investidores achava que seria um ano tranquilo. Então uma pequena notícia de Wuhan, na China, começou a sacudir o mundo. As fronteiras foram fechadas, as cidades foram confinadas, as fábricas pararam. Era uma situação sem precedentes na história econômica moderna.
+
+O S&P500 caiu mais de 30% em poucas semanas. Os ETFs alavancados como QLD oscilaram ainda mais. A maioria não teve tempo nem de se adaptar. O cérebro humano reagiu por instinto: "Preciso fugir."
+
+Mas o mercado não reflete o presente, reflete o futuro. Em março de 2020, quem olhava para o futuro — que uma vacina seria desenvolvida, que a economia voltaria — estava certo. O mercado começou a se recuperar antes mesmo da economia real. Buffett manteve sempre a mesma filosofia: acreditava na capacidade de adaptação humana. A COVID também foi superada. E o mundo saiu mais forte: teletrabelho, cloud, e-commerce e IA aceleraram.
+
+A melhor estratégia foi quase sempre simples: manter bons ativos e aguentar. E se necessário, comprar mais nos mercados em baixa.
+
+Resumo do capítulo 9
+O crash da COVID foi um dos desmoronamentos de mercado mais rápidos da história moderna.
+O mercado reflete o futuro mais que o presente.
+Buffett acreditava na capacidade de adaptação humana.
+As crises também podem acelerar novas inovações.
+Para o investidor de QLD, os princípios são mais importantes que o timing do mercado.
+
+Frase para lembrar
+
+"Mesmo no momento em que o mercado parece mais escuro, o futuro continua sendo construído."''',
+    // Ch10
+    '''Estamos diante de mais um ponto de inflexão histórico?
+Em 1903, muita gente riu quando os irmãos Wright construíram o avião. Nos anos 80, a maioria achou que os computadores pessoais seriam usados apenas por especialistas. Nos anos 90, muitos acreditaram que a internet era apenas uma moda. Mas a história provou repetidamente: os seres humanos superestimam as mudanças de curto prazo e subestimam as de longo prazo.
+
+Agora estamos diante de outra transformação gigantesca: a inteligência artificial (IA). A IA ajuda o trabalho intelectual do ser humano: escreve textos, traduz, analisa, escreve código, cria imagens e até auxilia na tomada de decisões. Isso pode ser o início de uma revolução de produtividade.
+
+A razão pela qual o mercado sobe no longo prazo é, em última análise, a produtividade. A IA percorre o mesmo caminho que a Revolução Industrial, a eletricidade, o computador e a internet. Portanto, o investidor de longo prazo não está investindo apenas em empresas de IA: está investindo na revolução da produtividade.
+
+O Nasdaq 100 inclui as principais empresas da revolução da IA: Apple, Microsoft, Nvidia, Amazon, Meta, Broadcom. O investidor em ETF pode participar da corrente da inovação sem a carga de acertar os vencedores individuais. Para o investidor de QLD, quanto mais bem-sucedida for a revolução da IA, maiores as chances de benefício. Mas as expectativas podem superaquecer no curto prazo.
+
+Resumo do capítulo 10
+A IA provavelmente não é apenas uma moda, mas uma revolução da produtividade.
+O mercado reflete no longo prazo a melhora da produtividade.
+A lição da bolha das pontocom é distinguir entre inovação e preço.
+Nvidia é o exemplo mais representativo da revolução da IA.
+O investidor de QLD deve entender tanto os benefícios da revolução da IA quanto sua volatilidade.
+
+Frase para lembrar
+
+"O grande investidor não é o que prevê o futuro com precisão, mas o que participa constantemente das mudanças que criam o futuro."''',
+  ];
+
+  static List<_BookChapter> _withPtTitles() {
+    const ptTitles = [
+      'Ch1. A diferença entre investimento e especulação',
+      'Ch2. Por que a maioria dos investidores fracassa',
+      'Ch3. O mercado',
+      'Ch4. A margem de segurança',
+      'Ch5. A psicologia de massas e o investimento',
+      'Ch6. Por que o mercado sobe no longo prazo',
+      'Ch7. As lições da bolha da internet',
+      'Ch8. As lições da crise financeira',
+      'Ch9. As lições do crash da COVID',
+      'Ch10. A revolução da IA e o mercado atual',
+    ];
+    return List.generate(
+      _portugueseBodies.length,
+      (i) => _BookChapter(title: ptTitles[i], body: _portugueseBodies[i]),
+    );
+  }
+
+  // ── Russian ───────────────────────────────────────────────────────────────
+
+  static const _russianBodies = <String>[
+    // Ch1
+    '''Все ли, кто приходит на рынок, являются инвесторами?
+Пузырь доткомов был эпохой, когда акции любой компании, имевшей слово «интернет» в названии, неизменно росли. Некоторые компании не имели ни выручки, ни прибыли, ни даже чёткой бизнес-модели. Тем не менее инвесторы были в эйфории. Цены росли каждый день. СМИ публиковали истории новых миллионеров. Студенты проводили больше времени на фондовых форумах, чем на занятиях.
+
+В то время многие считали себя инвесторами. Но я бы сказал: они не были инвесторами. Они были спекулянтами.
+
+Когда пузырь лопнул в 2000 году, бесчисленные компании исчезли. Потери в десятки процентов произошли в одночасье, и многие лишились сбережений всей жизни. Примечательно, что большинство потерявших деньги не могли внятно объяснить, что они купили. Они покупали не компании — они покупали рост цен. Вот в чём принципиальная разница между инвестированием и спекуляцией.
+
+Инвестирование и спекуляция — абсолютно разные игры
+
+Большинство людей считает инвестирование и спекуляцию схожими понятиями. Но по моему убеждению, инвестирование должно удовлетворять трём условиям: во-первых, наличие тщательного анализа; во-вторых, защита капитала; в-третьих, ожидание удовлетворительной доходности. Всё, что не соответствует этим условиям, является спекуляцией.
+
+Важно не то, что вы покупаете, а то, с каким мышлением вы это делаете. Покупка акций Apple — это спекуляция, если причиной является «думаю, они вырастут завтра». Но покупка ETF как результат анализа потенциала роста компаний — это ближе к инвестированию. Именно мышление, а не продукт, разделяет инвестирование и спекуляцию.
+
+Цены меняются каждый день, а ценность меняется медленно
+
+Новички на фондовом рынке фокусируются преимущественно на цене. Но инвестор смотрит на ценность, а не на цену. Представьте, что вы владеете зданием в центре Сеула. Однажды вам предлагают за него 5 миллиардов вон. На следующий день — 4 миллиарда. Через неделю снова 5,5 миллиарда. Само здание не изменилось. Изменилась лишь предлагаемая цена. С акциями то же самое. Инвестор смотрит на ценность. Спекулянт смотрит только на цену.
+
+Люди от природы тяготеют к спекуляции
+
+Инвестирование трудно, потому что идёт вразрез с нашими инстинктами. Людям не нравится медленно богатеть. История о поддержании 10% годовой доходности на протяжении 20 лет скучна. Но история об акции, выросшей на 300% за месяц, захватывает. Наш мозг предпочитает немедленное вознаграждение. Рынок постоянно эксплуатирует эту психологию.
+
+Почему разбогател Уоррен Баффет?
+
+Его самым мощным оружием является не умение выбирать акции. Это время. С молодых лет Баффет находил хорошие компании и держал их долго. Он сосредотачивался на простом вопросе: «Будет ли эта компания сильной через 10 лет?» По сути, большая часть состояния Баффета была создана после 60 лет, потому что он дал сложному проценту достаточно времени для работы. Спекулянт видит в времени врага. Инвестор превращает время в союзника.
+
+Почему ETF важны для современного инвестора
+
+Сегодня существуют ETF, такие как QQQ, SPY, VOO и QLD, которые позволяют автоматически диверсифицировать вложения в сотни компаний. Но одно не изменилось: ETF можно использовать для инвестирования, а можно для спекуляции. Если каждый день смотреть только на цену, ETF тоже превращается в инструмент спекуляции. Но если подходить к нему с точки зрения участия в долгосрочном экономическом росте, это отличный инвестиционный инструмент.
+
+Во что инвестирует инвестор QLD?
+
+QLD нацелен на доходность примерно вдвое больше, чем Nasdaq 100. Владеть QLD — значит участвовать в технологических инновациях Америки. Apple, Microsoft, Nvidia, Amazon, Meta, Broadcom... если верить, что эти компании продолжат расти, QLD может быть инвестиционной целью. Но если подходить к нему потому что «думаю, он вырастет в следующем месяце», это не что иное, как спекуляция.
+
+Главный враг инвестора
+
+Главный враг инвестора — не рынок. Это он сам. Страх, жадность, нетерпение, сожаление, зависть... эти эмоции выталкивают бесчисленных инвесторов с рынка. Рынки, как правило, в конечном счёте восстанавливаются. Но инвестор, сломленный страхом, не восстанавливается. Поэтому суть инвестирования — не выбор акций. Это управление психологией.
+
+Итоги главы 1
+Инвестирование и спекуляция абсолютно разные.
+Инвестор покупает ценность; спекулянт покупает цену.
+Цены меняются каждый день, а ценность меняется медленно.
+Природа человека склонна к спекуляции.
+Главное оружие Баффета — не предвидение, а время.
+ETF могут быть как инвестиционным, так и спекулятивным инструментом.
+К QLD следует подходить как к долгосрочной инвестиции в технологические инновации.
+Главный враг инвестора — не рынок, а его собственные эмоции.
+
+Фраза для запоминания
+
+«Инвестирование — не игра в угадывание будущего. Это процесс покупки хороших активов по разумной цене и предоставления им достаточного времени.»''',
+    // Ch2
+    '''Рынок не сложен. Но человеческие эмоции сложны.
+Большинство не проигрывает из-за незнания, а проигрывает, зная, но не применяя. Люди знают, что нужно «покупать дёшево и продавать дорого». Знают, что долгосрочное инвестирование важно. Знают, что нельзя продавать в панике. Но когда приходит момент, делают ровно наоборот.
+
+В конце 1990-х годов к простому добавлению «.com» к названию компании приводило к скачку акций. Когда в 2000 году пузырь лопнул, Nasdaq упал примерно на 80%. В 2008 году, когда большинство бежало с рынка, Баффет активно инвестировал. В 2020 году рынок рухнул быстрее, чем когда-либо, но восстановился намного быстрее, чем ожидалось.
+
+Самый большой враг инвестора — он сам. Рынок не заставляет продавать принудительно: решение всегда принимает сам инвестор. Поэтому нужно понять собственную психологию прежде, чем рынок.
+
+Итоги главы 2
+Большинство проигрывает из-за эмоций, а не из-за нехватки информации.
+Мозг человека устроен против инвестирования.
+Пузырь доткомов показывает опасность жадности.
+Финансовый кризис и COVID показывают опасность страха.
+Главный враг инвестора — он сам.
+Сила Баффета — не в предвидении, а в соблюдении принципов.
+
+Фраза для запоминания
+
+«Рынок вас не погубит. Вас погубит ваше собственное поведение, движимое страхом и жадностью.»''',
+    // Ch3
+    '''Рынок — не ваш хозяин, а ваш слуга.
+Представьте, что вы совладелец стабильно растущего бизнеса. Каждое утро к вашей двери приходит странный человек по имени «Рынок». Каждый день он предлагает купить вашу долю или продать вам свою, но цена, которую он называет, постоянно меняется. Иногда он чрезмерно оптимистичен и называет заоблачные цены. Иногда он совершенно подавлен и хочет продать по бросовой цене. Бизнес сам по себе не изменился, но цена варьируется огромно. Я называю этого странного человека «Мистер Рынок».
+
+Для меня рынок — просто инструмент. Но большинство относится к нему как к учителю: радуется, когда цены растут, и тревожится, когда падают, как если бы рынок знал истину. Но рынок — не пророк. Он лишь предлагает цены. И эти цены не всегда верны.
+
+Умный инвестор использует рынок
+
+Большинство используется рынком. Я действую иначе. Становлюсь осторожным, когда рынок перегревается, и ищу возможности, когда рынок впадает в панику. Я не следую настроению рынка. Я его использую.
+
+Итоги главы 3
+Рынок каждый день предлагает цены, но они не всегда верны.
+Цена и ценность — разные вещи.
+Рынок — слуга, а не хозяин.
+
+Фраза для запоминания
+
+«Рынок просто предлагает вам цену. Принимать её или нет — ваш выбор.»''',
+    // Ch4
+    '''Великие инвесторы думали сначала о выживании, а не о прибыли.
+Есть одно слово, которое каждый читающий это должен запомнить: запас прочности (Margin of Safety). Вся моя философия в конечном счёте сводится к нему. Я не верю, что человек может точно предсказать будущее. Поэтому я всегда задаю вопрос: «Выживу ли я, даже если окажусь неправ?»
+
+Правило Баффета: «Правило 1: не теряй деньги. Правило 2: не забывай правило 1.» При потере 50% нужно заработать 100%, чтобы просто вернуться к исходной точке. При потере 80% — 400%. Поэтому великие инвесторы думают сначала о выживании.
+
+В 1999 году концепция запаса прочности была проигнорирована. В 2008 году многие финансовые учреждения использовали чрезмерное кредитное плечо. Когда рынок пошатнулся, всё рухнуло. Но компании с достаточной ликвидностью не только выжили, но и воспользовались кризисом как возможностью.
+
+Итоги главы 4
+Запас прочности — это ядро моей философии.
+Выживание важнее доходности.
+Наличные деньги — это право воспользоваться возможностями.
+
+Фраза для запоминания
+
+«Великий инвестор — не тот, кто больше всех зарабатывает. Это тот, кто выживает дольше всех, чтобы пользоваться силой сложных процентов.»''',
+    // Ch5
+    '''Рынок движется не числами, а человеческими эмоциями.
+В 1637 году в Нидерландах луковица тюльпана продавалась по цене дома. В 1929 году люди брали кредиты для покупки акций. В 2000 году компании без выручки оценивались в миллиарды. В 2021 году мем-акции взлетели благодаря ажиотажу в интернет-сообществах. Эпохи разные, страны разные, активы разные. Но есть удивительное сходство: люди всегда повторяют одни и те же ошибки.
+
+Тысячи лет назад следование за группой было стратегией выживания. Мозг человека научился инстинктивно доверять поведению большинства. Проблема в том, что финансовый рынок эксплуатирует этот инстинкт. Одна из причин особого успеха Баффета в том, что он мог действовать против толпы. В кризис 2008 года, когда многие уходили, Баффет активно инвестировал.
+
+Лучший способ снизить влияние стадного мышления — иметь чёткие правила: покупать немного при -20%, инвестировать часть наличных при -30%, активно покупать при -40%, инвестировать по плану при -50%. Правила — это антидот эмоциям. И самое мощное оружие долгосрочного инвестора.
+
+Итоги главы 5
+Человек инстинктивно создан следовать за толпой.
+Баффет мог действовать против толпы.
+Для инвестора QLD особенно важно инвестирование, основанное на правилах.
+
+Фраза для запоминания
+
+«Будьте осторожнее всего, когда толпа полна уверенности, и хладнокровнее всего, когда толпа в отчаянии.»''',
+    // Ch6
+    '''Рынки падают снова и снова, но почему продолжают обновлять максимумы?
+Рынок — это не просто числа. Это сама экономика. Точнее, это совокупность бесчисленных компаний. Apple, Microsoft, Nvidia, Amazon, Meta, Google — эти компании каждый день создают новые продукты, улучшают сервисы и расширяют базу клиентов. Поэтому долгосрочный рост рынка означает, что компании растут.
+
+Человечество неуклонно повышало свою производительность. Революции производительности всегда сопровождались ростом прибыли компаний, а значит, и ростом акций. Железные дороги, автомобили, интернет, ИИ — всё это двигатели роста рынка. Пузыри лопаются, но инновации остаются.
+
+Nasdaq — это место, где собраны самые инновационные компании мира. Владеть QLD — значит верить в прогресс человечества. Конечно, будут падения, пузыри и моменты паники. Но долгосрочный инвестор учитывает их все.
+
+Итоги главы 6
+Рынок отражает результаты роста компаний.
+Долгосрочный рост рынка обусловлен ростом производительности.
+Инновации остаются; пузыри исчезают.
+
+Фраза для запоминания
+
+«Рынок растёт не из-за кризисов, а благодаря способности людей продолжать развиваться даже в их midst.»''',
+    // Ch7
+    '''Даже тот, кто правильно видит будущее, может потерять деньги.
+В конце 1990-х годов вера в то, что интернет изменит мир, была верной. Проблема в том, что правильно видеть будущее и успешно инвестировать — абсолютно разные вещи. Интернет не потерпел неудачу. Потерпели неудачу инвесторы. Это различие принципиально.
+
+С 1998 по начало 2000 года достаточно было добавить «.com» к названию компании, чтобы инвесторы ринулись покупать. Никто не анализировал: просто покупали, потому что цены росли. Nasdaq упал примерно на 80%. Amazon, Google, Netflix изменили мир. Но многие инвесторы не дожили до этого, потому что сдались в процессе падения пузыря.
+
+ИИ — реальная инновация. Но инвестор всегда должен помнить: инновация и инвестиционная доходность — не одно и то же. Не нужно сомневаться в инновации. Но всегда сомневайтесь в цене.
+
+Итоги главы 7
+Интернет-революция была реальной, но и пузырь был реальным.
+Инновация и успешные инвестиции — не одно и то же.
+Баффет придерживался принципов даже в самый горячий момент.
+
+Фраза для запоминания
+
+«Недостаточно правильно видеть будущее. Нужно инвестировать по правильной цене.»''',
+    // Ch8
+    '''Когда кажется, что рынок рушится, что должен делать инвестор?
+15 сентября 2008 года инвестиционный банк Lehman Brothers подал заявление о банкротстве. Компания с 158-летней историей рухнула в одночасье. Инвесторы по всему миру думали одно: «На этот раз всё действительно кончено».
+
+Кризис возник не внезапно. Семена были посеяны задолго до этого, когда банки начали выдавать кредиты даже людям с низкой кредитоспособностью, полагая, что цены на жильё никогда не упадут. Когда рынок недвижимости дрогнул, всё рухнуло.
+
+Пока большинство уходило с рынка в 2008 году, Баффет искал хорошие компании для покупки. Он верил в ценность компаний больше, чем в эмоции рынка. Кризис прошёл. Экономика восстановилась, рынок достиг новых максимумов.
+
+Итоги главы 8
+Финансовый кризис был не внезапным: это был результат игнорирования рисков.
+Баффет нашёл возможности в разгар паники.
+Инвестор QLD должен управлять своим поведением, а не волатильностью.
+Тот, кто выживает в кризисе, в конечном итоге побеждает благодаря сложным процентам.
+
+Фраза для запоминания
+
+«Кризис разрушает одних инвесторов, но обогащает тех, кто был готов.»''',
+    // Ch9
+    '''В момент, когда мир, казалось, остановился, рынок смотрел в будущее.
+В начале 2020 года никто не ожидал кризиса. Небольшая новость из Уханя начала сотрясать мир. Страны закрыли границы. Города ушли на карантин. Заводы встали. S&P500 упал более чем на 30% за несколько недель. ETF с кредитным плечом, такие как QLD, колебались ещё сильнее.
+
+Рынок не отражает настоящее — он отражает будущее. В марте 2020 года рынок выбрал взгляд в будущее: вакцина будет разработана, экономика восстановится, люди снова начнут тратить. И рынок начал восстанавливаться раньше, чем реальная экономика. COVID также ускорил инновации: удалённая работа, облачные технологии, электронная коммерция и ИИ.
+
+Итоги главы 9
+Обвал из-за COVID был одним из самых быстрых в современной истории.
+Рынок отражает будущее больше, чем настоящее.
+Баффет верил в способность человека адаптироваться.
+Кризисы могут ускорять новые инновации.
+
+Фраза для запоминания
+
+«Даже в самый тёмный момент рынка будущее продолжает создаваться.»''',
+    // Ch10
+    '''Стоим ли мы на очередной исторической переломной точке?
+В 1903 году, когда братья Райт построили самолёт, многие смеялись. В 1980-х большинство думало, что персональные компьютеры будут использовать лишь специалисты. В 1990-х многие считали интернет просто модой. История раз за разом доказывает: люди переоценивают краткосрочные изменения и недооценивают долгосрочные.
+
+ИИ помогает интеллектуальному труду человека: пишет тексты, переводит, анализирует, пишет код, создаёт изображения и помогает принимать решения. Это не просто технологический прогресс. Это может быть началом революции производительности. ИИ идёт тем же путём, что Промышленная революция, электричество, компьютер и интернет.
+
+Nasdaq 100 включает ключевые компании революции ИИ: Apple, Microsoft, Nvidia, Amazon, Meta, Broadcom. Инвестор в ETF может участвовать в потоке инноваций без необходимости угадывать отдельных победителей. Для инвестора QLD — чем успешнее революция ИИ, тем больше шансов на выгоду. Но ожидания могут перегреться в краткосрочной перспективе.
+
+Итоги главы 10
+ИИ, скорее всего, не просто мода, а революция производительности.
+Баффет смотрит на конкурентные преимущества, а не на модные тренды.
+ETF могут быть эффективным способом участия в революции ИИ.
+
+Фраза для запоминания
+
+«Великий инвестор — не тот, кто точно предсказывает будущее, а тот, кто неизменно участвует в переменах, создающих будущее.»''',
+  ];
+
+  static List<_BookChapter> _withRuTitles() {
+    const ruTitles = [
+      'Ch1. Разница между инвестированием и спекуляцией',
+      'Ch2. Почему большинство инвесторов терпят неудачу',
+      'Ch3. Рынок',
+      'Ch4. Запас прочности',
+      'Ch5. Стадное мышление и инвестиции',
+      'Ch6. Почему рынок растёт в долгосрочной перспективе',
+      'Ch7. Уроки краха доткомов',
+      'Ch8. Уроки финансового кризиса',
+      'Ch9. Уроки обвала из-за COVID',
+      'Ch10. Революция ИИ и текущий рынок',
+    ];
+    return List.generate(
+      _russianBodies.length,
+      (i) => _BookChapter(title: ruTitles[i], body: _russianBodies[i]),
+    );
+  }
+
+  // ── French ───────────────────────────────────────────────────────────────
+
+  static const _frenchBodies = <String>[
+    // Ch1
+    '''Est-ce que tous ceux qui entrent sur le marché sont vraiment des investisseurs ?
+La bulle des dot-com était une époque où les actions de n'importe quelle entreprise portant le mot « internet » montaient sans cesse. Certaines n'avaient ni chiffre d'affaires, ni bénéfices, ni même de modèle économique clair. Pourtant, les investisseurs étaient euphoriques. Les prix grimpaient chaque jour. Les médias publiaient des histoires de nouveaux millionnaires. Les étudiants passaient plus de temps sur les forums boursiers qu'en cours.
+
+À cette époque, beaucoup se croyaient investisseurs. Mais je dirais : ce n'étaient pas des investisseurs. C'étaient des spéculateurs.
+
+Quand la bulle a éclaté en 2000, d'innombrables entreprises ont disparu. Des pertes de plusieurs dizaines de pour cent se sont produites du jour au lendemain, et beaucoup ont perdu les économies de toute une vie. Ce qui est frappant, c'est que la plupart de ceux qui ont perdu de l'argent ne pouvaient pas expliquer clairement ce qu'ils avaient acheté. Ils n'ont pas acheté des entreprises : ils ont acheté des hausses de prix. C'est exactement là la différence entre investissement et spéculation.
+
+L'investissement et la spéculation sont des jeux complètement différents
+
+Pour moi, l'investissement doit satisfaire trois conditions : premièrement, une analyse approfondie ; deuxièmement, la protection du capital ; troisièmement, l'attente d'un rendement satisfaisant. Tout ce qui ne remplit pas ces conditions est, par définition, de la spéculation.
+
+Ce qui compte, ce n'est pas ce que vous achetez, mais avec quel état d'esprit. Acheter des actions Apple est de la spéculation si la raison est « je pense qu'elles vont monter demain ». En revanche, acheter un ETF comme résultat d'une analyse du potentiel de croissance des entreprises se rapproche de l'investissement. Ce n'est pas le produit qui distingue l'investissement de la spéculation. C'est la façon de penser.
+
+Les prix changent chaque jour ; la valeur change lentement
+
+Les débutants en bourse se concentrent surtout sur le prix. Mais l'investisseur regarde la valeur, pas le prix. Imaginez que vous possédez un immeuble au cœur de Séoul. Un jour, quelqu'un vous propose de l'acheter pour 5 milliards de won. Le lendemain, pour 4 milliards. Une semaine après, pour 5,5 milliards. L'immeuble lui-même n'a pas changé. Seul le prix proposé a changé. Avec les actions, c'est la même chose. L'investisseur regarde la valeur. Le spéculateur ne regarde que le prix.
+
+Les êtres humains sont naturellement attirés par la spéculation
+
+Investir est difficile parce que cela va à l'encontre de nos instincts. Les gens n'aiment pas s'enrichir lentement. Notre cerveau préfère les récompenses immédiates. Le marché exploite constamment cette psychologie.
+
+Pourquoi Warren Buffett est-il devenu riche ?
+
+Son arme la plus puissante n'est pas la capacité à sélectionner des actions. C'est le temps. Depuis son jeune âge, Buffett trouvait de bonnes entreprises et les conservait longtemps. Il se concentrait sur une simple question : « Cette entreprise sera-t-elle encore forte dans 10 ans ? » En fait, la majeure partie de la fortune de Buffett a été accumulée après ses 60 ans, parce qu'il a laissé à l'intérêt composé le temps suffisant pour agir.
+
+Pourquoi les ETF sont-ils importants pour l'investisseur moderne ?
+
+Il existe aujourd'hui des ETF comme QQQ, SPY, VOO et QLD qui permettent de diversifier automatiquement dans des centaines d'entreprises. Mais une chose n'a pas changé : les ETF peuvent être utilisés pour investir et aussi pour spéculer. Si vous ne regardez que le prix chaque jour, un ETF devient aussi un outil spéculatif.
+
+Dans quoi investit un investisseur QLD ?
+
+QLD vise environ le double du rendement du Nasdaq 100. Détenir QLD, c'est participer à l'innovation technologique américaine. Apple, Microsoft, Nvidia, Amazon, Meta, Broadcom... si vous croyez que ces entreprises continueront à croître, QLD peut être une cible d'investissement.
+
+Le plus grand ennemi de l'investisseur
+
+Le plus grand ennemi de l'investisseur n'est pas le marché. C'est lui-même. La peur, la cupidité, l'impatience, le regret, l'envie... ces émotions poussent d'innombrables investisseurs hors du marché. Les marchés finissent généralement par se redresser. Mais l'investisseur brisé par la peur ne se redresse pas. C'est pourquoi l'essence de l'investissement n'est pas la sélection de titres. C'est la gestion psychologique.
+
+Résumé du chapitre 1
+L'investissement et la spéculation sont complètement différents.
+L'investisseur achète de la valeur ; le spéculateur achète du prix.
+Les prix changent chaque jour ; la valeur change lentement.
+La nature humaine est attirée par la spéculation.
+La plus grande arme de Buffett n'était pas la prévision, mais le temps.
+Les ETF peuvent être à la fois un outil d'investissement et de spéculation.
+QLD doit être abordé comme un investissement à long terme dans l'innovation technologique.
+Le plus grand ennemi de l'investisseur n'est pas le marché, mais ses propres émotions.
+
+Phrase à retenir
+
+« Investir n'est pas un jeu de devinettes sur l'avenir. C'est le processus d'achat de bons actifs à un prix raisonnable et de leur laisser suffisamment de temps. »''',
+    // Ch2
+    '''Le marché n'est pas difficile. Mais les émotions humaines le sont.
+La plupart ne perdent pas parce qu'ils ne savent pas, mais parce qu'ils savent et n'appliquent pas. Les gens savent qu'il faut acheter bas et vendre haut, mais font le contraire quand vient le moment. En fin des années 1990, ajouter « .com » à un nom suffisait pour que les actions s'envolent. Quand la bulle a éclaté en 2000, le Nasdaq a chuté d'environ 80%. En 2008, pendant que la plupart fuyaient, Buffett investissait activement. En 2020, le marché s'est effondré plus vite que jamais, mais s'est redressé bien plus rapidement que prévu.
+
+Le plus grand ennemi de l'investisseur peut être lui-même. Le marché n'oblige pas à vendre : la décision appartient toujours à l'investisseur. Il faut donc comprendre sa propre psychologie avant le marché.
+
+Résumé du chapitre 2
+La plupart échouent à cause des émotions, pas du manque d'informations.
+La force de Buffett n'est pas la prévision, mais le respect des principes.
+
+Phrase à retenir
+
+« Le marché ne vous détruit pas. C'est votre propre comportement, gouverné par la peur et la cupidité, qui vous détruit. »''',
+    // Ch3
+    '''Le marché n'est pas votre maître, mais votre serviteur.
+Imaginez que vous êtes copropriétaire d'une entreprise solide et en croissance. Chaque matin, un étrange homme appelé « le Marché » frappe à votre porte. Chaque jour, il propose d'acheter votre part ou de vous vendre la sienne, mais le prix qu'il propose change constamment. Certains jours il est excessivement optimiste et demande des prix exorbitants. D'autres jours il est complètement abattu et veut vendre à prix cassé. L'entreprise elle-même n'a pas changé, mais le prix varie énormément. Je l'appelle « M. Marché ».
+
+Pour moi, le marché est un simple outil. Mais la plupart le traitent comme un maître. Le marché n'est pas prophète. Il propose seulement des prix. Et ces prix ne sont pas toujours justes.
+
+L'investisseur avisé utilise le marché
+
+La plupart des gens sont utilisés par le marché. Moi, j'agis différemment. Je deviens prudent quand le marché surchauffe et je cherche des opportunités quand il panique. Je ne suis pas l'humeur du marché. Je l'exploite.
+
+Résumé du chapitre 3
+Le marché propose des prix chaque jour, mais ils ne sont pas toujours justes.
+Prix et valeur sont des choses différentes.
+Le marché est un serviteur, pas un maître.
+
+Phrase à retenir
+
+« Le marché ne fait que vous proposer un prix. L'accepter ou non est votre choix. »''',
+    // Ch4
+    '''Les grands investisseurs ont d'abord pensé à survivre, pas à gagner.
+Il y a un mot que tout lecteur doit retenir : marge de sécurité (Margin of Safety). Toute ma philosophie converge vers ce concept. Je crois que l'être humain ne peut pas prédire l'avenir avec précision. C'est pourquoi je me demande toujours : « Survivrai-je même si je me trompe ? »
+
+La règle de Buffett : « Règle 1 : ne perdez pas d'argent. Règle 2 : ne jamais oublier la règle 1. » Si vous perdez 50%, vous avez besoin de 100% de gains juste pour vous en sortir. C'est pourquoi les grands investisseurs pensent d'abord à survivre.
+
+En 1999, le concept de marge de sécurité a été ignoré. En 2008, de nombreuses institutions financières utilisaient un effet de levier excessif. Quand le marché a vacillé, tout s'est effondré. En revanche, les entreprises ayant des liquidités suffisantes ont non seulement survécu mais ont aussi profité de la crise comme d'une opportunité. Les liquidités ne sont pas du capital en attente : ce sont les droits de saisir des opportunités.
+
+Résumé du chapitre 4
+La marge de sécurité est le cœur de ma philosophie.
+Survivre est plus important que la rentabilité.
+Les liquidités sont le droit de saisir des opportunités.
+
+Phrase à retenir
+
+« Le grand investisseur n'est pas celui qui gagne le plus. C'est celui qui survit le plus longtemps pour profiter de la puissance des intérêts composés. »''',
+    // Ch5
+    '''Le marché semble se mouvoir par les chiffres, mais en réalité il se meut par les émotions humaines.
+En 1637 aux Pays-Bas, un bulbe de tulipe se vendait au prix d'une maison. En 1929 aux États-Unis, les gens empruntaient pour acheter des actions. En 2000, des entreprises sans revenus valaient des milliards. En 2021, les actions mèmes ont explosé sous l'enthousiasme des communautés internet. Les gens répètent toujours les mêmes erreurs parce que le marché se meut par les émotions humaines.
+
+Il y a des dizaines de milliers d'années, suivre le groupe était une stratégie de survie. Le cerveau humain a appris à faire confiance instinctivement au comportement de la majorité. Le problème est que le marché financier exploite cet instinct. On appelle ça le FOMO (Fear Of Missing Out). L'une des raisons pour lesquelles Buffett est spécial est qu'il pouvait agir à contre-courant de la foule.
+
+La meilleure façon de réduire l'influence de la psychologie des foules est d'avoir des règles claires : acheter un peu à -20%, investir une partie des liquidités à -30%, acheter activement à -40%, investir selon le plan à -50%.
+
+Résumé du chapitre 5
+L'être humain est instinctivement conçu pour suivre la foule.
+Buffett pouvait agir à contre-courant de la foule.
+Pour l'investisseur QLD, l'investissement basé sur des règles est particulièrement important.
+
+Phrase à retenir
+
+« Soyez le plus prudent quand la foule est pleine de certitude, et le plus froid quand la foule est dans le désespoir. »''',
+    // Ch6
+    '''Les marchés chutent encore et encore, mais pourquoi continuent-ils d'atteindre de nouveaux sommets ?
+Le marché n'est pas de simples chiffres. C'est l'économie elle-même. Plus précisément, c'est l'ensemble d'innombrables entreprises. Apple, Microsoft, Nvidia, Amazon, Meta, Google... ces entreprises créent chaque jour de nouveaux produits. Donc que le marché monte à long terme signifie que les entreprises croissent.
+
+L'humanité a constamment amélioré sa productivité. Il y a cent ans, personne ne savait ce qu'était un smartphone. Quand la productivité s'améliore, les bénéfices des entreprises augmentent. Et quand les bénéfices augmentent, les actions montent à long terme. Les chemins de fer, les voitures, internet, l'IA ont tous été des moteurs de la croissance du marché. Les bulles peuvent éclater, mais l'innovation reste.
+
+Le Nasdaq regroupe les entreprises les plus innovantes du monde. Détenir QLD, c'est croire au progrès de l'humanité. Bien sûr, il y aura des chutes, des bulles et des moments de panique. Mais l'investisseur à long terme les assume tous.
+
+Résumé du chapitre 6
+Le marché reflète le résultat de la croissance des entreprises.
+La cause de la hausse du marché à long terme est l'amélioration de la productivité.
+L'innovation reste ; les bulles disparaissent.
+
+Phrase à retenir
+
+« Le marché ne croît pas à cause des crises, mais grâce à la capacité humaine à continuer d'avancer même au milieu d'elles. »''',
+    // Ch7
+    '''Même celui qui voit correctement l'avenir peut perdre de l'argent.
+À la fin des années 1990, la croyance qu'internet changerait le monde était juste. Mais voir correctement l'avenir et réussir à investir sont des choses complètement différentes. La bulle des dot-com l'a montré clairement. Internet n'a pas échoué. Ce sont les investisseurs qui ont échoué. Cette différence est fondamentale.
+
+Amazon, Google, Netflix ont changé le monde. Mais de nombreux investisseurs n'ont pas vécu pour le voir, parce qu'ils ont abandonné pendant l'effondrement de la bulle.
+
+L'IA est une innovation réelle. Mais l'investisseur doit toujours se rappeler : innovation et rendement de l'investissement ne sont pas la même chose. Ce qui compte, c'est le prix. Pas besoin de douter de l'innovation. Mais doutez toujours du prix.
+
+Résumé du chapitre 7
+L'innovation reste ; les bulles disparaissent.
+Buffett a maintenu ses principes même dans le moment le plus chaud.
+
+Phrase à retenir
+
+« Il ne suffit pas de voir correctement l'avenir. Il faut investir au bon prix. »''',
+    // Ch8
+    '''Quand le marché semble s'effondrer, que doit faire l'investisseur ?
+Le 15 septembre 2008, Lehman Brothers a déposé son bilan. Une entreprise financière avec 158 ans d'histoire s'est effondrée du jour au lendemain. Les investisseurs du monde entier pensaient la même chose : « Cette fois, c'est vraiment fini. »
+
+La crise n'a pas surgi soudainement. Les graines en avaient été semées bien avant, quand les banques ont commencé à prêter même à des personnes peu solvables. Quand le marché immobilier a vacillé, tout s'est effondré. Pendant que la plupart fuyaient en 2008, Buffett cherchait de bonnes entreprises à acheter. La crise est passée. L'économie s'est redressée et le marché a atteint de nouveaux sommets.
+
+Résumé du chapitre 8
+La crise financière n'était pas soudaine : c'était le résultat d'avoir ignoré les risques.
+Buffett a trouvé des opportunités au milieu de la panique.
+Celui qui survit à la crise finit par gagner grâce aux intérêts composés.
+
+Phrase à retenir
+
+« La crise détruit certains investisseurs, mais enrichit ceux qui étaient préparés. »''',
+    // Ch9
+    '''Au moment où le monde semblait s'arrêter, le marché regardait vers l'avenir.
+Au début de 2020, la plupart des investisseurs pensaient que ce serait une année tranquille. Puis une petite nouvelle de Wuhan a commencé à ébranler le monde. Le S&P500 a chuté de plus de 30% en quelques semaines. Les ETF à effet de levier comme QLD ont oscillé encore plus fort. La plupart n'avait pas eu le temps de s'adapter. Le cerveau humain a réagi par instinct : « Il faut fuir. »
+
+Mais le marché ne reflète pas le présent, il reflète l'avenir. Le marché a commencé à se redresser avant même que l'économie réelle ne le fasse. Le COVID a également accéléré les innovations : télétravail, cloud, e-commerce et IA.
+
+Résumé du chapitre 9
+Le marché reflète l'avenir plus que le présent.
+Buffett croyait en la capacité d'adaptation humaine.
+Les crises peuvent aussi accélérer de nouvelles innovations.
+
+Phrase à retenir
+
+« Même dans le moment où le marché semble le plus sombre, l'avenir continue de se construire. »''',
+    // Ch10
+    '''Sommes-nous à un autre point d'inflexion historique ?
+En 1903, beaucoup ont ri quand les frères Wright ont construit l'avion. Dans les années 1980, la plupart pensait que les ordinateurs personnels ne seraient utilisés que par des spécialistes. Dans les années 1990, beaucoup croyaient qu'internet n'était qu'une mode. L'histoire prouve encore et encore : les humains surestiment les changements à court terme et sous-estiment ceux à long terme.
+
+L'IA aide le travail intellectuel de l'être humain : elle écrit des textes, traduit, analyse, écrit du code, crée des images et aide même à la prise de décisions. Cela pourrait être le début d'une révolution de la productivité. Le Nasdaq 100 inclut les entreprises clés de la révolution de l'IA : Apple, Microsoft, Nvidia, Amazon, Meta, Broadcom. L'investisseur en ETF peut participer au courant de l'innovation sans avoir à deviner les gagnants individuels.
+
+Résumé du chapitre 10
+L'IA est probablement une révolution de la productivité, pas seulement une mode.
+La leçon de la bulle des dot-com est de distinguer innovation et prix.
+Les ETF peuvent être un moyen efficace de participer à la révolution de l'IA.
+
+Phrase à retenir
+
+« Le grand investisseur n'est pas celui qui prédit l'avenir avec précision, mais celui qui participe constamment aux changements qui créent l'avenir. »''',
+  ];
+
+  static List<_BookChapter> _withFrTitles() {
+    const frTitles = [
+      "Ch1. La différence entre investir et spéculer",
+      "Ch2. Pourquoi la plupart des investisseurs échouent",
+      "Ch3. Le marché",
+      "Ch4. La marge de sécurité",
+      "Ch5. La psychologie des foules et l'investissement",
+      "Ch6. Pourquoi le marché monte sur le long terme",
+      "Ch7. Les leçons de la bulle internet",
+      "Ch8. Les leçons de la crise financière",
+      "Ch9. Les leçons du krach COVID",
+      "Ch10. La révolution de l'IA et le marché actuel",
+    ];
+    return List.generate(
+      _frenchBodies.length,
+      (i) => _BookChapter(title: frTitles[i], body: _frenchBodies[i]),
+    );
+  }
+
+  // ── German ────────────────────────────────────────────────────────────────
+
+  static const _germanBodies = <String>[
+    // Ch1
+    '''Sind alle, die den Markt betreten, wirklich Investoren?
+Die Dotcom-Blase war eine Zeit, in der Aktien jedes Unternehmens mit dem Wort „Internet" im Namen stiegen. Manche hatten weder Umsatz noch Gewinn, und ihre Geschäftsmodelle waren unklar. Dennoch waren die Investoren in Euphorie. Die Preise stiegen täglich. Als die Blase im Jahr 2000 platzte, verschwanden unzählige Unternehmen. Das Bemerkenswerte: Die meisten, die Geld verloren, konnten nicht richtig erklären, was sie gekauft hatten. Sie kauften keine Unternehmen – sie kauften Preissteigerungen. Genau das ist der Unterschied zwischen Investieren und Spekulieren.
+
+Investieren und Spekulieren sind völlig verschiedene Spiele
+
+Für mich muss eine Investition drei Bedingungen erfüllen: erstens eine gründliche Analyse, zweitens den Schutz des Kapitals, drittens eine zufriedenstellende Renditeerwartung. Was diese Bedingungen nicht erfüllt, ist per Definition Spekulation.
+
+Wichtig ist nicht, was Sie kaufen, sondern mit welcher Denkweise. Apple-Aktien zu kaufen, weil man denkt „sie werden morgen steigen", ist Spekulation. Ein ETF als Ergebnis einer Analyse des Wachstumspotenzials zu kaufen, kommt dem Investieren näher. Nicht das Produkt unterscheidet Investieren von Spekulieren. Es ist die Denkweise.
+
+Preise ändern sich jeden Tag; Wert ändert sich langsam
+
+Anfänger an der Börse konzentrieren sich hauptsächlich auf den Preis. Aber Investoren betrachten den Wert, nicht den Preis. Stellen Sie sich vor, Sie besitzen ein Gebäude im Herzen von Seoul. Eines Tages bietet jemand 5 Milliarden Won. Am nächsten Tag 4 Milliarden. Eine Woche später 5,5 Milliarden. Das Gebäude selbst hat sich nicht verändert. Nur der angebotene Preis hat sich geändert. Mit Aktien ist es genauso.
+
+Warum wurde Warren Buffett reich?
+
+Seine mächtigste Waffe ist nicht die Fähigkeit, Aktien auszuwählen. Es ist die Zeit. Seit seiner Jugend fand Buffett gute Unternehmen und hielt sie lange. Er konzentrierte sich auf eine einfache Frage: „Wird dieses Unternehmen in 10 Jahren noch stark sein?" Der Spekulant sieht Zeit als Feind. Der Investor macht Zeit zu seinem Freund.
+
+Warum ETFs für den modernen Investor wichtig sind
+
+Heute gibt es ETFs wie QQQ, SPY, VOO und QLD, die eine automatische Diversifizierung in Hunderte von Unternehmen ermöglichen. Aber eines hat sich nicht geändert: ETFs können zum Investieren und zum Spekulieren genutzt werden. Wenn man jeden Tag nur auf den Preis schaut, wird auch ein ETF zum Spekulationsinstrument.
+
+Der größte Feind des Investors
+
+Der größte Feind des Investors ist nicht der Markt. Es ist er selbst. Angst, Gier, Ungeduld, Bedauern, Neid... diese Emotionen treiben unzählige Investoren aus dem Markt. Märkte erholen sich in der Regel schließlich. Aber der von Angst gebrochene Investor erholt sich nicht. Deshalb ist das Wesen des Investierens nicht die Auswahl von Wertpapieren. Es ist das psychologische Management.
+
+Zusammenfassung Kapitel 1
+Investieren und Spekulieren sind völlig verschieden.
+Der Investor kauft Wert; der Spekulant kauft Preis.
+Preise ändern sich jeden Tag; Wert ändert sich langsam.
+Die menschliche Natur neigt zur Spekulation.
+Buffetts größte Waffe war nicht Vorhersage, sondern Zeit.
+ETFs können sowohl Investitions- als auch Spekulationsinstrument sein.
+QLD sollte als langfristige Investition in technologische Innovationen angegangen werden.
+Der größte Feind des Investors ist nicht der Markt, sondern seine eigenen Emotionen.
+
+Merksatz
+
+„Investieren ist kein Spiel, die Zukunft zu erraten. Es ist der Prozess, gute Vermögenswerte zu einem vernünftigen Preis zu kaufen und ihnen genügend Zeit zu geben."''',
+    // Ch2
+    '''Der Markt ist nicht schwierig. Aber menschliche Emotionen sind es.
+Die meisten scheitern nicht wegen mangelnder Informationen, sondern weil sie es wissen, aber nicht anwenden. Ende der 1990er Jahre genügte es, „.com" an einen Namen zu hängen, um die Aktien explodieren zu lassen. Als die Blase 2000 platzte, fiel der Nasdaq um etwa 80%. Im Jahr 2008 kaufte Buffett aktiv, während die meisten flohen. Im Jahr 2020 brach der Markt schneller ein als je zuvor, erholte sich aber viel schneller als erwartet.
+
+Der größte Feind des Investors kann er selbst sein. Der Markt zwingt nicht zum Verkaufen: Die Entscheidung trifft immer der Investor. Man muss also die eigene Psychologie vor dem Markt verstehen.
+
+Zusammenfassung Kapitel 2
+Die meisten scheitern wegen Emotionen, nicht wegen fehlender Informationen.
+Buffetts Stärke liegt nicht in Vorhersagen, sondern im Einhalten von Prinzipien.
+
+Merksatz
+
+„Der Markt ruiniert Sie nicht. Es ist Ihr eigenes Verhalten, das von Angst und Gier getrieben wird, das Sie ruiniert."''',
+    // Ch3
+    '''Der Markt ist nicht Ihr Herr, sondern Ihr Diener.
+Stellen Sie sich vor, Sie sind Miteigentümer eines stabilen, wachsenden Unternehmens. Jeden Morgen kommt ein seltsamer Mann namens „der Markt" an Ihre Tür. Jeden Tag bietet er an, Ihren Anteil zu kaufen oder Ihnen seinen zu verkaufen, aber der Preis, den er nennt, ändert sich ständig. An manchen Tagen ist er übermäßig optimistisch und verlangt absurde Preise. An anderen Tagen ist er völlig niedergeschlagen und will zu Schnäppchenpreisen verkaufen. Das Unternehmen selbst hat sich nicht verändert, aber der Preis variiert enorm. Ich nenne diesen seltsamen Mann „Herrn Markt".
+
+Für mich ist der Markt ein einfaches Werkzeug. Aber die meisten behandeln ihn wie einen Meister. Der Markt ist kein Prophet. Er macht nur Preisangebote. Und diese Preise sind nicht immer richtig.
+
+Der kluge Investor nutzt den Markt
+
+Die meisten Menschen werden vom Markt genutzt. Ich handle anders. Ich werde vorsichtig, wenn der Markt überhitzt, und suche Chancen, wenn der Markt in Panik gerät. Ich folge nicht der Stimmung des Marktes. Ich nutze sie.
+
+Zusammenfassung Kapitel 3
+Der Markt macht jeden Tag Preisangebote, aber sie sind nicht immer richtig.
+Preis und Wert sind verschiedene Dinge.
+Der Markt ist ein Diener, kein Herr.
+
+Merksatz
+
+„Der Markt macht Ihnen nur ein Preisangebot. Ob Sie es annehmen oder nicht, liegt bei Ihnen."''',
+    // Ch4
+    '''Große Investoren dachten zuerst ans Überleben, nicht ans Gewinnen.
+Es gibt ein Wort, das jeder, der dies liest, sich merken muss: Sicherheitsmarge (Margin of Safety). Meine gesamte Philosophie läuft darauf hinaus. Ich glaube, dass der Mensch die Zukunft nicht genau vorhersagen kann. Deshalb frage ich mich immer: „Werde ich überleben, auch wenn ich falsch liege?"
+
+Buffetts Regel: „Regel 1: Verliere kein Geld. Regel 2: Vergiss Regel 1 nie." Bei einem Verlust von 50% braucht man 100% Gewinn, nur um wieder auf null zu kommen. Bei 80% Verlust sind es 400%. Deshalb denken große Investoren zuerst ans Überleben.
+
+Im Jahr 1999 wurde das Konzept der Sicherheitsmarge ignoriert. Im Jahr 2008 nutzten viele Finanzinstitute übermäßige Hebelwirkung. Als der Markt ins Wanken geriet, brach alles zusammen. Dagegen überlebten Unternehmen mit ausreichend Liquidität nicht nur, sondern nutzten die Krise als Chance.
+
+Zusammenfassung Kapitel 4
+Die Sicherheitsmarge ist der Kern meiner Philosophie.
+Überleben ist wichtiger als Rendite.
+Bargeld ist das Recht, Chancen zu nutzen.
+
+Merksatz
+
+„Der große Investor ist nicht derjenige, der am meisten verdient. Es ist derjenige, der am längsten überlebt, um die Kraft des Zinseszinses zu genießen."''',
+    // Ch5
+    '''Der Markt scheint sich durch Zahlen zu bewegen, aber in Wirklichkeit bewegt er sich durch menschliche Emotionen.
+Im Jahr 1637 in den Niederlanden wurde eine Tulpenzwiebel zum Preis eines Hauses verkauft. Im Jahr 1929 borgten sich Menschen Geld, um Aktien zu kaufen. Im Jahr 2000 wurden Unternehmen ohne Umsatz mit Milliarden bewertet. Im Jahr 2021 explodierten Meme-Aktien durch Begeisterung in Internet-Gemeinschaften. Menschen wiederholen immer dieselben Fehler, weil der Markt sich durch menschliche Emotionen bewegt.
+
+Vor Zehntausenden von Jahren war das Folgen der Gruppe eine Überlebensstrategie. Das menschliche Gehirn hat gelernt, dem Verhalten der Mehrheit instinktiv zu vertrauen. Das Problem ist, dass der Finanzmarkt diesen Instinkt ausnutzt. Das nennt man FOMO (Fear Of Missing Out). Einer der Gründe, warum Buffett besonders ist, ist, dass er gegen die Masse handeln konnte.
+
+Der beste Weg, den Einfluss der Massenpsychologie zu reduzieren, ist klare Regeln zu haben: bei -20% etwas kaufen, bei -30% Teil des Bargelds investieren, bei -40% aktiv kaufen, bei -50% nach Plan investieren.
+
+Zusammenfassung Kapitel 5
+Der Mensch ist instinktiv darauf ausgelegt, der Herde zu folgen.
+Buffett konnte gegen die Masse handeln.
+Für QLD-Investoren ist regelbasiertes Investieren besonders wichtig.
+
+Merksatz
+
+„Seien Sie am vorsichtigsten, wenn die Masse voller Gewissheit ist, und am kühlsten, wenn die Masse verzweifelt ist."''',
+    // Ch6
+    '''Märkte fallen immer wieder, aber warum erreichen sie immer neue Höchststände?
+Der Markt sind nicht einfach Zahlen. Er ist die Wirtschaft selbst. Genauer gesagt ist er die Gesamtheit unzähliger Unternehmen. Apple, Microsoft, Nvidia, Amazon, Meta, Google – diese Unternehmen schaffen jeden Tag neue Produkte. Dass der Markt langfristig steigt, bedeutet also, dass Unternehmen wachsen.
+
+Die Menschheit hat ihre Produktivität kontinuierlich verbessert. Wenn die Produktivität steigt, steigen die Unternehmensgewinne. Und wenn die Gewinne steigen, steigen Aktien langfristig. Eisenbahnen, Autos, Internet, KI – das waren alles Wachstumsmotoren. Blasen können platzen, aber Innovationen bleiben.
+
+Der Nasdaq vereint die innovativsten Unternehmen der Welt. QLD zu halten bedeutet, an den Fortschritt der Menschheit zu glauben. Natürlich wird es Einbrüche, Blasen und Panikmomente geben. Aber der langfristige Investor nimmt sie alle in Kauf.
+
+Zusammenfassung Kapitel 6
+Der Markt spiegelt das Ergebnis des Unternehmenswachstums wider.
+Die Ursache für den langfristigen Anstieg des Marktes ist die Verbesserung der Produktivität.
+Innovationen bleiben; Blasen verschwinden.
+
+Merksatz
+
+„Der Markt wächst nicht wegen der Krisen, sondern wegen der menschlichen Fähigkeit, auch inmitten von ihnen weiter voranzuschreiten."''',
+    // Ch7
+    '''Auch derjenige, der die Zukunft richtig sieht, kann Geld verlieren.
+Ende der 1990er war die Überzeugung, dass das Internet die Welt verändern würde, richtig. Aber die Zukunft richtig zu sehen und erfolgreich zu investieren sind völlig verschiedene Dinge. Das Internet ist nicht gescheitert. Die Investoren sind gescheitert. Dieser Unterschied ist fundamental.
+
+Amazon, Google, Netflix haben die Welt verändert. Aber viele Investoren haben das nicht erlebt, weil sie während des Blasenplatzens aufgegeben haben. KI ist eine echte Innovation. Aber der Investor muss immer daran denken: Innovation und Anlagerendite sind nicht dasselbe. Es geht um den Preis. Man muss an der Innovation nicht zweifeln. Aber man sollte immer am Preis zweifeln.
+
+Zusammenfassung Kapitel 7
+Innovation bleibt; Blasen verschwinden.
+Buffett hielt seine Prinzipien auch im heißesten Moment aufrecht.
+
+Merksatz
+
+„Es reicht nicht, die Zukunft richtig zu sehen. Man muss zum richtigen Preis investieren."''',
+    // Ch8
+    '''Wenn der Markt zusammenzubrechen scheint, was sollte der Investor tun?
+Am 15. September 2008 meldete Lehman Brothers Insolvenz an. Ein Finanzunternehmen mit 158 Jahren Geschichte brach über Nacht zusammen. Investoren auf der ganzen Welt dachten: „Diesmal ist es wirklich vorbei."
+
+Die Krise entstand nicht plötzlich. Die Samen wurden lange vorher gesät, als Banken sogar an Menschen mit schlechter Bonität Kredite vergaben. Als der Immobilienmarkt ins Wanken geriet, brach alles zusammen. Während 2008 die meisten flohen, suchte Buffett gute Unternehmen zum Kaufen. Die Krise verging. Die Wirtschaft erholte sich, der Markt erreichte neue Höchststände.
+
+Zusammenfassung Kapitel 8
+Die Finanzkrise war nicht plötzlich: Sie war das Ergebnis des Ignorierens von Risiken.
+Buffett fand Chancen inmitten der Panik.
+Wer die Krise überlebt, gewinnt schließlich durch den Zinseszins.
+
+Merksatz
+
+„Eine Krise ruiniert manche Investoren, bereichert aber diejenigen, die vorbereitet waren."''',
+    // Ch9
+    '''In dem Moment, in dem die Welt schien stehenzubleiben, blickte der Markt in die Zukunft.
+Anfang 2020 dachten die meisten Investoren, es wäre ein ruhiges Jahr. Dann begann eine kleine Nachricht aus Wuhan, die Welt zu erschüttern. Der S&P500 fiel in wenigen Wochen um mehr als 30%. Gehebelte ETFs wie QLD schwankten noch stärker. Die meisten hatten nicht einmal Zeit sich anzupassen. Das menschliche Gehirn reagierte instinktiv: „Ich muss fliehen."
+
+Aber der Markt spiegelt nicht die Gegenwart wider, sondern die Zukunft. Der Markt begann sich zu erholen, bevor es die Realwirtschaft tat. COVID hat auch Innovationen beschleunigt: Homeoffice, Cloud, E-Commerce und KI.
+
+Zusammenfassung Kapitel 9
+Der Markt spiegelt die Zukunft stärker wider als die Gegenwart.
+Buffett glaubte an die menschliche Anpassungsfähigkeit.
+Krisen können auch neue Innovationen beschleunigen.
+
+Merksatz
+
+„Auch im dunkelsten Moment des Marktes wird die Zukunft weiter erschaffen."''',
+    // Ch10
+    '''Stehen wir an einem weiteren historischen Wendepunkt?
+Im Jahr 1903 lachten viele, als die Gebrüder Wright das Flugzeug bauten. In den 1980ern dachten die meisten, PCs würden nur von Spezialisten genutzt. In den 1990ern glaubten viele, das Internet sei nur eine Mode. Die Geschichte beweist immer wieder: Menschen überschätzen kurzfristige Veränderungen und unterschätzen langfristige.
+
+KI hilft bei der intellektuellen Arbeit des Menschen: Sie schreibt Texte, übersetzt, analysiert, schreibt Code, erstellt Bilder und hilft sogar bei Entscheidungen. Dies könnte der Beginn einer Produktivitätsrevolution sein. KI geht denselben Weg wie Industrielle Revolution, Elektrizität, Computer und Internet.
+
+Der Nasdaq 100 enthält die Schlüsselunternehmen der KI-Revolution: Apple, Microsoft, Nvidia, Amazon, Meta, Broadcom. Der ETF-Investor kann am Innovationsstrom teilhaben, ohne einzelne Gewinner erraten zu müssen. Je erfolgreicher die KI-Revolution ist, desto mehr profitiert QLD potenziell davon.
+
+Zusammenfassung Kapitel 10
+KI ist wahrscheinlich keine bloße Mode, sondern eine Produktivitätsrevolution.
+Die Lektion der Dotcom-Blase lautet: Innovation und Preis unterscheiden.
+ETFs können ein effizienter Weg sein, an der KI-Revolution teilzunehmen.
+
+Merksatz
+
+„Der große Investor ist nicht derjenige, der die Zukunft genau vorhersagt, sondern derjenige, der beständig an den Veränderungen teilnimmt, die die Zukunft erschaffen."''',
+  ];
+
+  static List<_BookChapter> _withDeTitles() {
+    const deTitles = [
+      'Ch1. Der Unterschied zwischen Investieren und Spekulieren',
+      'Ch2. Warum die meisten Anleger scheitern',
+      'Ch3. Der Markt',
+      'Ch4. Die Sicherheitsmarge',
+      'Ch5. Massenpsychologie und Investieren',
+      'Ch6. Warum der Markt langfristig steigt',
+      'Ch7. Die Lehren aus der Dotcom-Blase',
+      'Ch8. Die Lehren aus der Finanzkrise',
+      'Ch9. Die Lehren aus dem Corona-Crash',
+      'Ch10. Die KI-Revolution und der aktuelle Markt',
+    ];
+    return List.generate(
+      _germanBodies.length,
+      (i) => _BookChapter(title: deTitles[i], body: _germanBodies[i]),
+    );
+  }
+
+  // ── Chinese Simplified ────────────────────────────────────────────────────
+
+  static const _chineseBodies = <String>[
+    // Ch1
+    '''进入市场的人，都真的是投资者吗？
+互联网泡沫时期，任何名称中带有"互联网"字样的公司股票都在不断上涨。有些公司既无营收，也无利润，商业模式更是模糊不清。尽管如此，投资者们仍沉浸在狂欢之中。价格每天都在攀升。媒体不断报道新富翁的故事。当泡沫于2000年破裂，无数公司消失了。令人注目的是：大多数亏损者甚至说不清楚自己买的是什么。他们买的不是企业，而是价格上涨本身。这正是投资与投机的本质区别。
+
+投资与投机是完全不同的游戏
+
+在我看来，投资必须满足三个条件：第一，深入分析；第二，保护本金；第三，期望合理回报。不满足这些条件的，从定义上说，都是投机。
+
+重要的不是你买了什么，而是你以何种心态买入。买入苹果股票是投机，如果理由是"我认为明天会涨"。反之，在分析企业成长潜力后买入ETF，则更接近于投资。区分投资与投机的，不是产品，而是思维方式。
+
+价格每天变动；价值缓慢变化
+
+股市新手大多关注价格。但投资者看重的是价值，而非价格。试想你在首尔市中心拥有一栋楼。某天有人出价50亿韩元。次日出价40亿。一周后又出价55亿。楼本身没有任何变化，只是报价在变。股票亦如此。
+
+为什么沃伦·巴菲特能积累财富？
+
+他最强大的武器不是选股能力，而是时间。从年轻时起，巴菲特就寻找优质企业并长期持有。他专注于一个简单的问题："这家公司10年后还会强大吗？"投机者把时间视为敌人；投资者把时间变成朋友。
+
+为何现代投资者需要关注ETF
+
+如今有QQQ、SPY、VOO、QLD等ETF，可以自动分散投资于数百家企业。但有一点没有改变：ETF既可用于投资，也可用于投机。如果每天只盯着价格，ETF也会成为投机工具。
+
+投资者最大的敌人
+
+投资者最大的敌人不是市场，而是自己。恐惧、贪婪、急躁、懊悔、嫉妒……这些情绪驱使无数投资者离开市场。市场最终通常会复苏，但被恐惧击垮的投资者却不会。因此，投资的本质不是选股，而是心理管理。
+
+第1章小结
+投资与投机是截然不同的。
+投资者买入价值；投机者追逐价格。
+价格每天变动；价值缓慢变化。
+人类本性倾向于投机。
+巴菲特最强大的武器不是预测，而是时间。
+ETF既可成为投资工具，也可成为投机工具。
+对待QLD，应将其视为对科技创新的长期投资。
+投资者最大的敌人不是市场，而是自身情绪。
+
+牢记这句话
+
+"投资不是猜测未来的游戏，而是以合理价格买入优质资产，并给予足够时间的过程。"''',
+    // Ch2
+    '''市场并不难。难的是人类的情绪。
+大多数人失败，不是因为不知道，而是知道却做不到。1990年代末，只要在名称中加上".com"，股票就会飙升。2000年泡沫破裂时，纳斯达克下跌了约80%。2008年大多数人逃离时，巴菲特却在积极买入。2020年市场比以往任何时候都跌得更快，但恢复也比预期快得多。
+
+投资者最大的敌人可能是自己。市场不会强迫你卖出，决定权永远在投资者自己手中。因此，在研究市场之前，必须先了解自己的心理。
+
+第2章小结
+大多数失败源于情绪，而非信息不足。
+巴菲特的力量不在于预测，而在于坚守原则。
+
+牢记这句话
+
+"市场不会摧毁你。摧毁你的是你自己那被恐惧和贪婪驱使的行为。"''',
+    // Ch3
+    '''市场不是你的主人，而是你的仆人。
+想象一下，你是一家稳健成长的企业的联合所有者。每天早上，一个叫做"市场"的奇怪人物来敲你的门。他每天都要提出购买你的份额或把他的份额卖给你，但每次报价都不一样。有些天他过于乐观，开出天价；另一些天他垂头丧气，想要以跳楼价卖出。企业本身没有任何变化，但价格却波动剧烈。我称这个奇怪的人为"市场先生"。
+
+在我看来，市场只是一个工具。但大多数人把它当成主人。市场不是先知，它只是在报价，而这些价格并不总是正确的。
+
+聪明的投资者善用市场
+
+大多数人被市场所用。而我不同。当市场过热时我变得谨慎，当市场恐慌时我寻找机会。我不跟随市场情绪，我利用它。
+
+第3章小结
+市场每天报价，但报价并不总是准确的。
+价格与价值是不同的事物。
+市场是仆人，不是主人。
+
+牢记这句话
+
+"市场只是向你报价。接受与否，是你的选择。"''',
+    // Ch4
+    '''伟大的投资者首先考虑的是生存，而非盈利。
+每个读到这里的人都应记住一个词：安全边际（Margin of Safety）。我的全部哲学都指向这个概念。我相信人类无法精确预测未来，因此我始终问自己："即使我判断错误，我能活下去吗？"
+
+巴菲特的原则："规则一：不要亏损。规则二：永远不要忘记规则一。"亏损50%，需要盈利100%才能回本；亏损80%，需要盈利400%。这就是为什么伟大的投资者首先考虑生存。
+
+1999年，安全边际的概念被彻底忽视。2008年，许多金融机构使用了过度杠杆。当市场动摇，一切便土崩瓦解。而持有充裕现金的企业不仅生存下来，还将危机化为机遇。现金不是等待中的资本，而是抓住机会的权利。
+
+第4章小结
+安全边际是我哲学的核心。
+生存比盈利更重要。
+现金是抓住机会的权利。
+
+牢记这句话
+
+"伟大的投资者不是赚最多的人，而是活得最长、享受复利力量的人。"''',
+    // Ch5
+    '''市场表面上由数字驱动，实际上由人类情绪驱动。
+1637年荷兰，一颗郁金香球茎卖出了一套房子的价格。1929年美国，人们借钱买股票。2000年，没有营收的企业估值数十亿。2021年，迷因股在网络社区的热情中爆炸式上涨。人们一再重复同样的错误，因为市场由人类情绪驱动。
+
+数万年前，跟随群体是生存策略。人类大脑学会了本能地信任多数人的行为。问题在于，金融市场正是利用了这种本能，这就是所谓的"错失恐惧"（FOMO）。巴菲特之所以特别，原因之一就是他能够逆众而行。
+
+减少群体心理影响的最佳方法是制定明确规则：跌20%买入一部分，跌30%投入部分现金，跌40%积极买入，跌50%按计划投入。
+
+第5章小结
+人类本能地设计为跟随群体。
+巴菲特能够逆众而行。
+对于QLD投资者而言，基于规则的投资尤为重要。
+
+牢记这句话
+
+"当群体充满确信时最要谨慎，当群体陷入绝望时最要冷静。"''',
+    // Ch6
+    '''市场反复下跌，为何仍不断创下新高？
+市场不只是数字，它就是经济本身。更准确地说，它是无数企业的总和。苹果、微软、英伟达、亚马逊、Meta、谷歌……这些企业每天都在创造新产品。市场长期上涨，意味着企业在成长。
+
+人类一直在持续提升生产力。生产力提升，企业盈利增加；盈利增加，股票长期上涨。铁路、汽车、互联网、人工智能，都是市场成长的引擎。泡沫会破裂，但创新会留下。
+
+纳斯达克汇聚了全球最具创新力的企业。持有QLD，就是相信人类的进步。当然会有下跌、泡沫和恐慌时刻，但长期投资者将这一切都纳入其中。
+
+第6章小结
+市场反映的是企业成长的成果。
+市场长期上涨的原因是生产力的提升。
+创新留下；泡沫消散。
+
+牢记这句话
+
+"市场的成长不是因为危机，而是因为人类即使在危机中也能继续前行的能力。"''',
+    // Ch7
+    '''即使看对了未来，也可能亏钱。
+1990年代末，认为互联网将改变世界的判断是正确的。但看对未来与成功投资是完全不同的两件事，互联网泡沫清楚地说明了这一点。互联网并没有失败，失败的是投资者。这个区别至关重要。
+
+亚马逊、谷歌、Netflix改变了世界。但许多投资者没能亲眼见证，因为他们在泡沫破裂时选择了放弃。人工智能是真实的创新。但投资者必须始终记住：创新与投资回报不是同一回事。重要的是价格。不必怀疑创新本身，但要始终质疑价格。
+
+第7章小结
+创新留下；泡沫消散。
+巴菲特在最热的时刻依然坚守原则。
+
+牢记这句话
+
+"仅仅看对未来还不够，还必须以正确的价格买入。"''',
+    // Ch8
+    '''当市场看似崩溃，投资者该怎么做？
+2008年9月15日，雷曼兄弟申请破产。一家拥有158年历史的金融企业一夜之间轰然倒塌。全球投资者都有同样的想法："这次真的完了。"
+
+危机并非突然降临。早在此之前，银行就已开始向信用不佳的人放贷，祸根早已埋下。当房地产市场动摇，一切随之崩塌。2008年大多数人逃离之际，巴菲特却在寻找好企业购入。危机过去了，经济复苏，市场创下新高。
+
+第8章小结
+金融危机并非突然发生，而是忽视风险的结果。
+巴菲特在恐慌中发现机会。
+能熬过危机的人，最终将靠复利获胜。
+
+牢记这句话
+
+"危机摧毁了某些投资者，却让有所准备的人变得更富。"''',
+    // Ch9
+    '''在世界似乎停摆的那一刻，市场已在眺望未来。
+2020年初，大多数投资者认为这将是平静的一年。随后，来自武汉的一条小消息开始震动全球。标普500在几周内暴跌逾30%。QLD这类杠杆ETF波动更为剧烈。大多数人根本来不及应对，人类大脑本能地反应："我必须逃跑。"
+
+但市场反映的不是现在，而是未来。市场在实体经济复苏之前就开始反弹了。新冠疫情也加速了创新：远程办公、云计算、电商和人工智能。
+
+第9章小结
+市场反映未来多于现在。
+巴菲特相信人类的适应能力。
+危机也可能加速新的创新。
+
+牢记这句话
+
+"即使在市场最黑暗的时刻，未来依然在被构建。"''',
+    // Ch10
+    '''我们是否站在另一个历史性转折点？
+1903年，莱特兄弟造出飞机时，许多人嘲笑他们。1980年代，大多数人认为个人电脑只会被专家使用。1990年代，许多人相信互联网不过是一时的流行。历史一再证明：人类总是高估短期变化，低估长期变化。
+
+人工智能正在协助人类的智识工作：写作、翻译、分析、编程、创作图像，甚至辅助决策。这可能是生产力革命的开端，正如工业革命、电力、计算机和互联网一样。
+
+纳斯达克100指数包含了人工智能革命的核心企业：苹果、微软、英伟达、亚马逊、Meta、博通。ETF投资者无需猜测个别赢家，就能参与创新浪潮。人工智能革命越成功，QLD的受益潜力就越大。
+
+第10章小结
+人工智能很可能是生产力革命，而非一时风潮。
+互联网泡沫的教训是：区分创新与价格。
+ETF可以是参与人工智能革命的有效途径。
+
+牢记这句话
+
+"伟大的投资者不是精准预测未来的人，而是持续参与那些创造未来的变革的人。"''',
+  ];
+
+  static List<_BookChapter> _withZhTitles() {
+    const zhTitles = [
+      'Ch1. 投资与投机的区别',
+      'Ch2. 为什么大多数投资者会失败',
+      'Ch3. 市场',
+      'Ch4. 安全边际',
+      'Ch5. 群体心理与投资',
+      'Ch6. 为什么市场长期上涨',
+      'Ch7. 互联网泡沫的教训',
+      'Ch8. 金融危机的教训',
+      'Ch9. 新冠崩盘的教训',
+      'Ch10. 人工智能革命与当今市场',
+    ];
+    return List.generate(
+      _chineseBodies.length,
+      (i) => _BookChapter(title: zhTitles[i], body: _chineseBodies[i]),
+    );
+  }
+
+  // ── Chinese Traditional ───────────────────────────────────────────────────
+
+  static const _chineseTwBodies = <String>[
+    // Ch1
+    '''進入市場的人，都真的是投資者嗎？
+網路泡沫時期，任何名稱中帶有「網路」字樣的公司股票都在不斷上漲。有些公司既無營收，也無利潤，商業模式更是模糊不清。儘管如此，投資者們仍沉浸在狂歡之中。價格每天都在攀升。媒體不斷報導新富翁的故事。當泡沫於2000年破裂，無數公司消失了。令人注目的是：大多數虧損者甚至說不清楚自己買的是什麼。他們買的不是企業，而是價格上漲本身。這正是投資與投機的本質區別。
+
+投資與投機是完全不同的遊戲
+
+在我看來，投資必須滿足三個條件：第一，深入分析；第二，保護本金；第三，期望合理回報。不滿足這些條件的，從定義上說，都是投機。
+
+重要的不是你買了什麼，而是你以何種心態買入。買入蘋果股票是投機，如果理由是「我認為明天會漲」。反之，在分析企業成長潛力後買入ETF，則更接近於投資。區分投資與投機的，不是產品，而是思維方式。
+
+價格每天變動；價值緩慢變化
+
+股市新手大多關注價格。但投資者看重的是價值，而非價格。試想你在首爾市中心擁有一棟樓。某天有人出價50億韓元。次日出價40億。一週後又出價55億。樓本身沒有任何變化，只是報價在變。股票亦如此。
+
+為什麼沃倫·巴菲特能積累財富？
+
+他最強大的武器不是選股能力，而是時間。從年輕時起，巴菲特就尋找優質企業並長期持有。他專注於一個簡單的問題：「這家公司10年後還會強大嗎？」投機者把時間視為敵人；投資者把時間變成朋友。
+
+為何現代投資者需要關注ETF
+
+如今有QQQ、SPY、VOO、QLD等ETF，可以自動分散投資於數百家企業。但有一點沒有改變：ETF既可用於投資，也可用於投機。如果每天只盯著價格，ETF也會成為投機工具。
+
+投資者最大的敵人
+
+投資者最大的敵人不是市場，而是自己。恐懼、貪婪、急躁、懊悔、嫉妒……這些情緒驅使無數投資者離開市場。市場最終通常會復甦，但被恐懼擊垮的投資者卻不會。因此，投資的本質不是選股，而是心理管理。
+
+第1章小結
+投資與投機是截然不同的。
+投資者買入價值；投機者追逐價格。
+價格每天變動；價值緩慢變化。
+人類本性傾向於投機。
+巴菲特最強大的武器不是預測，而是時間。
+ETF既可成為投資工具，也可成為投機工具。
+對待QLD，應將其視為對科技創新的長期投資。
+投資者最大的敵人不是市場，而是自身情緒。
+
+牢記這句話
+
+「投資不是猜測未來的遊戲，而是以合理價格買入優質資產，並給予足夠時間的過程。」''',
+    // Ch2
+    '''市場並不難。難的是人類的情緒。
+大多數人失敗，不是因為不知道，而是知道卻做不到。1990年代末，只要在名稱中加上「.com」，股票就會飆升。2000年泡沫破裂時，納斯達克下跌了約80%。2008年大多數人逃離時，巴菲特卻在積極買入。2020年市場比以往任何時候都跌得更快，但恢復也比預期快得多。
+
+投資者最大的敵人可能是自己。市場不會強迫你賣出，決定權永遠在投資者自己手中。因此，在研究市場之前，必須先了解自己的心理。
+
+第2章小結
+大多數失敗源於情緒，而非資訊不足。
+巴菲特的力量不在於預測，而在於堅守原則。
+
+牢記這句話
+
+「市場不會摧毀你。摧毀你的是你自己那被恐懼和貪婪驅使的行為。」''',
+    // Ch3
+    '''市場不是你的主人，而是你的僕人。
+想像一下，你是一家穩健成長的企業的聯合所有者。每天早上，一個叫做「市場」的奇怪人物來敲你的門。他每天都要提出購買你的份額或把他的份額賣給你，但每次報價都不一樣。有些天他過於樂觀，開出天價；另一些天他垂頭喪氣，想要以跳樓價賣出。企業本身沒有任何變化，但價格卻波動劇烈。我稱這個奇怪的人為「市場先生」。
+
+在我看來，市場只是一個工具。但大多數人把它當成主人。市場不是先知，它只是在報價，而這些價格並不總是正確的。
+
+聰明的投資者善用市場
+
+大多數人被市場所用。而我不同。當市場過熱時我變得謹慎，當市場恐慌時我尋找機會。我不跟隨市場情緒，我利用它。
+
+第3章小結
+市場每天報價，但報價並不總是準確的。
+價格與價值是不同的事物。
+市場是僕人，不是主人。
+
+牢記這句話
+
+「市場只是向你報價。接受與否，是你的選擇。」''',
+    // Ch4
+    '''偉大的投資者首先考慮的是生存，而非獲利。
+每個讀到這裡的人都應記住一個詞：安全邊際（Margin of Safety）。我的全部哲學都指向這個概念。我相信人類無法精確預測未來，因此我始終問自己：「即使我判斷錯誤，我能活下去嗎？」
+
+巴菲特的原則：「規則一：不要虧損。規則二：永遠不要忘記規則一。」虧損50%，需要獲利100%才能回本；虧損80%，需要獲利400%。這就是為什麼偉大的投資者首先考慮生存。
+
+1999年，安全邊際的概念被徹底忽視。2008年，許多金融機構使用了過度槓桿。當市場動搖，一切便土崩瓦解。而持有充裕現金的企業不僅生存下來，還將危機化為機遇。現金不是等待中的資本，而是抓住機會的權利。
+
+第4章小結
+安全邊際是我哲學的核心。
+生存比獲利更重要。
+現金是抓住機會的權利。
+
+牢記這句話
+
+「偉大的投資者不是賺最多的人，而是活得最長、享受複利力量的人。」''',
+    // Ch5
+    '''市場表面上由數字驅動，實際上由人類情緒驅動。
+1637年荷蘭，一顆鬱金香球莖賣出了一套房子的價格。1929年美國，人們借錢買股票。2000年，沒有營收的企業估值數十億。2021年，迷因股在網路社群的熱情中爆炸式上漲。人們一再重複同樣的錯誤，因為市場由人類情緒驅動。
+
+數萬年前，跟隨群體是生存策略。人類大腦學會了本能地信任多數人的行為。問題在於，金融市場正是利用了這種本能，這就是所謂的「錯失恐懼」（FOMO）。巴菲特之所以特別，原因之一就是他能夠逆眾而行。
+
+減少群體心理影響的最佳方法是制定明確規則：跌20%買入一部分，跌30%投入部分現金，跌40%積極買入，跌50%按計劃投入。
+
+第5章小結
+人類本能地設計為跟隨群體。
+巴菲特能夠逆眾而行。
+對於QLD投資者而言，基於規則的投資尤為重要。
+
+牢記這句話
+
+「當群體充滿確信時最要謹慎，當群體陷入絕望時最要冷靜。」''',
+    // Ch6
+    '''市場反覆下跌，為何仍不斷創下新高？
+市場不只是數字，它就是經濟本身。更準確地說，它是無數企業的總和。蘋果、微軟、輝達、亞馬遜、Meta、谷歌……這些企業每天都在創造新產品。市場長期上漲，意味著企業在成長。
+
+人類一直在持續提升生產力。生產力提升，企業獲利增加；獲利增加，股票長期上漲。鐵路、汽車、網路、人工智慧，都是市場成長的引擎。泡沫會破裂，但創新會留下。
+
+納斯達克匯聚了全球最具創新力的企業。持有QLD，就是相信人類的進步。當然會有下跌、泡沫和恐慌時刻，但長期投資者將這一切都納入其中。
+
+第6章小結
+市場反映的是企業成長的成果。
+市場長期上漲的原因是生產力的提升。
+創新留下；泡沫消散。
+
+牢記這句話
+
+「市場的成長不是因為危機，而是因為人類即使在危機中也能繼續前行的能力。」''',
+    // Ch7
+    '''即使看對了未來，也可能虧錢。
+1990年代末，認為網路將改變世界的判斷是正確的。但看對未來與成功投資是完全不同的兩件事，網路泡沫清楚地說明了這一點。網路並沒有失敗，失敗的是投資者。這個區別至關重要。
+
+亞馬遜、谷歌、Netflix改變了世界。但許多投資者沒能親眼見證，因為他們在泡沫破裂時選擇了放棄。人工智慧是真實的創新。但投資者必須始終記住：創新與投資回報不是同一回事。重要的是價格。不必懷疑創新本身，但要始終質疑價格。
+
+第7章小結
+創新留下；泡沫消散。
+巴菲特在最熱的時刻依然堅守原則。
+
+牢記這句話
+
+「僅僅看對未來還不夠，還必須以正確的價格買入。」''',
+    // Ch8
+    '''當市場看似崩潰，投資者該怎麼做？
+2008年9月15日，雷曼兄弟申請破產。一家擁有158年歷史的金融企業一夜之間轟然倒塌。全球投資者都有同樣的想法：「這次真的完了。」
+
+危機並非突然降臨。早在此之前，銀行就已開始向信用不佳的人放貸，禍根早已埋下。當房地產市場動搖，一切隨之崩塌。2008年大多數人逃離之際，巴菲特卻在尋找好企業購入。危機過去了，經濟復甦，市場創下新高。
+
+第8章小結
+金融危機並非突然發生，而是忽視風險的結果。
+巴菲特在恐慌中發現機會。
+能熬過危機的人，最終將靠複利獲勝。
+
+牢記這句話
+
+「危機摧毀了某些投資者，卻讓有所準備的人變得更富。」''',
+    // Ch9
+    '''在世界似乎停擺的那一刻，市場已在眺望未來。
+2020年初，大多數投資者認為這將是平靜的一年。隨後，來自武漢的一條小消息開始震動全球。標普500在幾週內暴跌逾30%。QLD這類槓桿ETF波動更為劇烈。大多數人根本來不及應對，人類大腦本能地反應：「我必須逃跑。」
+
+但市場反映的不是現在，而是未來。市場在實體經濟復甦之前就開始反彈了。新冠疫情也加速了創新：遠端辦公、雲端運算、電商和人工智慧。
+
+第9章小結
+市場反映未來多於現在。
+巴菲特相信人類的適應能力。
+危機也可能加速新的創新。
+
+牢記這句話
+
+「即使在市場最黑暗的時刻，未來依然在被構建。」''',
+    // Ch10
+    '''我們是否站在另一個歷史性轉折點？
+1903年，萊特兄弟造出飛機時，許多人嘲笑他們。1980年代，大多數人認為個人電腦只會被專家使用。1990年代，許多人相信網路不過是一時的流行。歷史一再證明：人類總是高估短期變化，低估長期變化。
+
+人工智慧正在協助人類的智識工作：寫作、翻譯、分析、編程、創作圖像，甚至輔助決策。這可能是生產力革命的開端，正如工業革命、電力、電腦和網路一樣。
+
+納斯達克100指數包含了人工智慧革命的核心企業：蘋果、微軟、輝達、亞馬遜、Meta、博通。ETF投資者無需猜測個別贏家，就能參與創新浪潮。人工智慧革命越成功，QLD的受益潛力就越大。
+
+第10章小結
+人工智慧很可能是生產力革命，而非一時風潮。
+網路泡沫的教訓是：區分創新與價格。
+ETF可以是參與人工智慧革命的有效途徑。
+
+牢記這句話
+
+「偉大的投資者不是精準預測未來的人，而是持續參與那些創造未來的變革的人。」''',
+  ];
+
+  static List<_BookChapter> _withZhTwTitles() {
+    const zhTwTitles = [
+      'Ch1. 投資與投機的區別',
+      'Ch2. 為什麼大多數投資者會失敗',
+      'Ch3. 市場',
+      'Ch4. 安全邊際',
+      'Ch5. 群體心理與投資',
+      'Ch6. 為什麼市場長期上漲',
+      'Ch7. 網路泡沫的教訓',
+      'Ch8. 金融危機的教訓',
+      'Ch9. 新冠崩盤的教訓',
+      'Ch10. 人工智慧革命與當今市場',
+    ];
+    return List.generate(
+      _chineseTwBodies.length,
+      (i) => _BookChapter(title: zhTwTitles[i], body: _chineseTwBodies[i]),
+    );
+  }
+
   @override
   Widget build(BuildContext context) => _KoreanBookReaderBase(
         bookTitle: '내가 생각하는 현명한 투자',
@@ -1080,5 +3443,26 @@ A Sentence to Remember
         chapters: _chapters,
         englishChapters: _englishChapters,
         englishBookTitle: 'My View on Intelligent Investing',
+        japaneseChapters: _withJaTitles(),
+        japaneseBookTitle: '私が考える賢い投資',
+        localizedChapters: {
+          'es': _withEsTitles(),
+          'pt': _withPtTitles(),
+          'ru': _withRuTitles(),
+          'fr': _withFrTitles(),
+          'de': _withDeTitles(),
+          'zh': _withZhTitles(),
+          'zh_TW': _withZhTwTitles(),
+        },
+        localizedBookTitles: const {
+          'es': 'Mi visión sobre la inversión inteligente',
+          'pt': 'Minha visão sobre investimento inteligente',
+          'ru': 'Моё видение разумного инвестирования',
+          'fr': "Ma vision de l'investissement intelligent",
+          'de': 'Meine Sicht auf intelligentes Investieren',
+          'zh': '我所认为的智慧投资',
+          'zh_TW': '我所認為的智慧投資',
+        },
+        useAppLocale: true,
       );
 }

@@ -17,6 +17,11 @@ class _KoreanBookReaderBase extends StatefulWidget {
     required this.chapters,
     this.englishChapters,
     this.englishBookTitle,
+    this.japaneseChapters,
+    this.japaneseBookTitle,
+    this.localizedChapters,
+    this.localizedBookTitles,
+    this.useAppLocale = false,
   });
 
   final String bookTitle;
@@ -24,6 +29,14 @@ class _KoreanBookReaderBase extends StatefulWidget {
   final List<_BookChapter> chapters;
   final List<_BookChapter>? englishChapters;
   final String? englishBookTitle;
+  final List<_BookChapter>? japaneseChapters;
+  final String? japaneseBookTitle;
+  // Locale-code → chapters map for locale-driven mode (e.g. 'es', 'zh_TW').
+  final Map<String, List<_BookChapter>>? localizedChapters;
+  // Locale-code → book title map for locale-driven mode.
+  final Map<String, String>? localizedBookTitles;
+  // When true, content language follows the app locale instead of manual toggle.
+  final bool useAppLocale;
 
   @override
   State<_KoreanBookReaderBase> createState() => _KoreanBookReaderBaseState();
@@ -32,9 +45,11 @@ class _KoreanBookReaderBase extends StatefulWidget {
 class _KoreanBookReaderBaseState extends State<_KoreanBookReaderBase> {
   final pageController = PageController();
   int currentPage = 0;
-  bool showEnglish = false;
+  // 0=Korean, 1=English, 2=Japanese
+  int _langIndex = 0;
 
-  bool get hasLanguageToggle => widget.englishChapters != null;
+  bool get hasLanguageToggle =>
+      widget.englishChapters != null || widget.japaneseChapters != null;
 
   @override
   void initState() {
@@ -48,11 +63,21 @@ class _KoreanBookReaderBaseState extends State<_KoreanBookReaderBase> {
     final langKey = await userScopedPrefsKey('${widget.prefsKey}_language');
     final chapters = widget.chapters;
     final saved = (prefs.getInt(pageKey) ?? 0).clamp(0, chapters.length - 1);
-    final savedLang = hasLanguageToggle ? (prefs.getBool(langKey) ?? false) : false;
+    int savedLang = 0;
+    if (hasLanguageToggle) {
+      final stored = prefs.getInt(langKey);
+      if (stored != null) {
+        savedLang = stored;
+      } else {
+        // migrate from old bool storage
+        final oldBool = prefs.getBool(langKey) ?? false;
+        savedLang = oldBool ? 1 : 0;
+      }
+    }
     if (!mounted) return;
     setState(() {
       currentPage = saved;
-      showEnglish = savedLang;
+      _langIndex = savedLang;
     });
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted && pageController.hasClients) {
@@ -66,19 +91,60 @@ class _KoreanBookReaderBaseState extends State<_KoreanBookReaderBase> {
     final pageKey = await userScopedPrefsKey(widget.prefsKey);
     final langKey = await userScopedPrefsKey('${widget.prefsKey}_language');
     await prefs.setInt(pageKey, currentPage);
-    if (hasLanguageToggle) await prefs.setBool(langKey, showEnglish);
+    if (hasLanguageToggle) await prefs.setInt(langKey, _langIndex);
   }
 
-  void _changeLanguage(bool toEnglish) {
-    if (showEnglish == toEnglish) return;
+  void _changeLanguage(int index) {
+    if (_langIndex == index) return;
     setState(() {
-      showEnglish = toEnglish;
+      _langIndex = index;
       currentPage = 0;
     });
     if (pageController.hasClients) {
       pageController.jumpToPage(0);
     }
     _saveState();
+  }
+
+  int _langIndexFromLocale(BuildContext context) {
+    final lang = Localizations.localeOf(context).languageCode;
+    if (lang == 'en' && widget.englishChapters != null) return 1;
+    if (lang == 'ja' && widget.japaneseChapters != null) return 2;
+    return 0;
+  }
+
+  List<_BookChapter> _chaptersForLocale(BuildContext context) {
+    final locale = Localizations.localeOf(context);
+    final lang = locale.languageCode;
+    final country = locale.countryCode;
+    if (widget.localizedChapters != null) {
+      final key = (lang == 'zh' && country == 'TW') ? 'zh_TW' : lang;
+      if (widget.localizedChapters!.containsKey(key)) {
+        return widget.localizedChapters![key]!;
+      }
+    }
+    if (lang == 'en' && widget.englishChapters != null)
+      return widget.englishChapters!;
+    if (lang == 'ja' && widget.japaneseChapters != null)
+      return widget.japaneseChapters!;
+    return widget.chapters;
+  }
+
+  String _bookTitleForLocale(BuildContext context) {
+    final locale = Localizations.localeOf(context);
+    final lang = locale.languageCode;
+    final country = locale.countryCode;
+    if (widget.localizedBookTitles != null) {
+      final key = (lang == 'zh' && country == 'TW') ? 'zh_TW' : lang;
+      if (widget.localizedBookTitles!.containsKey(key)) {
+        return widget.localizedBookTitles![key]!;
+      }
+    }
+    if (lang == 'en' && widget.englishBookTitle != null)
+      return widget.englishBookTitle!;
+    if (lang == 'ja' && widget.japaneseBookTitle != null)
+      return widget.japaneseBookTitle!;
+    return widget.bookTitle;
   }
 
   @override
@@ -97,16 +163,26 @@ class _KoreanBookReaderBaseState extends State<_KoreanBookReaderBase> {
     final secondaryText = whiteMode ? _lightMuted : _darkMuted;
     final accent = whiteMode ? _lightBlue : _cyan;
     final l10n = AppLocalizations.of(context)!;
-    final pages = (showEnglish && widget.englishChapters != null)
-        ? widget.englishChapters!
-        : widget.chapters;
-    final bookTitle = (showEnglish && widget.englishBookTitle != null)
-        ? widget.englishBookTitle!
-        : widget.bookTitle;
+    final effectiveLangIndex =
+        widget.useAppLocale ? _langIndexFromLocale(context) : _langIndex;
+    final pages = widget.useAppLocale
+        ? _chaptersForLocale(context)
+        : (effectiveLangIndex == 2 && widget.japaneseChapters != null
+            ? widget.japaneseChapters!
+            : effectiveLangIndex == 1 && widget.englishChapters != null
+                ? widget.englishChapters!
+                : widget.chapters);
+    final bookTitle = widget.useAppLocale
+        ? _bookTitleForLocale(context)
+        : (effectiveLangIndex == 2 && widget.japaneseBookTitle != null
+            ? widget.japaneseBookTitle!
+            : effectiveLangIndex == 1 && widget.englishBookTitle != null
+                ? widget.englishBookTitle!
+                : widget.bookTitle);
     final progress = '${currentPage + 1}/${pages.length}';
 
-    Widget languageButton(String label, bool value) {
-      final selected = showEnglish == value;
+    Widget languageButton(String label, int value) {
+      final selected = _langIndex == value;
       return Expanded(
         child: GestureDetector(
           behavior: HitTestBehavior.opaque,
@@ -139,9 +215,12 @@ class _KoreanBookReaderBaseState extends State<_KoreanBookReaderBase> {
     }
 
     Widget langWidget() {
+      if (widget.useAppLocale) return const SizedBox.shrink();
       if (hasLanguageToggle) {
+        final hasJa = widget.japaneseChapters != null;
+        final hasEn = widget.englishChapters != null;
         return SizedBox(
-          width: 88,
+          width: hasJa && hasEn ? 120 : 88,
           child: Container(
             padding: const EdgeInsets.all(3),
             decoration: BoxDecoration(
@@ -151,9 +230,15 @@ class _KoreanBookReaderBaseState extends State<_KoreanBookReaderBase> {
             ),
             child: Row(
               children: [
-                languageButton('한글', false),
-                const SizedBox(width: 3),
-                languageButton('EN', true),
+                languageButton('한글', 0),
+                if (hasEn) ...[
+                  const SizedBox(width: 3),
+                  languageButton('EN', 1),
+                ],
+                if (hasJa) ...[
+                  const SizedBox(width: 3),
+                  languageButton('日本語', 2),
+                ],
               ],
             ),
           ),
@@ -225,11 +310,11 @@ class _KoreanBookReaderBaseState extends State<_KoreanBookReaderBase> {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 8, vertical: 5),
                       decoration: BoxDecoration(
-                        color: accent.withValues(
-                            alpha: whiteMode ? 0.08 : 0.12),
+                        color:
+                            accent.withValues(alpha: whiteMode ? 0.08 : 0.12),
                         borderRadius: BorderRadius.circular(999),
-                        border: Border.all(
-                            color: accent.withValues(alpha: 0.22)),
+                        border:
+                            Border.all(color: accent.withValues(alpha: 0.22)),
                       ),
                       child: Text(
                         progress,

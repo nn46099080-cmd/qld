@@ -10,10 +10,30 @@ import android.provider.Settings
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
+import io.flutter.plugin.common.StandardMessageCodec
+import io.flutter.plugin.platform.PlatformViewFactory
 
 class MainActivity : FlutterActivity() {
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
+
+        flutterEngine.platformViewsController.registry.registerViewFactory(
+            "qld_alert/levelplay_banner",
+            object : PlatformViewFactory(StandardMessageCodec.INSTANCE) {
+                override fun create(
+                    context: android.content.Context,
+                    viewId: Int,
+                    args: Any?
+                ): io.flutter.plugin.platform.PlatformView {
+                    return LevelPlayBannerPlatformView(
+                        this@MainActivity,
+                        flutterEngine.dartExecutor.binaryMessenger,
+                        viewId,
+                        args,
+                    )
+                }
+            }
+        )
 
         MethodChannel(
             flutterEngine.dartExecutor.binaryMessenger,
@@ -31,9 +51,26 @@ class MainActivity : FlutterActivity() {
                 "requestPinShortcut" -> {
                     result.success(requestPinShortcut())
                 }
+                "showInterstitial" -> {
+                    LevelPlayAdsManager.requestInterstitial(this, result)
+                }
+                "preloadExitMrec" -> {
+                    LevelPlayExitMrecManager.preload(this)
+                    result.success(null)
+                }
+                "destroyExitMrec" -> {
+                    LevelPlayExitMrecManager.destroy()
+                    result.success(null)
+                }
                 else -> result.notImplemented()
             }
         }
+        LevelPlayAdsManager.initialize(applicationContext)
+    }
+
+    override fun onDestroy() {
+        LevelPlayExitMrecManager.destroy()
+        super.onDestroy()
     }
 
     private fun openNotificationSettings() {

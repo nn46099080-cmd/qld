@@ -104,6 +104,10 @@ class _NotificationHistoryPageState extends State<NotificationHistoryPage> {
     }
   }
 
+  bool isInquiryAlertType(String type) {
+    return type == 'inquiryReply' || type == 'inquiryNew';
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
@@ -171,10 +175,11 @@ class _NotificationHistoryPageState extends State<NotificationHistoryPage> {
                 return InkWell(
                   borderRadius: BorderRadius.circular(9),
                   onTap: () {
-                    Navigator.push(
-                      context,
+                    Navigator.of(context, rootNavigator: true).push(
                       MaterialPageRoute(
-                        builder: (_) => AlertDetailPage(item: item),
+                        builder: (_) => isInquiryAlertType(item.type)
+                            ? const InquiryPage()
+                            : AlertDetailPage(item: item),
                       ),
                     );
                   },

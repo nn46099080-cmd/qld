@@ -1,4 +1,4 @@
-﻿import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -12,7 +12,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 
 import 'l10n/app_localizations.dart';
@@ -24,8 +23,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
-import 'adsense/adsense_platform_view_stub.dart'
-    if (dart.library.html) 'adsense/adsense_platform_view_web.dart';
 import 'strategy/strategy_progress_store.dart';
 
 part 'strategy/strategy_pages.dart';
@@ -86,36 +83,13 @@ const _ownerAdminUid = 'qld-admin-179204';
 const _ownerAdminPassword = '0610aa!!';
 const _tradingViewInstallUrl =
     'https://play.google.com/store/apps/details?id=com.tradingview.tradingviewapp&utm_source=chatgpt.com';
-const _currentAppVersionCode = 60;
+const _currentAppVersionCode = 79;
 const _androidPackageName = 'com.qldalert.app';
-const _releaseAdMobBottomBannerUnitId =
-    'ca-app-pub-8561157852710726/9908440913';
-const _releaseAdMobExitUnitId = 'ca-app-pub-8561157852710726/8106285955';
-const _adsenseClientId = 'ca-pub-8561157852710726';
-const _adsenseBottomBannerSlotId = String.fromEnvironment(
-  'ADSENSE_BOTTOM_SLOT',
-  defaultValue: '2225309867',
-);
-const _adsenseBottomBannerViewType = 'qld-adsense-bottom-banner';
-const _bottomBannerAdHeight = 50.0;
-const _bottomBannerAdWidth = 320.0;
-
-String get _adMobBottomBannerUnitId => _releaseAdMobBottomBannerUnitId;
-
-String get _adMobExitUnitId => _releaseAdMobExitUnitId;
-
-bool get canRequestAds =>
-    !kIsWeb &&
-    (defaultTargetPlatform == TargetPlatform.android ||
-        defaultTargetPlatform == TargetPlatform.iOS);
-
-bool get canRequestAdsense =>
-    kIsWeb &&
-    supportsAdsensePlatformView &&
-    _adsenseBottomBannerSlotId.trim().isNotEmpty;
-
-double get bottomBannerAdHeight =>
-    kIsWeb && !canRequestAdsense ? 0 : _bottomBannerAdHeight;
+// Keep the existing preference key so migration does not reset the 3-hour limit.
+const _levelPlayInterstitialShownAtPrefsKey = 'unityInterstitialShownAtMs';
+const _levelPlayInterstitialCooldown = Duration(hours: 3);
+const _levelPlayInterstitialStartupDelay = Duration(seconds: 10);
+const _levelPlayInterstitialRetryDelay = Duration(seconds: 60);
 
 const _yahooProxyBaseUrl =
     'https://billowing-band-06cd.nn46099080.workers.dev/';
@@ -153,11 +127,12 @@ const _inquiriesPinUrl =
     'https://billowing-band-06cd.nn46099080.workers.dev/inquiries/pin';
 const _inquiriesDeleteUrl =
     'https://billowing-band-06cd.nn46099080.workers.dev/inquiries/delete';
+const _inquiriesMessageEditUrl =
+    'https://billowing-band-06cd.nn46099080.workers.dev/inquiries/message/edit';
 const _adminStatusUrl =
     'https://billowing-band-06cd.nn46099080.workers.dev/admin-status';
 const _majorUsSchedulesUrl =
     'https://billowing-band-06cd.nn46099080.workers.dev/major-us-schedules';
-const _numberGuessRankingPrefsKey = 'number_guess_rankings';
 
 Uri _chartProxyUri(String symbol) => Uri.parse(_yahooProxyBaseUrl).replace(
       queryParameters: {'symbol': symbol},
@@ -190,6 +165,10 @@ final List<_MajorUsScheduleItem> _majorUsSchedules = [
     date: DateTime(2026, 7, 2),
   ),
   _MajorUsScheduleItem(
+    title: 'FOMC Minutes',
+    date: DateTime(2026, 7, 9),
+  ),
+  _MajorUsScheduleItem(
     title: 'CPI',
     date: DateTime(2026, 7, 14),
   ),
@@ -204,6 +183,10 @@ final List<_MajorUsScheduleItem> _majorUsSchedules = [
   _MajorUsScheduleItem(
     title: 'CPI',
     date: DateTime(2026, 8, 12),
+  ),
+  _MajorUsScheduleItem(
+    title: 'FOMC Minutes',
+    date: DateTime(2026, 8, 20),
   ),
   _MajorUsScheduleItem(
     title: 'NFP',
@@ -222,6 +205,10 @@ final List<_MajorUsScheduleItem> _majorUsSchedules = [
     date: DateTime(2026, 10, 2),
   ),
   _MajorUsScheduleItem(
+    title: 'FOMC Minutes',
+    date: DateTime(2026, 10, 8),
+  ),
+  _MajorUsScheduleItem(
     title: 'CPI',
     date: DateTime(2026, 10, 14),
   ),
@@ -238,6 +225,10 @@ final List<_MajorUsScheduleItem> _majorUsSchedules = [
     date: DateTime(2026, 11, 10),
   ),
   _MajorUsScheduleItem(
+    title: 'FOMC Minutes',
+    date: DateTime(2026, 11, 19),
+  ),
+  _MajorUsScheduleItem(
     title: 'NFP',
     date: DateTime(2026, 12, 4),
   ),
@@ -248,6 +239,10 @@ final List<_MajorUsScheduleItem> _majorUsSchedules = [
   _MajorUsScheduleItem(
     title: 'CPI',
     date: DateTime(2026, 12, 10),
+  ),
+  _MajorUsScheduleItem(
+    title: 'FOMC Minutes',
+    date: DateTime(2026, 12, 31),
   ),
 ];
 
@@ -546,13 +541,10 @@ void _showMajorUsScheduleSheet(
               );
 
           Future<void> addSchedule() async {
+            final l10n = AppLocalizations.of(sheetContext)!;
             if (passwordController.text.trim() != _ownerAdminPassword) {
               ScaffoldMessenger.of(sheetContext).showSnackBar(
-                const SnackBar(
-                  content: Text(
-                    '\ube44\ubc00\ubc88\ud638\uac00 \ub9de\uc9c0 \uc54a\uc2b5\ub2c8\ub2e4.',
-                  ),
-                ),
+                SnackBar(content: Text(l10n.wrongPassword)),
               );
               return;
             }
@@ -561,11 +553,7 @@ void _showMajorUsScheduleSheet(
             final date = _parseMajorUsScheduleDate(addDateController.text);
             if (title.isEmpty || date == null) {
               ScaffoldMessenger.of(sheetContext).showSnackBar(
-                const SnackBar(
-                  content: Text(
-                    '\uc77c\uc815\uba85\uacfc \ub0a0\uc9dc\ub97c \ud655\uc778\ud574 \uc8fc\uc138\uc694.',
-                  ),
-                ),
+                SnackBar(content: Text(l10n.checkScheduleNameAndDate)),
               );
               return;
             }
@@ -581,9 +569,10 @@ void _showMajorUsScheduleSheet(
             onChanged?.call();
           }
 
+          final keyboardHeight = MediaQuery.viewInsetsOf(sheetContext).bottom;
           return Container(
-            constraints: const BoxConstraints(maxHeight: 520),
-            padding: const EdgeInsets.fromLTRB(18, 12, 18, 18),
+            constraints: BoxConstraints(maxHeight: 520 + keyboardHeight),
+            padding: EdgeInsets.fromLTRB(18, 12, 18, 18 + keyboardHeight),
             decoration: BoxDecoration(
               color: sheetBg,
               borderRadius:
@@ -607,7 +596,8 @@ void _showMajorUsScheduleSheet(
                     children: [
                       Expanded(
                         child: Text(
-                          '\ubbf8\uad6d \uc8fc\uc694\uc77c\uc815',
+                          AppLocalizations.of(sheetContext)!
+                              .usScheduleSheetTitle,
                           style: TextStyle(
                             color: primaryText,
                             fontSize: 18,
@@ -628,7 +618,7 @@ void _showMajorUsScheduleSheet(
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 28),
                       child: Text(
-                        '\ub0a8\uc740 \uc77c\uc815\uc774 \uc5c6\uc2b5\ub2c8\ub2e4.',
+                        AppLocalizations.of(sheetContext)!.noScheduleLeft,
                         style: TextStyle(
                           color: secondaryText,
                           fontSize: 14,
@@ -681,7 +671,8 @@ void _showMajorUsScheduleSheet(
                                   const SizedBox(width: 4),
                                   IconButton(
                                     visualDensity: VisualDensity.compact,
-                                    tooltip: '\uc77c\uc815 \uc218\uc815',
+                                    tooltip: AppLocalizations.of(sheetContext)!
+                                        .editSchedule,
                                     onPressed: () async {
                                       await _showMajorUsScheduleEditDialog(
                                         sheetContext,
@@ -708,19 +699,16 @@ void _showMajorUsScheduleSheet(
                   const SizedBox(height: 12),
                   Divider(height: 1, color: lineColor),
                   const SizedBox(height: 12),
+                  TextField(
+                    controller: addTitleController,
+                    style: TextStyle(color: primaryText, fontSize: 12),
+                    decoration: addInputDecoration(
+                        AppLocalizations.of(sheetContext)!.scheduleNameHint),
+                  ),
+                  const SizedBox(height: 8),
                   Row(
                     children: [
                       Expanded(
-                        flex: 3,
-                        child: TextField(
-                          controller: addTitleController,
-                          style: TextStyle(color: primaryText, fontSize: 12),
-                          decoration: addInputDecoration('\uc77c\uc815\uba85'),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        flex: 2,
                         child: TextField(
                           controller: addDateController,
                           keyboardType: TextInputType.datetime,
@@ -728,19 +716,14 @@ void _showMajorUsScheduleSheet(
                           decoration: addInputDecoration('YYYY-MM-DD'),
                         ),
                       ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
+                      const SizedBox(width: 8),
                       Expanded(
                         child: TextField(
                           controller: passwordController,
                           obscureText: true,
                           style: TextStyle(color: primaryText, fontSize: 12),
                           decoration: addInputDecoration(
-                            '\uad00\ub9ac\uc790 \ube44\ubc00\ubc88\ud638',
-                          ),
+                              AppLocalizations.of(sheetContext)!.adminPassword),
                           onSubmitted: (_) => addSchedule(),
                         ),
                       ),
@@ -750,9 +733,9 @@ void _showMajorUsScheduleSheet(
                         child: FilledButton.icon(
                           onPressed: addSchedule,
                           icon: const Icon(Icons.add_rounded, size: 18),
-                          label: const Text(
-                            '\uc77c\uc815 \ucd94\uac00',
-                            style: TextStyle(fontWeight: FontWeight.w800),
+                          label: Text(
+                            AppLocalizations.of(sheetContext)!.addSchedule,
+                            style: const TextStyle(fontWeight: FontWeight.w800),
                           ),
                         ),
                       ),
@@ -919,6 +902,13 @@ Future<AppUserIdentity> activateOwnerAdminIdentity() async {
   appUserIdentityNotifier.value = identity;
   await refreshAppUserAdminStatus(identity.uid);
   return identity;
+}
+
+Future<void> exitOwnerAdminMode() async {
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.remove(_appUserUidPrefsKey);
+  appUserAdminNotifier.value = false;
+  await ensureAnonymousUserIdentity();
 }
 
 Future<String> userScopedPrefsKey(String baseKey) async {
@@ -1616,6 +1606,81 @@ String alertTopicLanguageCode(String code) {
 
 String alertTopicForLanguage(String code) =>
     '${_announcementTopic}_${alertTopicLanguageCode(code)}';
+
+Future<void> syncHighAlertTopic(String languageCode,
+    {required bool enabled}) async {
+  if (kIsWeb) return;
+  final messaging = FirebaseMessaging.instance;
+  final langCode = alertTopicLanguageCode(languageCode);
+  for (final code in _alertTopicLanguages) {
+    final topic = 'highAlert_$code';
+    if (enabled && code == langCode) {
+      await messaging.subscribeToTopic(topic);
+    } else {
+      await messaging.unsubscribeFromTopic(topic);
+    }
+  }
+}
+
+Future<void> syncMarketOpenAlertTopic(String languageCode,
+    {required bool enabled}) async {
+  if (kIsWeb) return;
+  final messaging = FirebaseMessaging.instance;
+  final langCode = alertTopicLanguageCode(languageCode);
+  for (final code in _alertTopicLanguages) {
+    final topic = 'marketOpen_$code';
+    if (enabled && code == langCode) {
+      await messaging.subscribeToTopic(topic);
+    } else {
+      await messaging.unsubscribeFromTopic(topic);
+    }
+  }
+  // 구버전 토픽 해지
+  await messaging.unsubscribeFromTopic('marketOpen');
+}
+
+Future<void> syncLocalizedAlertTopicPrefix(
+  String topicPrefix,
+  String languageCode, {
+  required bool enabled,
+}) async {
+  if (kIsWeb) return;
+  final messaging = FirebaseMessaging.instance;
+  final langCode = alertTopicLanguageCode(languageCode);
+  for (final code in _alertTopicLanguages) {
+    final topic = '${topicPrefix}_$code';
+    if (enabled && code == langCode) {
+      await messaging.subscribeToTopic(topic);
+    } else {
+      await messaging.unsubscribeFromTopic(topic);
+    }
+  }
+}
+
+Future<void> syncStrategyAlertTopic(String languageCode,
+        {required bool enabled}) =>
+    syncLocalizedAlertTopicPrefix('strategyAlert', languageCode,
+        enabled: enabled);
+
+Future<void> syncFearGreedExtremeFearTopic(
+  String languageCode, {
+  required bool enabled,
+}) =>
+    syncLocalizedAlertTopicPrefix(
+      'fearGreedExtremeFear',
+      languageCode,
+      enabled: enabled,
+    );
+
+Future<void> syncFearGreedExtremeGreedTopic(
+  String languageCode, {
+  required bool enabled,
+}) =>
+    syncLocalizedAlertTopicPrefix(
+      'fearGreedExtremeGreed',
+      languageCode,
+      enabled: enabled,
+    );
 
 Future<void> syncAlertLanguageTopic(String languageCode) async {
   if (kIsWeb) return;
@@ -2444,99 +2509,252 @@ String _closeGuessSubmissionDate([DateTime? now]) {
 String localizedCoreAlertTitle(Locale locale) {
   switch (localeLanguageCode(locale)) {
     case 'ko':
-      return '커피 한 잔으로 개발 응원';
+      return '광고 삭제';
+    case 'ja':
+      return '広告を削除';
+    case 'es':
+      return 'Eliminar anuncios';
+    case 'pt':
+      return 'Remover anúncios';
+    case 'ru':
+      return 'Удалить рекламу';
+    case 'zh':
+      return '移除广告';
+    case 'zh_TW':
+      return '移除廣告';
+    case 'fr':
+      return 'Supprimer les publicités';
+    case 'de':
+      return 'Werbung entfernen';
     default:
-      return 'Support development with a coffee';
+      return 'Remove ads';
+  }
+}
+
+String localizedExitDialogMessage(Locale locale) {
+  switch (localeLanguageCode(locale)) {
+    case 'ko':
+      return '앱 사용 중 전면 광고가 최대 3시간에 1회 표시될 수 있습니다.\n광고 수익은 앱 운영과 기능 개선에 사용됩니다. 양해 부탁드립니다.\n\n성공적인 QLD 투자를 기원합니다.^^';
+    case 'ja':
+      return 'アプリの使用中、全画面広告が最大3時間に1回表示される場合があります。広告収益はアプリの運営と機能改善に使用されます。ご了承ください。\n\nQLD投資の成功をお祈りします。^^';
+    case 'es':
+      return 'Durante el uso de la aplicación, puede mostrarse un anuncio de pantalla completa como máximo una vez cada 3 horas. Los ingresos publicitarios se utilizan para mantener la aplicación y mejorar sus funciones. Rogamos su comprensión.\n\nLe deseamos mucho éxito en sus inversiones en QLD. ^^';
+    case 'pt':
+      return 'Durante o uso do aplicativo, um anúncio em tela cheia poderá ser exibido no máximo uma vez a cada 3 horas. A receita dos anúncios é usada para manter o aplicativo e melhorar seus recursos. Agradecemos a compreensão.\n\nDesejamos sucesso nos seus investimentos em QLD. ^^';
+    case 'ru':
+      return 'Во время использования приложения полноэкранная реклама может показываться не чаще одного раза в 3 часа. Доход от рекламы используется для поддержки приложения и улучшения его функций. Просим отнестись с пониманием.\n\nЖелаем вам успешных инвестиций в QLD. ^^';
+    case 'zh':
+      return '使用应用期间，最多每3小时可能显示一次全屏广告。广告收入将用于应用运营和功能改进，敬请谅解。\n\n祝您 QLD 投资成功。^^';
+    case 'zh_TW':
+      return '使用應用程式期間，最多每3小時可能顯示一次全螢幕廣告。廣告收益將用於應用程式營運與功能改進，敬請見諒。\n\n祝您 QLD 投資成功。^^';
+    case 'fr':
+      return 'Pendant l’utilisation de l’application, une publicité plein écran peut s’afficher au maximum une fois toutes les 3 heures. Les revenus publicitaires servent au fonctionnement de l’application et à l’amélioration de ses fonctionnalités. Merci de votre compréhension.\n\nNous vous souhaitons de réussir vos investissements dans QLD. ^^';
+    case 'de':
+      return 'Während der Nutzung der App kann höchstens einmal alle 3 Stunden eine Vollbildanzeige erscheinen. Die Werbeeinnahmen werden für den Betrieb der App und die Verbesserung ihrer Funktionen verwendet. Vielen Dank für Ihr Verständnis.\n\nWir wünschen Ihnen viel Erfolg bei Ihren QLD-Investitionen. ^^';
+    default:
+      return 'While using the app, a full-screen ad may be shown at most once every 3 hours. Ad revenue is used to operate the app and improve its features. Thank you for your understanding.\n\nWishing you successful QLD investing. ^^';
   }
 }
 
 String localizedCoreAlertSubtitle(Locale locale) {
   switch (localeLanguageCode(locale)) {
     case 'ko':
-      return '투자에 도움 되는 앱으로 계속 개선하겠습니다.';
+      return '한 번 결제하면 앱의 전면 광고와 배너 광고가 삭제됩니다.';
+    case 'ja':
+      return '一度購入すると、アプリの全画面広告とバナー広告が表示されなくなります。';
+    case 'es':
+      return 'Una compra elimina los anuncios de pantalla completa y los banners de la aplicación.';
+    case 'pt':
+      return 'Uma compra remove os anúncios em tela cheia e os banners do aplicativo.';
+    case 'ru':
+      return 'Одна покупка отключает полноэкранную и баннерную рекламу в приложении.';
+    case 'zh':
+      return '一次购买即可移除应用内的全屏广告和横幅广告。';
+    case 'zh_TW':
+      return '一次購買即可移除應用程式內的全螢幕廣告和橫幅廣告。';
+    case 'fr':
+      return 'Un achat supprime les publicités plein écran et les bannières de l’application.';
+    case 'de':
+      return 'Mit einem Kauf werden Vollbild- und Banneranzeigen in der App entfernt.';
     default:
-      return 'Help keep improving the app for investment decisions.';
+      return 'A one-time purchase removes full-screen and banner ads from the app.';
   }
 }
 
 String localizedCoreAlertLockedText(Locale locale) {
   switch (localeLanguageCode(locale)) {
     case 'ko':
-      return '개발 응원';
+      return '광고 삭제';
     default:
-      return 'Support';
+      return 'Remove ads';
   }
 }
 
 String localizedCoreAlertSupportedText(Locale locale) {
   switch (localeLanguageCode(locale)) {
     case 'ko':
-      return '응원 완료';
+      return '광고 삭제 완료';
     default:
-      return 'Supported';
+      return 'Ads removed';
   }
 }
 
 String localizedCoreAlertPurchaseButton(Locale locale) {
   switch (localeLanguageCode(locale)) {
     case 'ko':
-      return '커피 한 잔으로 응원하기';
+      return '광고 삭제하기';
+    case 'ja':
+      return '広告を削除';
+    case 'es':
+      return 'Eliminar anuncios';
+    case 'pt':
+      return 'Remover anúncios';
+    case 'ru':
+      return 'Удалить рекламу';
+    case 'zh':
+      return '移除广告';
+    case 'zh_TW':
+      return '移除廣告';
+    case 'fr':
+      return 'Supprimer les publicités';
+    case 'de':
+      return 'Werbung entfernen';
     default:
-      return 'Support with a coffee';
+      return 'Remove ads';
   }
 }
 
 String localizedCoreAlertLifetimeNote(Locale locale) {
   switch (localeLanguageCode(locale)) {
     case 'ko':
-      return '커피 한 잔 정도의 응원은 투자에 도움 되는 기능을 꾸준히 개발하는 데 사용됩니다.';
+      return '한 번 결제하면 앱의 전면 광고와 배너 광고가 삭제됩니다.';
+    case 'ja':
+      return '一度購入すると、アプリの全画面広告とバナー広告が表示されなくなります。';
+    case 'es':
+      return 'Una compra elimina los anuncios de pantalla completa y los banners de la aplicación.';
+    case 'pt':
+      return 'Uma compra remove os anúncios em tela cheia e os banners do aplicativo.';
+    case 'ru':
+      return 'Одна покупка отключает полноэкранную и баннерную рекламу в приложении.';
+    case 'zh':
+      return '一次购买即可移除应用内的全屏广告和横幅广告。';
+    case 'zh_TW':
+      return '一次購買即可移除應用程式內的全螢幕廣告和橫幅廣告。';
+    case 'fr':
+      return 'Un achat supprime les publicités plein écran et les bannières de l’application.';
+    case 'de':
+      return 'Mit einem Kauf werden Vollbild- und Banneranzeigen in der App entfernt.';
     default:
-      return 'A coffee-sized support helps fund steady development of investment-focused features.';
+      return 'A one-time purchase removes full-screen and banner ads from the app.';
   }
 }
 
 String localizedCoreAlertPaywallBody(Locale locale) {
   switch (localeLanguageCode(locale)) {
     case 'ko':
-      return 'QLD DIP ALERT는 가격 변동, 알림, 참고 지표를 더 보기 쉽고 안정적으로 제공해 투자 판단을 정리하는 데 도움이 되도록 개발하고 있습니다. 커피 한 잔 정도의 응원은 서버 운영, 기능 개선, 더 안정적인 알림과 화면 개선에 사용됩니다.';
+      return '광고 삭제를 구매하면 앱의 전면 광고와 배너 광고가 더 이상 나타나지 않습니다. 결제 금액은 앱 운영과 기능 개선에 사용됩니다.';
+    case 'ja':
+      return '広告削除を購入すると、アプリの全画面広告とバナー広告が表示されなくなります。購入金額はアプリの運営と機能改善に使用されます。';
+    case 'es':
+      return 'Al comprar la eliminación de anuncios, ya no se mostrarán anuncios de pantalla completa ni banners en la aplicación. El pago se utiliza para mantener la aplicación y mejorar sus funciones.';
+    case 'pt':
+      return 'Ao comprar a remoção de anúncios, anúncios em tela cheia e banners não serão mais exibidos no aplicativo. O pagamento é usado para manter o aplicativo e melhorar seus recursos.';
+    case 'ru':
+      return 'После покупки удаления рекламы полноэкранная и баннерная реклама больше не будет показываться в приложении. Платежи используются для поддержки приложения и улучшения его функций.';
+    case 'zh':
+      return '购买移除广告后，应用内将不再显示全屏广告和横幅广告。付款将用于应用运营和功能改进。';
+    case 'zh_TW':
+      return '購買移除廣告後，應用程式內將不再顯示全螢幕廣告和橫幅廣告。付款將用於應用程式營運與功能改進。';
+    case 'fr':
+      return 'Après l’achat de la suppression des publicités, aucune publicité plein écran ni bannière ne s’affichera dans l’application. Le paiement sert au fonctionnement de l’application et à l’amélioration de ses fonctionnalités.';
+    case 'de':
+      return 'Nach dem Kauf der Werbeentfernung werden in der App keine Vollbild- oder Banneranzeigen mehr angezeigt. Die Zahlung unterstützt den Betrieb und die Verbesserung der App.';
     default:
-      return 'QLD DIP ALERT is built to make price moves, alerts, and reference indicators clearer and more reliable for investment decisions. A coffee-sized support helps fund server costs, feature improvements, more reliable alerts, and a clearer app experience.';
+      return 'Purchasing ad removal prevents full-screen and banner ads from appearing in the app. Payment proceeds support app operation and feature improvements.';
   }
 }
 
 String localizedCoreAlertPurchaseUnavailable(Locale locale) {
   switch (localeLanguageCode(locale)) {
     case 'ko':
-      return '스토어 상품이 연결된 뒤 이용할 수 있습니다.';
+      return '광고 삭제 상품을 불러올 수 없습니다.';
     default:
-      return 'Available after the store product is connected.';
+      return 'The ad removal product is unavailable.';
   }
 }
 
 String localizedCoreAlertPurchasePending(Locale locale) {
   switch (localeLanguageCode(locale)) {
     case 'ko':
-      return '응원 결제를 진행하고 있습니다.';
+      return '광고 삭제 결제를 진행하고 있습니다.';
+    case 'ja':
+      return '広告削除の購入を処理しています。';
+    case 'es':
+      return 'La compra para eliminar anuncios está en curso.';
+    case 'pt':
+      return 'A compra para remover anúncios está em andamento.';
+    case 'ru':
+      return 'Обрабатывается покупка удаления рекламы.';
+    case 'zh':
+      return '正在处理移除广告的购买。';
+    case 'zh_TW':
+      return '正在處理移除廣告的購買。';
+    case 'fr':
+      return 'L’achat de suppression des publicités est en cours.';
+    case 'de':
+      return 'Der Kauf zum Entfernen der Werbung wird verarbeitet.';
     default:
-      return 'Support payment is in progress.';
+      return 'Ad removal purchase is in progress.';
   }
 }
 
 String localizedCoreAlertPurchaseComplete(Locale locale) {
   switch (localeLanguageCode(locale)) {
     case 'ko':
-      return '응원해주셔서 감사합니다. 투자에 도움 되는 기능을 꾸준히 개발하겠습니다.';
+      return '결제가 완료되었습니다. 전면 광고와 배너 광고가 삭제되었습니다.';
+    case 'ja':
+      return '購入が完了しました。全画面広告とバナー広告が削除されました。';
+    case 'es':
+      return 'Compra completada. Se eliminaron los anuncios de pantalla completa y los banners.';
+    case 'pt':
+      return 'Compra concluída. Os anúncios em tela cheia e os banners foram removidos.';
+    case 'ru':
+      return 'Покупка завершена. Полноэкранная и баннерная реклама отключена.';
+    case 'zh':
+      return '购买完成。全屏广告和横幅广告已移除。';
+    case 'zh_TW':
+      return '購買完成。全螢幕廣告和橫幅廣告已移除。';
+    case 'fr':
+      return 'Achat terminé. Les publicités plein écran et les bannières ont été supprimées.';
+    case 'de':
+      return 'Kauf abgeschlossen. Vollbild- und Banneranzeigen wurden entfernt.';
     default:
-      return 'Thank you for the support. I will keep improving investment-focused features.';
+      return 'Purchase complete. Full-screen and banner ads have been removed.';
   }
 }
 
 String localizedCoreAlertPurchaseFailed(Locale locale) {
   switch (localeLanguageCode(locale)) {
     case 'ko':
-      return '응원 결제를 완료하지 못했습니다.';
+      return '광고 삭제 결제를 완료하지 못했습니다.';
+    case 'ja':
+      return '広告削除の購入を完了できませんでした。';
+    case 'es':
+      return 'No se pudo completar la compra para eliminar anuncios.';
+    case 'pt':
+      return 'Não foi possível concluir a compra para remover anúncios.';
+    case 'ru':
+      return 'Не удалось завершить покупку удаления рекламы.';
+    case 'zh':
+      return '无法完成移除广告的购买。';
+    case 'zh_TW':
+      return '無法完成移除廣告的購買。';
+    case 'fr':
+      return 'L’achat de suppression des publicités n’a pas pu être terminé.';
+    case 'de':
+      return 'Der Kauf zum Entfernen der Werbung konnte nicht abgeschlossen werden.';
     default:
-      return 'Support payment could not be completed.';
+      return 'The ad removal purchase could not be completed.';
   }
 }
 
@@ -2545,25 +2763,25 @@ String localizedCoreAlertPurchaseLaunchFailed(Locale locale) {
     case 'ko':
       return '결제창을 열 수 없습니다. Google Play 계정과 결제 상품 설정을 확인해 주세요.';
     default:
-      return 'The purchase screen could not be opened. Check the Google Play account and product setup.';
+      return 'The ad removal purchase screen could not be opened. Check the Google Play account and product setup.';
   }
 }
 
 String localizedCoreAlertPurchaseCanceled(Locale locale) {
   switch (localeLanguageCode(locale)) {
     case 'ko':
-      return '응원 결제가 취소되었습니다.';
+      return '광고 삭제 결제가 취소되었습니다.';
     default:
-      return 'Support payment was canceled.';
+      return 'The ad removal purchase was canceled.';
   }
 }
 
 String localizedCoreAlertPurchaseVerificationFailed(Locale locale) {
   switch (localeLanguageCode(locale)) {
     case 'ko':
-      return '응원 결제 확인 중 문제가 생겼습니다. 잠시 후 다시 시도해 주세요.';
+      return '광고 삭제 결제 확인 중 문제가 생겼습니다. 잠시 후 다시 시도해 주세요.';
     default:
-      return 'There was a problem verifying the support payment. Please try again shortly.';
+      return 'There was a problem verifying the ad removal purchase. Please try again shortly.';
   }
 }
 
@@ -3447,11 +3665,6 @@ Future<bool> showLocalAlertNotification(
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  if (canRequestAds) {
-    await MobileAds.instance.initialize();
-    BottomBannerAdCache.instance.preload();
-  }
-
   if (!kIsWeb) {
     await Firebase.initializeApp();
     await ensureAnonymousUserIdentity();
@@ -3474,9 +3687,12 @@ class QLDAlertApp extends StatefulWidget {
   State<QLDAlertApp> createState() => _QLDAlertAppState();
 }
 
-class _QLDAlertAppState extends State<QLDAlertApp> {
+class _QLDAlertAppState extends State<QLDAlertApp> with WidgetsBindingObserver {
   Locale _locale = const Locale('en');
   bool _isWhiteMode = true;
+  Timer? _levelPlayInterstitialTimer;
+  bool _levelPlayInterstitialRequestBusy = false;
+  bool _appIsResumed = true;
 
   Locale _localeFromCode(String code) {
     final parts = code.split('_');
@@ -3491,8 +3707,139 @@ class _QLDAlertAppState extends State<QLDAlertApp> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    appUserAdminNotifier.addListener(_handleAdminAdModeChanged);
     loadSavedLanguage();
     loadSavedWhiteMode();
+    unawaited(_prepareExitMrec());
+    unawaited(_scheduleLevelPlayInterstitial(startup: true));
+  }
+
+  Future<void> _prepareExitMrec() async {
+    if (kIsWeb || defaultTargetPlatform != TargetPlatform.android) return;
+    final prefs = await SharedPreferences.getInstance();
+    if (prefs.getBool('coreAlertPurchased') == true ||
+        appUserAdminNotifier.value) {
+      return;
+    }
+    try {
+      await const MethodChannel('qld_alert/app_settings')
+          .invokeMethod<void>('preloadExitMrec');
+      debugPrint('[LevelPlay] Exit MREC preload requested');
+    } catch (error) {
+      debugPrint('[LevelPlay] Exit MREC preload request failed: $error');
+    }
+  }
+
+  @override
+  void dispose() {
+    _levelPlayInterstitialTimer?.cancel();
+    appUserAdminNotifier.removeListener(_handleAdminAdModeChanged);
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    _appIsResumed = state == AppLifecycleState.resumed;
+    if (_appIsResumed) {
+      unawaited(_scheduleLevelPlayInterstitial(startup: true));
+    } else {
+      _levelPlayInterstitialTimer?.cancel();
+    }
+  }
+
+  void _handleAdminAdModeChanged() {
+    if (appUserAdminNotifier.value) {
+      _levelPlayInterstitialTimer?.cancel();
+      unawaited(const MethodChannel('qld_alert/app_settings')
+          .invokeMethod<void>('destroyExitMrec'));
+      debugPrint('[LevelPlay] Admin mode: interstitial schedule paused');
+    } else {
+      unawaited(_prepareExitMrec());
+      unawaited(_scheduleLevelPlayInterstitial(startup: true));
+    }
+  }
+
+  Future<void> _scheduleLevelPlayInterstitial({bool startup = false}) async {
+    _levelPlayInterstitialTimer?.cancel();
+    if (kIsWeb ||
+        defaultTargetPlatform != TargetPlatform.android ||
+        !_appIsResumed ||
+        appUserAdminNotifier.value) {
+      return;
+    }
+
+    final prefs = await SharedPreferences.getInstance();
+    if (prefs.getBool('coreAlertPurchased') == true) {
+      debugPrint('[LevelPlay] Ad removal active: interstitial schedule skipped');
+      return;
+    }
+
+    final now = DateTime.now().millisecondsSinceEpoch;
+    final lastShownAt =
+        prefs.getInt(_levelPlayInterstitialShownAtPrefsKey) ?? 0;
+    final remainingMs = lastShownAt <= 0
+        ? 0
+        : _levelPlayInterstitialCooldown.inMilliseconds - (now - lastShownAt);
+    final minimumDelay =
+        startup ? _levelPlayInterstitialStartupDelay : Duration.zero;
+    final cooldownDelay = Duration(milliseconds: math.max(0, remainingMs));
+    final delay = cooldownDelay > minimumDelay ? cooldownDelay : minimumDelay;
+
+    debugPrint('[LevelPlay] Interstitial scheduled after ${delay.inSeconds}s');
+    _levelPlayInterstitialTimer =
+        Timer(delay, _requestScheduledLevelPlayInterstitial);
+  }
+
+  Future<void> _requestScheduledLevelPlayInterstitial() async {
+    if (_levelPlayInterstitialRequestBusy ||
+        !_appIsResumed ||
+        appUserAdminNotifier.value) {
+      return;
+    }
+    final prefs = await SharedPreferences.getInstance();
+    if (prefs.getBool('coreAlertPurchased') == true) return;
+
+    final now = DateTime.now().millisecondsSinceEpoch;
+    final lastShownAt =
+        prefs.getInt(_levelPlayInterstitialShownAtPrefsKey) ?? 0;
+    if (lastShownAt > 0 &&
+        now - lastShownAt < _levelPlayInterstitialCooldown.inMilliseconds) {
+      await _scheduleLevelPlayInterstitial();
+      return;
+    }
+
+    _levelPlayInterstitialRequestBusy = true;
+    try {
+      debugPrint('[LevelPlay] Scheduled interstitial request');
+      final shown = await _appSettingsChannel
+          .invokeMethod<bool>('showInterstitial')
+          .timeout(_levelPlayInterstitialRetryDelay, onTimeout: () => false);
+      if (shown == true) {
+        await prefs.setInt(
+          _levelPlayInterstitialShownAtPrefsKey,
+          DateTime.now().millisecondsSinceEpoch,
+        );
+        debugPrint('[LevelPlay] Scheduled interstitial shown');
+        await _scheduleLevelPlayInterstitial();
+      } else {
+        debugPrint(
+            '[LevelPlay] Scheduled interstitial unavailable; retry in 60s');
+        _levelPlayInterstitialTimer = Timer(
+          _levelPlayInterstitialRetryDelay,
+          _requestScheduledLevelPlayInterstitial,
+        );
+      }
+    } catch (error) {
+      debugPrint('[LevelPlay] Scheduled interstitial failed: $error');
+      _levelPlayInterstitialTimer = Timer(
+        _levelPlayInterstitialRetryDelay,
+        _requestScheduledLevelPlayInterstitial,
+      );
+    } finally {
+      _levelPlayInterstitialRequestBusy = false;
+    }
   }
 
   Future<void> loadSavedLanguage() async {
@@ -3522,6 +3869,17 @@ class _QLDAlertAppState extends State<QLDAlertApp> {
       _locale = _localeFromCode(code);
     });
     await syncAlertLanguageTopicSafely(code);
+    final marketOpenEnabled = prefs.getBool('marketOpenAlertEnabled') ?? true;
+    final strategyEnabled = prefs.getBool('strategyAlertEnabled') ?? true;
+    final extremeFearEnabled =
+        prefs.getBool('fearGreedExtremeFearAlertEnabled') ?? true;
+    final extremeGreedEnabled =
+        prefs.getBool('fearGreedExtremeGreedAlertEnabled') ?? true;
+    unawaited(syncMarketOpenAlertTopic(code, enabled: marketOpenEnabled));
+    unawaited(syncStrategyAlertTopic(code, enabled: strategyEnabled));
+    unawaited(syncFearGreedExtremeFearTopic(code, enabled: extremeFearEnabled));
+    unawaited(
+        syncFearGreedExtremeGreedTopic(code, enabled: extremeGreedEnabled));
   }
 
   Future<void> loadSavedWhiteMode() async {
@@ -4061,7 +4419,6 @@ Future<FearGreedData> fetchFearGreedData() async {
 }
 
 const _appBg = Color(0xFF07111D);
-const _cardBg = Color(0xF20E1A29);
 const _cardLine = Color(0xFF26364A);
 const _darkSurface = Color(0xF2111D2D);
 const _darkSurfaceSoft = Color(0xFF0D1826);
@@ -4202,6 +4559,27 @@ Widget buildLanguageMenuButton(
   );
 }
 
+/// Unified card style for home dashboard sections so every card shares the
+/// same radius, border, shadow and background.
+BoxDecoration homeCardDecoration(bool whiteMode, {double radius = 16}) {
+  return BoxDecoration(
+    color: whiteMode ? Colors.white : const Color(0xFF0D1926),
+    borderRadius: BorderRadius.circular(radius),
+    border: Border.all(
+      color: whiteMode ? const Color(0xFFE7ECF3) : const Color(0xFF1A2F42),
+    ),
+    boxShadow: [
+      BoxShadow(
+        color: whiteMode
+            ? Colors.black.withValues(alpha: 0.04)
+            : Colors.black.withValues(alpha: 0.20),
+        blurRadius: 12,
+        offset: const Offset(0, 3),
+      ),
+    ],
+  );
+}
+
 Widget buildWhiteModeButton(
   BuildContext context, {
   double iconSize = 22,
@@ -4259,6 +4637,7 @@ class _HomePageState extends State<HomePage>
   final closeGuessMessageController = TextEditingController();
   final homeScrollController = ScrollController();
   final _sheetController = DraggableScrollableController();
+  final _homeScaffoldKey = GlobalKey<ScaffoldState>();
 
   bool showPortfolioInput = false;
   bool showCloseGuessInput = false;
@@ -4287,15 +4666,14 @@ class _HomePageState extends State<HomePage>
   List<QldMiniCandle> qldMiniCandles = [];
   FearGreedData? homeFearGreedData;
 
-  late AnimationController _blinkController;
-  late Animation<double> _blinkAnimation;
-
   Timer? priceTimer;
   Timer? priceRefreshCountdownTimer;
   Timer? yahooHistoryTimer;
   Timer? nasdaq200Timer;
   Timer? fearGreedTimer;
   Timer? quoteStreamReconnectTimer;
+  Timer? _boxBlinkTimer;
+  bool _boxBlinkVisible = true;
   WebSocketChannel? quoteStreamChannel;
   StreamSubscription<dynamic>? quoteStreamSubscription;
   StreamSubscription<List<PurchaseDetails>>? coreAlertPurchaseSubscription;
@@ -4494,15 +4872,6 @@ class _HomePageState extends State<HomePage>
     return kst.hour >= startHour;
   }
 
-  bool _isUsMarketOpenDayForFuturesFromUtc(DateTime utcNow) {
-    final baselineDate = _kstFuturesBaselineDate(utcNow);
-    final parts = baselineDate.split('-').map(int.parse).toList();
-    final day = DateTime.utc(parts[0], parts[1], parts[2]);
-    final isWeekday =
-        day.weekday >= DateTime.monday && day.weekday <= DateTime.friday;
-    return isWeekday && !_isUsMarketClosedDate(baselineDate);
-  }
-
   bool _isUsTechFuturesSessionFromUtc(DateTime utcNow) {
     final ny = _toNewYorkTime(utcNow.toUtc());
     final minutes = ny.hour * 60 + ny.minute;
@@ -4616,8 +4985,6 @@ class _HomePageState extends State<HomePage>
   bool fearGreedExtremeGreedAlertEnabled = true;
   bool announcementAlertEnabled = true;
   bool exitDialogOpen = false;
-  BannerAd? _exitDialogBannerAd;
-  bool _exitDialogBannerAdLoaded = false;
   int nasdaq200State = 0;
   int portfolioCashState = 0;
   int fearGreedState = 0;
@@ -4628,24 +4995,12 @@ class _HomePageState extends State<HomePage>
   bool quoteStreamConnected = false;
   bool isApplyingStreamQuote = false;
   int lastAppliedQuoteTimestamp = 0;
-  bool showContentWidgetButton = true;
-  Timer? contentWidgetHideTimer;
-  double contentWidgetButtonX = -1;
-  double contentWidgetButtonY = -1;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _activeHomeScrollController = homeScrollController;
-    homeScrollController.addListener(showContentWidgetButtonTemporarily);
-    contentWidgetHideTimer = Timer(const Duration(seconds: 5), () {
-      if (!mounted) return;
-      setState(() {
-        showContentWidgetButton = false;
-      });
-    });
-    _preloadExitDialogBannerAd();
     _loadSavedMajorUsSchedules().then((_) {
       if (mounted) setState(() {});
     });
@@ -4707,11 +5062,15 @@ class _HomePageState extends State<HomePage>
             link: item.link,
           ),
         );
-        appNavigatorKey.currentState?.push(
-          MaterialPageRoute(
-            builder: (_) => AlertDetailPage(item: item),
-          ),
-        );
+        if (item.type == 'inquiryReply' || item.type == 'inquiryNew') {
+          appNavigatorKey.currentState?.push(
+            MaterialPageRoute(builder: (_) => const InquiryPage()),
+          );
+        } else {
+          appNavigatorKey.currentState?.push(
+            MaterialPageRoute(builder: (_) => AlertDetailPage(item: item)),
+          );
+        }
       });
 
       FirebaseMessaging.instance.getInitialMessage().then((message) async {
@@ -4731,23 +5090,21 @@ class _HomePageState extends State<HomePage>
             link: item.link,
           ),
         );
-        appNavigatorKey.currentState?.push(
-          MaterialPageRoute(
-            builder: (_) => AlertDetailPage(item: item),
-          ),
-        );
+        if (item.type == 'inquiryReply' || item.type == 'inquiryNew') {
+          appNavigatorKey.currentState?.push(
+            MaterialPageRoute(builder: (_) => const InquiryPage()),
+          );
+        } else {
+          appNavigatorKey.currentState?.push(
+            MaterialPageRoute(builder: (_) => AlertDetailPage(item: item)),
+          );
+        }
       });
     }
 
-    _blinkController = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 5),
-    )..repeat(reverse: true);
-
-    _blinkAnimation = Tween<double>(
-      begin: 0.4,
-      end: 1.0,
-    ).animate(_blinkController);
+    _boxBlinkTimer = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (mounted) setState(() => _boxBlinkVisible = !_boxBlinkVisible);
+    });
 
     strategyProgressReady = loadStrategyProgress();
     loadPortfolio();
@@ -5441,6 +5798,24 @@ class _HomePageState extends State<HomePage>
       qldProfitTargetState = prefs.getInt('qldProfitTargetState') ?? 0;
       tqqqProfitTargetState = prefs.getInt('tqqqProfitTargetState') ?? 0;
     });
+
+    final marketOpenEnabled = prefs.getBool('marketOpenAlertEnabled') ?? true;
+    final highEnabled = prefs.getBool('highAlertEnabled') ?? true;
+    final strategyEnabled = prefs.getBool('strategyAlertEnabled') ?? true;
+    final extremeFearEnabled =
+        prefs.getBool('fearGreedExtremeFearAlertEnabled') ?? true;
+    final extremeGreedEnabled =
+        prefs.getBool('fearGreedExtremeGreedAlertEnabled') ?? true;
+    final langCode = await savedLanguageCode();
+    unawaited(syncMarketOpenAlertTopic(langCode, enabled: marketOpenEnabled));
+    unawaited(syncHighAlertTopic(langCode, enabled: highEnabled));
+    unawaited(syncStrategyAlertTopic(langCode, enabled: strategyEnabled));
+    unawaited(
+      syncFearGreedExtremeFearTopic(langCode, enabled: extremeFearEnabled),
+    );
+    unawaited(
+      syncFearGreedExtremeGreedTopic(langCode, enabled: extremeGreedEnabled),
+    );
   }
 
   Future<void> loadStrategyProgress() async {
@@ -5527,35 +5902,6 @@ class _HomePageState extends State<HomePage>
 
     fearGreedState = nextState;
     await prefs.setInt('fearGreedState', nextState);
-
-    if (nextState == 0 || !mounted) return;
-
-    final l10n = AppLocalizations.of(context)!;
-    final score = data.score.toStringAsFixed(0);
-    final extremeFearEnabled =
-        prefs.getBool('fearGreedExtremeFearAlertEnabled') ??
-            fearGreedExtremeFearAlertEnabled;
-    final extremeGreedEnabled =
-        prefs.getBool('fearGreedExtremeGreedAlertEnabled') ??
-            fearGreedExtremeGreedAlertEnabled;
-
-    if (nextState < 0 && extremeFearEnabled) {
-      showAndSaveAlert(
-        '${l10n.fearGreedTitle}: ${l10n.fearGreedExtremeFear} $score',
-        Colors.redAccent,
-        'fearGreedExtremeFear',
-        detail: l10n.fearGreedUseBody,
-      );
-    }
-
-    if (nextState > 0 && extremeGreedEnabled) {
-      showAndSaveAlert(
-        '${l10n.fearGreedTitle}: ${l10n.fearGreedExtremeGreed} $score',
-        Colors.green,
-        'fearGreedExtremeGreed',
-        detail: l10n.fearGreedUseBody,
-      );
-    }
   }
 
   Future<void> saveAlertSetting(
@@ -6460,249 +6806,6 @@ class _HomePageState extends State<HomePage>
     );
   }
 
-  void showAlertTestSheet() {
-    final whiteMode = isWhiteModeEnabled(context);
-    final sheetBg = whiteMode ? _lightAppBg : const Color(0xFF0D1724);
-    final primaryText = whiteMode ? _lightText : Colors.white;
-    final accent = whiteMode ? _lightCyan : _cyan;
-
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: sheetBg,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (sheetContext) {
-        final l10n = AppLocalizations.of(sheetContext)!;
-        final locale = Localizations.localeOf(sheetContext);
-
-        void runTest({
-          required String title,
-          required String type,
-          String? detail,
-        }) {
-          Navigator.pop(sheetContext);
-          sendTestAlertNotification(
-            title: title,
-            type: type,
-            detail: detail,
-          );
-        }
-
-        return SafeArea(
-          top: false,
-          child: DraggableScrollableSheet(
-            expand: false,
-            initialChildSize: 0.72,
-            minChildSize: 0.42,
-            maxChildSize: 0.92,
-            builder: (context, scrollController) {
-              return SingleChildScrollView(
-                controller: scrollController,
-                padding: const EdgeInsets.fromLTRB(18, 16, 18, 18),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.notifications_active_rounded,
-                          color: accent,
-                          size: 20,
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          l10n.alertTestTitle,
-                          style: TextStyle(
-                            color: primaryText,
-                            fontSize: 17,
-                            fontWeight: FontWeight.w600,
-                            letterSpacing: 0.8,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    buildLocalizedNotificationPermissionHelpCard(),
-                    buildAlertTestTile(
-                      icon: Icons.trending_up_rounded,
-                      title: l10n.alertHighTitle,
-                      subtitle: l10n.alertHighSubtitle,
-                      color: Colors.lightGreenAccent,
-                      onTap: () => runTest(
-                        title: l10n.alertNewHigh,
-                        type: 'high',
-                      ),
-                    ),
-                    buildAlertTestTile(
-                      icon: Icons.schedule_rounded,
-                      title: l10n.alertMarketOpenTitle,
-                      subtitle: l10n.alertMarketOpenSubtitle,
-                      color: _blue,
-                      onTap: () => runTest(
-                        title: l10n.alertMarketOpen,
-                        type: 'marketOpen',
-                      ),
-                    ),
-                    buildAlertTestTile(
-                      icon: Icons.rule_rounded,
-                      title: l10n.minus20Headline,
-                      subtitle: l10n.alertStrategySettingTitle,
-                      color: Colors.green,
-                      onTap: () => runTest(
-                        title: l10n.minus20Headline,
-                        type: 'minus20',
-                      ),
-                    ),
-                    buildAlertTestTile(
-                      icon: Icons.shopping_cart_checkout_rounded,
-                      title: l10n.minus30Headline,
-                      subtitle: l10n.alertStrategySettingTitle,
-                      color: Colors.orange,
-                      onTap: () => runTest(
-                        title: l10n.minus30Headline,
-                        type: 'minus30',
-                      ),
-                    ),
-                    buildAlertTestTile(
-                      icon: Icons.warning_amber_rounded,
-                      title: l10n.minus40Headline,
-                      subtitle: l10n.alertStrategySettingTitle,
-                      color: Colors.redAccent,
-                      onTap: () => runTest(
-                        title: l10n.minus40Headline,
-                        type: 'minus40',
-                      ),
-                    ),
-                    buildAlertTestTile(
-                      icon: Icons.bolt_rounded,
-                      title: l10n.minus50Headline,
-                      subtitle: l10n.alertStrategySettingTitle,
-                      color: Colors.purpleAccent,
-                      onTap: () => runTest(
-                        title: l10n.minus50Headline,
-                        type: 'minus50',
-                      ),
-                    ),
-                    buildAlertTestTile(
-                      icon: Icons.show_chart_rounded,
-                      title: l10n.alertNasdaq200Breakdown,
-                      subtitle: l10n.alertNasdaq200Title,
-                      color: Colors.redAccent,
-                      onTap: () => runTest(
-                        title: l10n.alertNasdaq200Breakdown,
-                        type: 'nasdaq200Breakdown',
-                      ),
-                    ),
-                    buildAlertTestTile(
-                      icon: Icons.show_chart_rounded,
-                      title: l10n.alertNasdaq200Breakout,
-                      subtitle: l10n.alertNasdaq200Title,
-                      color: _cyan,
-                      onTap: () => runTest(
-                        title: l10n.alertNasdaq200Breakout,
-                        type: 'nasdaq200Breakout',
-                      ),
-                    ),
-                    buildAlertTestTile(
-                      icon: Icons.arrow_upward_rounded,
-                      title: localizedQldMoveUpAlert(locale, 4),
-                      subtitle: localizedSimpleQldMoveAlertTitle(locale),
-                      color: _cyan,
-                      onTap: () => runTest(
-                        title: localizedQldMoveUpAlert(locale, 4),
-                        type: 'qldMoveUp4',
-                        detail: localizedSimpleQldMoveAlertDetail(locale),
-                      ),
-                    ),
-                    buildAlertTestTile(
-                      icon: Icons.arrow_downward_rounded,
-                      title: localizedQldMoveDownAlert(locale, -4),
-                      subtitle: localizedSimpleQldMoveAlertTitle(locale),
-                      color: Colors.redAccent,
-                      onTap: () => runTest(
-                        title: localizedQldMoveDownAlert(locale, -4),
-                        type: 'qldMoveDown4',
-                        detail: localizedSimpleQldMoveAlertDetail(locale),
-                      ),
-                    ),
-                    buildAlertTestTile(
-                      icon: Icons.account_balance_wallet_outlined,
-                      title: l10n.alertPortfolioCashLow,
-                      subtitle: l10n.alertPortfolioCashTitle,
-                      color: Colors.redAccent,
-                      onTap: () => runTest(
-                        title: l10n.alertPortfolioCashLow,
-                        type: 'portfolioCashLow',
-                      ),
-                    ),
-                    buildAlertTestTile(
-                      icon: Icons.account_balance_wallet_outlined,
-                      title: l10n.alertPortfolioCashHigh,
-                      subtitle: l10n.alertPortfolioCashTitle,
-                      color: _cyan,
-                      onTap: () => runTest(
-                        title: l10n.alertPortfolioCashHigh,
-                        type: 'portfolioCashHigh',
-                      ),
-                    ),
-                    buildAlertTestTile(
-                      icon: Icons.sentiment_very_dissatisfied_rounded,
-                      title: l10n.fearGreedExtremeFear,
-                      subtitle: l10n.fearGreedTitle,
-                      color: Colors.redAccent,
-                      onTap: () => runTest(
-                        title:
-                            '${l10n.fearGreedTitle}: ${l10n.fearGreedExtremeFear}',
-                        type: 'fearGreedExtremeFear',
-                        detail: l10n.fearGreedUseBody,
-                      ),
-                    ),
-                    buildAlertTestTile(
-                      icon: Icons.sentiment_very_satisfied_rounded,
-                      title: l10n.fearGreedExtremeGreed,
-                      subtitle: l10n.fearGreedTitle,
-                      color: Colors.green,
-                      onTap: () => runTest(
-                        title:
-                            '${l10n.fearGreedTitle}: ${l10n.fearGreedExtremeGreed}',
-                        type: 'fearGreedExtremeGreed',
-                        detail: l10n.fearGreedUseBody,
-                      ),
-                    ),
-                    buildAlertTestTile(
-                      icon: Icons.emoji_events_outlined,
-                      title: localizedProfitTargetSettingTitle(locale),
-                      subtitle: localizedProfitTargetSettingSubtitle(locale),
-                      color: Colors.lightGreenAccent,
-                      onTap: () => runTest(
-                        title: localizedProfitTargetSettingTitle(locale),
-                        type: 'profitTargetQld50',
-                        detail: localizedProfitTargetDetail(locale, 'QLD', 50),
-                      ),
-                    ),
-                    buildAlertTestTile(
-                      icon: Icons.campaign_outlined,
-                      title: l10n.alertAnnouncementTitle,
-                      subtitle: l10n.alertAnnouncementSubtitle,
-                      color: Colors.amberAccent,
-                      onTap: () => runTest(
-                        title: l10n.alertAnnouncementTitle,
-                        type: _announcementAlertType,
-                        detail: l10n.alertAnnouncementSubtitle,
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            },
-          ),
-        );
-      },
-    );
-  }
-
   Widget buildAlertSettingTile({
     required IconData icon,
     required String title,
@@ -7047,6 +7150,271 @@ class _HomePageState extends State<HomePage>
     );
   }
 
+  Widget _buildSettingsDrawer(BuildContext context) {
+    final whiteMode = isWhiteModeEnabled(context);
+    final l10n = AppLocalizations.of(context)!;
+    final drawerBg = whiteMode ? _lightAppBg : const Color(0xFF0D1724);
+    final primaryText = whiteMode ? _lightText : Colors.white;
+    final secondaryText = whiteMode ? _lightMuted : Colors.white60;
+    final accent = whiteMode ? _lightBlue : _cyan;
+    final lineColor =
+        whiteMode ? _lightLine : Colors.white.withValues(alpha: 0.08);
+
+    final locale = Localizations.localeOf(context);
+    final currentLang =
+        locale.languageCode == 'zh' && locale.countryCode == 'TW'
+            ? 'zh_TW'
+            : locale.languageCode;
+    const languages = <List<String>>[
+      ['en', 'English'],
+      ['ko', '한국어'],
+      ['ja', '日本語'],
+      ['es', 'Español'],
+      ['pt', 'Português'],
+      ['ru', 'Русский'],
+      ['zh', '简体中文'],
+      ['zh_TW', '繁體中文'],
+      ['fr', 'Français'],
+      ['de', 'Deutsch'],
+    ];
+
+    Widget menuTile({
+      required IconData icon,
+      required String label,
+      required VoidCallback onTap,
+      WidgetBuilder? pageBuilder,
+    }) {
+      return Builder(
+        builder: (tileContext) => ListTile(
+          leading: Icon(icon, color: accent, size: 20),
+          title: Text(
+            label,
+            style: TextStyle(
+              color: primaryText,
+              fontSize: 13.5,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          trailing: Icon(
+            Icons.chevron_right_rounded,
+            color: secondaryText,
+            size: 18,
+          ),
+          onTap: () {
+            final rootNavigator = Navigator.of(
+              tileContext,
+              rootNavigator: true,
+            );
+            Navigator.of(tileContext).pop();
+            if (pageBuilder != null) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (rootNavigator.mounted) {
+                  rootNavigator.push(
+                    MaterialPageRoute(builder: pageBuilder),
+                  );
+                }
+              });
+            } else {
+              onTap();
+            }
+          },
+        ),
+      );
+    }
+
+    void closeDrawerThenAction(VoidCallback action) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) action();
+      });
+    }
+
+    return Drawer(
+      backgroundColor: drawerBg,
+      child: SafeArea(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 20, 20, 14),
+              child: Row(
+                children: [
+                  Icon(Icons.tune_rounded, color: accent, size: 18),
+                  const SizedBox(width: 10),
+                  Text(
+                    'QLD DIP ALERT',
+                    style: TextStyle(
+                      color: primaryText,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Divider(color: lineColor, height: 1),
+            menuTile(
+              icon: Icons.notifications_active_rounded,
+              label: l10n.alertSettingsTitle,
+              onTap: showAlertSettingsSheet,
+            ),
+            Divider(color: lineColor, height: 1),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+              child: Row(
+                children: [
+                  Icon(Icons.brightness_6_rounded, color: accent, size: 20),
+                  const SizedBox(width: 14),
+                  Text(
+                    l10n.menuThemeTitle,
+                    style: TextStyle(
+                      color: primaryText,
+                      fontSize: 13.5,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  const Spacer(),
+                  _themeOption(
+                    icon: Icons.light_mode_rounded,
+                    label: l10n.menuThemeLight,
+                    selected: whiteMode,
+                    onTap: () =>
+                        _qldAlertAppKey.currentState?.changeWhiteMode(true),
+                  ),
+                  const SizedBox(width: 6),
+                  _themeOption(
+                    icon: Icons.dark_mode_rounded,
+                    label: l10n.menuThemeDark,
+                    selected: !whiteMode,
+                    onTap: () =>
+                        _qldAlertAppKey.currentState?.changeWhiteMode(false),
+                  ),
+                ],
+              ),
+            ),
+            Divider(color: lineColor, height: 1),
+            Theme(
+              data:
+                  Theme.of(context).copyWith(dividerColor: Colors.transparent),
+              child: ExpansionTile(
+                leading: Icon(Icons.language_rounded, color: accent, size: 20),
+                title: Text(
+                  l10n.menuLanguageTitle,
+                  style: TextStyle(
+                    color: primaryText,
+                    fontSize: 13.5,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                iconColor: accent,
+                collapsedIconColor: secondaryText,
+                childrenPadding: const EdgeInsets.only(bottom: 6),
+                children: [
+                  for (final lang in languages)
+                    ListTile(
+                      dense: true,
+                      contentPadding:
+                          const EdgeInsets.symmetric(horizontal: 20),
+                      title: Text(
+                        lang[1],
+                        style: TextStyle(
+                          color:
+                              lang[0] == currentLang ? accent : secondaryText,
+                          fontSize: 12.5,
+                          fontWeight: lang[0] == currentLang
+                              ? FontWeight.w800
+                              : FontWeight.w600,
+                        ),
+                      ),
+                      trailing: lang[0] == currentLang
+                          ? Icon(Icons.check_rounded, color: accent, size: 16)
+                          : null,
+                      onTap: () {
+                        Navigator.pop(context);
+                        _qldAlertAppKey.currentState?.changeLanguage(lang[0]);
+                      },
+                    ),
+                ],
+              ),
+            ),
+            Divider(color: lineColor, height: 1),
+            menuTile(
+              icon: Icons.menu_book_rounded,
+              label: l10n.contentTitle,
+              onTap: () {},
+              pageBuilder: (_) => const ContentListPage(),
+            ),
+            Divider(color: lineColor, height: 1),
+            menuTile(
+              icon: Icons.forum_rounded,
+              label: l10n.contentInquiry,
+              onTap: () {},
+              pageBuilder: (_) => const InquiryPage(),
+            ),
+            Divider(color: lineColor, height: 1),
+            menuTile(
+              icon: Icons.help_outline_rounded,
+              label: l10n.usageGuideTitle,
+              onTap: () {},
+              pageBuilder: (_) => UsageGuidePage(l10n: l10n),
+            ),
+            Divider(color: lineColor, height: 1),
+            menuTile(
+              icon: Icons.shopping_cart_checkout_rounded,
+              label: localizedCoreAlertPurchaseButton(locale),
+              onTap: showCoreAlertPaywallSheet,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _themeOption({
+    required IconData icon,
+    required String label,
+    required bool selected,
+    required VoidCallback onTap,
+  }) {
+    final whiteMode = isWhiteModeEnabled(context);
+    final accent = whiteMode ? _lightBlue : _cyan;
+    final inactiveText = whiteMode ? _lightMuted : Colors.white60;
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(10),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 7),
+        decoration: BoxDecoration(
+          color: selected
+              ? accent.withValues(alpha: whiteMode ? 0.12 : 0.18)
+              : Colors.transparent,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(
+            color: selected
+                ? accent.withValues(alpha: 0.55)
+                : (whiteMode
+                    ? _lightLine
+                    : Colors.white.withValues(alpha: 0.14)),
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 13, color: selected ? accent : inactiveText),
+            const SizedBox(width: 4),
+            Text(
+              label,
+              style: TextStyle(
+                color: selected ? accent : inactiveText,
+                fontSize: 10.5,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   void showAlertSettingsSheet() {
     final whiteMode = isWhiteModeEnabled(context);
     final sheetBg = whiteMode ? _lightAppBg : const Color(0xFF0D1724);
@@ -7078,24 +7446,6 @@ class _HomePageState extends State<HomePage>
 
               setSheetState(() {});
               saveAlertSetting(key, value);
-            }
-
-            void updateCoreAlertSetting(bool value) {
-              final languageTag =
-                  Localizations.localeOf(context).toLanguageTag();
-              setState(() {
-                coreAlertEnabled = value;
-              });
-
-              coreAlertPurchaseRevision.value++;
-              setSheetState(() {});
-              unawaited(
-                saveAlertSetting('coreAlertEnabled', value).then(
-                  (_) => syncAlertLanguageTopicSafely(
-                    languageTag,
-                  ),
-                ),
-              );
             }
 
             return SafeArea(
@@ -7137,6 +7487,7 @@ class _HomePageState extends State<HomePage>
                           ],
                         ),
                         const SizedBox(height: 12),
+                        buildLocalizedNotificationPermissionHelpCard(),
                         buildAlertSettingTile(
                           icon: Icons.trending_up_rounded,
                           title: l10n.alertHighTitle,
@@ -7147,6 +7498,10 @@ class _HomePageState extends State<HomePage>
                               'highAlertEnabled',
                               value,
                               (next) => highAlertEnabled = next,
+                            );
+                            syncHighAlertTopic(
+                              Localizations.localeOf(context).toLanguageTag(),
+                              enabled: value,
                             );
                           },
                         ),
@@ -7161,6 +7516,10 @@ class _HomePageState extends State<HomePage>
                               value,
                               (next) => marketOpenAlertEnabled = next,
                             );
+                            syncMarketOpenAlertTopic(
+                              Localizations.localeOf(context).toLanguageTag(),
+                              enabled: value,
+                            );
                           },
                         ),
                         buildAlertSettingTile(
@@ -7174,35 +7533,9 @@ class _HomePageState extends State<HomePage>
                               value,
                               (next) => strategyAlertEnabled = next,
                             );
-                          },
-                        ),
-                        buildAlertSettingTile(
-                          icon: Icons.show_chart_rounded,
-                          title: l10n.alertNasdaq200Title,
-                          subtitle: l10n.alertNasdaq200Subtitle,
-                          value: nasdaq200AlertEnabled,
-                          onChanged: (value) {
-                            updateSetting(
-                              'nasdaq200AlertEnabled',
-                              value,
-                              (next) => nasdaq200AlertEnabled = next,
-                            );
-                          },
-                        ),
-                        buildAlertSettingTile(
-                          icon: Icons.swap_vert_rounded,
-                          title: localizedSimpleQldMoveAlertTitle(
-                            Localizations.localeOf(context),
-                          ),
-                          subtitle: localizedSimpleQldMoveAlertSubtitle(
-                            Localizations.localeOf(context),
-                          ),
-                          value: qldMoveAlertEnabled,
-                          onChanged: (value) {
-                            updateSetting(
-                              'qldMoveAlertEnabled',
-                              value,
-                              (next) => qldMoveAlertEnabled = next,
+                            syncStrategyAlertTopic(
+                              Localizations.localeOf(context).toLanguageTag(),
+                              enabled: value,
                             );
                           },
                         ),
@@ -7230,6 +7563,10 @@ class _HomePageState extends State<HomePage>
                               value,
                               (next) => fearGreedExtremeFearAlertEnabled = next,
                             );
+                            syncFearGreedExtremeFearTopic(
+                              Localizations.localeOf(context).toLanguageTag(),
+                              enabled: value,
+                            );
                           },
                         ),
                         buildAlertSettingTile(
@@ -7243,6 +7580,10 @@ class _HomePageState extends State<HomePage>
                               value,
                               (next) =>
                                   fearGreedExtremeGreedAlertEnabled = next,
+                            );
+                            syncFearGreedExtremeGreedTopic(
+                              Localizations.localeOf(context).toLanguageTag(),
+                              enabled: value,
                             );
                           },
                         ),
@@ -7273,47 +7614,6 @@ class _HomePageState extends State<HomePage>
                               'announcementAlertEnabled',
                               value,
                               (next) => announcementAlertEnabled = next,
-                            );
-                          },
-                        ),
-                        const SizedBox(height: 6),
-                        ValueListenableBuilder<int>(
-                          valueListenable: coreAlertPurchaseRevision,
-                          builder: (context, _, __) {
-                            return buildPremiumAlertSettingTile(
-                              icon: Icons.trending_up_rounded,
-                              title: localizedCoreAlertTitle(
-                                Localizations.localeOf(context),
-                              ),
-                              subtitle: localizedCoreAlertSubtitle(
-                                Localizations.localeOf(context),
-                              ),
-                              lockedText: localizedCoreAlertLockedText(
-                                Localizations.localeOf(context),
-                              ),
-                              purchaseText: coreAlertPurchasePending
-                                  ? localizedCoreAlertPurchasePending(
-                                      Localizations.localeOf(context),
-                                    )
-                                  : coreAlertProduct == null
-                                      ? localizedCoreAlertPurchaseButton(
-                                          Localizations.localeOf(context),
-                                        )
-                                      : '${localizedCoreAlertPurchaseButton(
-                                          Localizations.localeOf(context),
-                                        )} ${coreAlertProduct!.price}',
-                              purchased: coreAlertPurchased,
-                              value: coreAlertEnabled,
-                              busy: coreAlertPurchasePending,
-                              onPurchase: showCoreAlertPaywallSheet,
-                              onChanged: (value) {
-                                if (!coreAlertPurchased) {
-                                  showCoreAlertPaywallSheet();
-                                  return;
-                                }
-
-                                updateCoreAlertSetting(value);
-                              },
                             );
                           },
                         ),
@@ -7362,7 +7662,6 @@ class _HomePageState extends State<HomePage>
     if (!mounted) return;
 
     final nextZone = dropZoneForPercent(dropPercent);
-    final canSendAlert = shouldEvaluateCloseBasedAlertsNow();
 
     if (!dropAlertInitialized) {
       activeDropZone = nextZone;
@@ -7394,78 +7693,18 @@ class _HomePageState extends State<HomePage>
       if (activeDropZone < 20 && nextZone >= 20) {
         touchedMinus20 = true;
         rebalanceTouchedAnyZone = true;
-        if (canSendAlert && strategyAlertEnabled) {
-          showZoneAlert(
-            AppLocalizations.of(context)!.minus20Headline,
-            Colors.green,
-            'minus20',
-          );
-        }
       }
 
       if (activeDropZone < 30 && nextZone >= 30) {
         touchedMinus30 = true;
-        if (canSendAlert && strategyAlertEnabled) {
-          showZoneAlert(
-            AppLocalizations.of(context)!.minus30Headline,
-            Colors.orange,
-            'minus30',
-          );
-        }
       }
 
       if (activeDropZone < 40 && nextZone >= 40) {
         touchedMinus40 = true;
-        if (canSendAlert && strategyAlertEnabled) {
-          showZoneAlert(
-            AppLocalizations.of(context)!.minus40Headline,
-            Colors.red,
-            'minus40',
-          );
-        }
       }
 
       if (activeDropZone < 50 && nextZone >= 50) {
         touchedMinus50 = true;
-        if (canSendAlert && strategyAlertEnabled) {
-          showZoneAlert(
-            AppLocalizations.of(context)!.minus50Headline,
-            Colors.purple,
-            'minus50',
-          );
-        }
-      }
-    } else {
-      if (canSendAlert && strategyAlertEnabled && activeDropZone >= 50 && nextZone < 50) {
-        showZoneAlert(
-          AppLocalizations.of(context)!.alertRecovery10,
-          Colors.purple,
-          'recovery50',
-        );
-      }
-
-      if (canSendAlert && strategyAlertEnabled && activeDropZone >= 40 && nextZone < 40) {
-        showZoneAlert(
-          AppLocalizations.of(context)!.alertRecovery10,
-          Colors.red,
-          'recovery40',
-        );
-      }
-
-      if (canSendAlert && strategyAlertEnabled && activeDropZone >= 30 && nextZone < 30) {
-        showZoneAlert(
-          AppLocalizations.of(context)!.alertRecovery10,
-          Colors.orange,
-          'recovery30',
-        );
-      }
-
-      if (canSendAlert && strategyAlertEnabled && activeDropZone >= 20 && nextZone < 20) {
-        showZoneAlert(
-          AppLocalizations.of(context)!.alertRecovery10,
-          Colors.green,
-          'recovery20',
-        );
       }
     }
 
@@ -7594,11 +7833,14 @@ class _HomePageState extends State<HomePage>
     if (nextState == 0 || threshold == 0 || !mounted) return;
     if (savedThreshold >= threshold) return;
 
-    final enabled = prefs.getBool('qldMoveAlertEnabled') ?? qldMoveAlertEnabled;
-    if (!enabled) return;
-
+    // 오늘 처음 앱을 켰을 때는 이미 발생한 변동에 대해 알림 없이 기준값만 저장
+    final isFirstCheckToday = !prefs.containsKey(thresholdKey);
     await prefs.setInt(thresholdKey, threshold);
     await prefs.setString('lastQldMoveCloseAlertDate', today.date);
+    if (isFirstCheckToday) return;
+
+    final enabled = prefs.getBool('qldMoveAlertEnabled') ?? qldMoveAlertEnabled;
+    if (!enabled) return;
     if (!mounted) return;
     final locale = Localizations.localeOf(context);
     showAndSaveAlert(
@@ -7806,15 +8048,13 @@ class _HomePageState extends State<HomePage>
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
-    contentWidgetHideTimer?.cancel();
-    homeScrollController.removeListener(showContentWidgetButtonTemporarily);
-    _blinkController.dispose();
     priceTimer?.cancel();
     priceRefreshCountdownTimer?.cancel();
     yahooHistoryTimer?.cancel();
     nasdaq200Timer?.cancel();
     fearGreedTimer?.cancel();
     quoteStreamReconnectTimer?.cancel();
+    _boxBlinkTimer?.cancel();
     quoteStreamSubscription?.cancel();
     quoteStreamChannel?.sink.close();
     coreAlertPurchaseSubscription?.cancel();
@@ -7835,81 +8075,11 @@ class _HomePageState extends State<HomePage>
     closeGuessMessageController.dispose();
     homeScrollController.dispose();
     _sheetController.dispose();
-    _exitDialogBannerAd?.dispose();
     if (_activeHomeScrollController == homeScrollController) {
       _activeHomeScrollController = null;
     }
 
     super.dispose();
-  }
-
-  void _preloadExitDialogBannerAd() {
-    if (!canRequestAds || _exitDialogBannerAd != null) return;
-
-    final bannerAd = BannerAd(
-      adUnitId: _adMobExitUnitId,
-      size: AdSize.mediumRectangle,
-      request: const AdRequest(),
-      listener: BannerAdListener(
-        onAdLoaded: (ad) {
-          if (!mounted || ad != _exitDialogBannerAd) {
-            ad.dispose();
-            return;
-          }
-          setState(() {
-            _exitDialogBannerAdLoaded = true;
-          });
-        },
-        onAdFailedToLoad: (ad, error) {
-          debugPrint('Exit AdMob failed to load: $error');
-          ad.dispose();
-          if (_exitDialogBannerAd == ad) {
-            _exitDialogBannerAd = null;
-            _exitDialogBannerAdLoaded = false;
-          }
-          Future.delayed(const Duration(seconds: 12), () {
-            if (mounted && _exitDialogBannerAd == null) {
-              _preloadExitDialogBannerAd();
-            }
-          });
-        },
-      ),
-    );
-
-    _exitDialogBannerAd = bannerAd;
-    _exitDialogBannerAdLoaded = false;
-    unawaited(bannerAd.load());
-  }
-
-  BannerAd? _takePreloadedExitDialogBannerAd() {
-    if (!_exitDialogBannerAdLoaded) {
-      _preloadExitDialogBannerAd();
-      return null;
-    }
-
-    final bannerAd = _exitDialogBannerAd;
-    _exitDialogBannerAd = null;
-    _exitDialogBannerAdLoaded = false;
-    _preloadExitDialogBannerAd();
-    return bannerAd;
-  }
-
-  void showContentWidgetButtonTemporarily() {
-    if (!mounted || isLoading) return;
-
-    contentWidgetHideTimer?.cancel();
-    if (!showContentWidgetButton) {
-      setState(() {
-        showContentWidgetButton = true;
-      });
-    }
-
-    contentWidgetHideTimer = Timer(const Duration(seconds: 5), () {
-      if (!mounted) return;
-      setState(() {
-        showContentWidgetButton = false;
-      });
-    });
   }
 
   Future<void> fetchCurrentPrices({bool force = false}) async {
@@ -8153,7 +8323,6 @@ class _HomePageState extends State<HomePage>
       }
       final nowUtc = DateTime.now().toUtc();
       if (_isAfterKstFuturesStart(nowUtc) &&
-          _isUsMarketOpenDayForFuturesFromUtc(nowUtc) &&
           _isUsTechFuturesSessionFromUtc(nowUtc)) {
         final baselineDate = _kstFuturesBaselineDate();
         final preferredBaselinePrice = nextFuturesPreviousClose > 0
@@ -8274,28 +8443,12 @@ class _HomePageState extends State<HomePage>
 
     final referenceHigh = basePrice > 0 ? basePrice : allTimeHigh;
     final isNewHigh = referenceHigh > 0 && qldPrice > referenceHigh;
-    final today =
-        _toNewYorkTime(DateTime.now().toUtc()).toString().substring(0, 10);
 
     if (!isNewHigh) return;
 
     if (rebalanceTouchedAnyZone && rebalanceCardTriggeredAt.value == 0) {
       rebalanceCardTriggeredAt.value = DateTime.now().millisecondsSinceEpoch;
       await saveStrategyProgress();
-    }
-
-    final savedHighAlertDate =
-        prefs.getString('lastHighAlertDate') ?? lastHighAlertDate;
-
-    if (highAlertEnabled && savedHighAlertDate != today) {
-      lastHighAlertDate = today;
-      await prefs.setString('lastHighAlertDate', today);
-      if (!mounted) return;
-      showZoneAlert(
-        AppLocalizations.of(context)!.alertNewHigh,
-        Colors.green,
-        'high',
-      );
     }
   }
 
@@ -8681,161 +8834,165 @@ class _HomePageState extends State<HomePage>
               backgroundColor: sheetBg,
               elevation: 0,
               leading: IconButton(
-                icon: Icon(Icons.arrow_back_ios_new_rounded, color: primaryText, size: 20),
+                icon: Icon(Icons.arrow_back_ios_new_rounded,
+                    color: primaryText, size: 20),
                 onPressed: () => Navigator.pop(context),
               ),
               title: Text(
                 l10n.basePosition,
-                style: TextStyle(color: primaryText, fontSize: 16, fontWeight: FontWeight.w800),
+                style: TextStyle(
+                    color: primaryText,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w800),
               ),
             ),
             body: SafeArea(
               child: SingleChildScrollView(
-                  controller: null,
-                  padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Center(
-                        child: Container(
-                          width: 42,
-                          height: 4,
-                          decoration: BoxDecoration(
-                            color: handleColor,
-                            borderRadius: BorderRadius.circular(99),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 18),
-                      Row(
-                        children: [
-                          Container(
-                            width: 44,
-                            height: 44,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: accent.withValues(
-                                  alpha: whiteMode ? 0.10 : 0.16),
-                            ),
-                            child: Icon(
-                              Icons.shield_outlined,
-                              color: accent,
-                              size: 26,
-                            ),
-                          ),
-                          const SizedBox(width: 14),
-                          Expanded(
-                            child: Text(
-                              l10n.basePosition,
-                              style: TextStyle(
-                                fontSize: 22,
-                                fontWeight: FontWeight.w600,
-                                color: primaryText,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 18),
-                      Text(
-                        l10n.basePositionIntro,
-                        style: TextStyle(
-                          fontSize: 15,
-                          height: 1.55,
-                          color: secondaryText,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      Row(
-                        children: [
-                          allocationChip(
-                            l10n.basePositionQldAllocationLabel,
-                            '70%',
-                            accent,
-                          ),
-                          const SizedBox(width: 10),
-                          allocationChip(
-                            l10n.basePositionCashAllocationLabel,
-                            '30%',
-                            whiteMode
-                                ? const Color(0xFFD97706)
-                                : Colors.amberAccent,
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 18),
-                      Text(
-                        l10n.basePositionCorePrinciple,
-                        style: TextStyle(
-                          color: primaryText,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w900,
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      principleTile(
-                        Icons.savings_outlined,
-                        l10n.basePositionCashTitle,
-                        l10n.basePositionCashText,
-                      ),
-                      const SizedBox(height: 10),
-                      principleTile(
-                        Icons.speed_rounded,
-                        l10n.basePositionInitialLeverageTitle,
-                        l10n.basePositionInitialLeverageText,
-                      ),
-                      const SizedBox(height: 10),
-                      principleTile(
-                        Icons.stacked_line_chart_rounded,
-                        l10n.basePositionStepLeverageTitle,
-                        l10n.basePositionStepLeverageText,
-                      ),
-                      const SizedBox(height: 10),
-                      principleTile(
-                        Icons.trending_down_rounded,
-                        l10n.basePositionLowAverageTitle,
-                        l10n.basePositionLowAverageText,
-                      ),
-                      const SizedBox(height: 14),
-                      Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(14),
+                controller: null,
+                padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Center(
+                      child: Container(
+                        width: 42,
+                        height: 4,
                         decoration: BoxDecoration(
-                          color:
-                              accent.withValues(alpha: whiteMode ? 0.08 : 0.12),
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(
-                            color: accent.withValues(
-                                alpha: whiteMode ? 0.20 : 0.28),
-                          ),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              l10n.basePositionSummaryTitle,
-                              style: TextStyle(
-                                color: primaryText,
-                                fontSize: 14,
-                                fontWeight: FontWeight.w900,
-                              ),
-                            ),
-                            const SizedBox(height: 6),
-                            Text(
-                              l10n.basePositionSummaryText,
-                              style: TextStyle(
-                                color: secondaryText,
-                                fontSize: 13,
-                                height: 1.45,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ],
+                          color: handleColor,
+                          borderRadius: BorderRadius.circular(99),
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                    const SizedBox(height: 18),
+                    Row(
+                      children: [
+                        Container(
+                          width: 44,
+                          height: 44,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: accent.withValues(
+                                alpha: whiteMode ? 0.10 : 0.16),
+                          ),
+                          child: Icon(
+                            Icons.shield_outlined,
+                            color: accent,
+                            size: 26,
+                          ),
+                        ),
+                        const SizedBox(width: 14),
+                        Expanded(
+                          child: Text(
+                            l10n.basePosition,
+                            style: TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.w600,
+                              color: primaryText,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 18),
+                    Text(
+                      l10n.basePositionIntro,
+                      style: TextStyle(
+                        fontSize: 15,
+                        height: 1.55,
+                        color: secondaryText,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Row(
+                      children: [
+                        allocationChip(
+                          l10n.basePositionQldAllocationLabel,
+                          '70%',
+                          accent,
+                        ),
+                        const SizedBox(width: 10),
+                        allocationChip(
+                          l10n.basePositionCashAllocationLabel,
+                          '30%',
+                          whiteMode
+                              ? const Color(0xFFD97706)
+                              : Colors.amberAccent,
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 18),
+                    Text(
+                      l10n.basePositionCorePrinciple,
+                      style: TextStyle(
+                        color: primaryText,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    principleTile(
+                      Icons.savings_outlined,
+                      l10n.basePositionCashTitle,
+                      l10n.basePositionCashText,
+                    ),
+                    const SizedBox(height: 10),
+                    principleTile(
+                      Icons.speed_rounded,
+                      l10n.basePositionInitialLeverageTitle,
+                      l10n.basePositionInitialLeverageText,
+                    ),
+                    const SizedBox(height: 10),
+                    principleTile(
+                      Icons.stacked_line_chart_rounded,
+                      l10n.basePositionStepLeverageTitle,
+                      l10n.basePositionStepLeverageText,
+                    ),
+                    const SizedBox(height: 10),
+                    principleTile(
+                      Icons.trending_down_rounded,
+                      l10n.basePositionLowAverageTitle,
+                      l10n.basePositionLowAverageText,
+                    ),
+                    const SizedBox(height: 14),
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(14),
+                      decoration: BoxDecoration(
+                        color:
+                            accent.withValues(alpha: whiteMode ? 0.08 : 0.12),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
+                          color:
+                              accent.withValues(alpha: whiteMode ? 0.20 : 0.28),
+                        ),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            l10n.basePositionSummaryTitle,
+                            style: TextStyle(
+                              color: primaryText,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w900,
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            l10n.basePositionSummaryText,
+                            style: TextStyle(
+                              color: secondaryText,
+                              fontSize: 13,
+                              height: 1.45,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
+              ),
             ),
           );
         },
@@ -8857,13 +9014,24 @@ class _HomePageState extends State<HomePage>
   Future<void> showExitAdDialog() async {
     if (exitDialogOpen || !mounted) return;
     exitDialogOpen = true;
-    final exitDialogBannerAd = _takePreloadedExitDialogBannerAd();
 
     try {
+      final prefs = await SharedPreferences.getInstance();
+      if (prefs.getBool('coreAlertPurchased') == true) {
+        await SystemNavigator.pop();
+        return;
+      }
+      if (!mounted) return;
+
       final l10n = AppLocalizations.of(context)!;
       final whiteMode = isWhiteModeEnabled(context);
       final dialogBg = whiteMode ? _lightSurface : _darkSurface;
       final borderColor = whiteMode ? _lightLine : _darkLineSoft;
+      final secondaryText = whiteMode ? _lightMuted : Colors.white70;
+      final exitMessage = localizedExitDialogMessage(
+        Localizations.localeOf(context),
+      );
+      final exitMessageParts = exitMessage.split('\n\n');
 
       await showDialog<void>(
         context: context,
@@ -8876,36 +9044,76 @@ class _HomePageState extends State<HomePage>
               borderRadius: BorderRadius.circular(12),
               side: BorderSide(color: borderColor),
             ),
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  ExitDialogBannerAd(ad: exitDialogBannerAd),
-                  const SizedBox(height: 6),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: TextButton(
-                          onPressed: () {
-                            Navigator.of(dialogContext).pop();
-                          },
-                          child: Text(l10n.exitAdDialogBack),
-                        ),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 380),
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(20, 22, 20, 16),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 58,
+                      height: 58,
+                      decoration: BoxDecoration(
+                        color: _lightBlue.withValues(alpha: 0.14),
+                        shape: BoxShape.circle,
                       ),
-                      const SizedBox(width: 6),
-                      Expanded(
-                        child: FilledButton(
-                          onPressed: () {
-                            Navigator.of(dialogContext).pop();
-                            SystemNavigator.pop();
-                          },
-                          child: Text(l10n.exitAdDialogExit),
-                        ),
+                      child: const Icon(
+                        Icons.sentiment_satisfied_alt_rounded,
+                        color: _purple,
+                        size: 30,
                       ),
-                    ],
-                  ),
-                ],
+                    ),
+                    const SizedBox(height: 10),
+                    const _ExitMrecAd(),
+                    const SizedBox(height: 10),
+                    Text.rich(
+                      TextSpan(
+                        children: [
+                          TextSpan(text: exitMessageParts.first),
+                          if (exitMessageParts.length > 1)
+                            TextSpan(
+                              text: '\n\n${exitMessageParts.last}',
+                              style: const TextStyle(
+                                color: _purple,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                        ],
+                      ),
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: secondaryText,
+                        fontSize: 12,
+                        height: 1.35,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    const SizedBox(height: 18),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextButton(
+                            onPressed: () {
+                              Navigator.of(dialogContext).pop();
+                            },
+                            child: Text(l10n.exitAdDialogBack),
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        Expanded(
+                          child: FilledButton(
+                            onPressed: () {
+                              Navigator.of(dialogContext).pop();
+                              unawaited(SystemNavigator.pop());
+                            },
+                            child: Text(l10n.exitAdDialogExit),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
           );
@@ -8913,8 +9121,6 @@ class _HomePageState extends State<HomePage>
       );
     } finally {
       exitDialogOpen = false;
-      exitDialogBannerAd?.dispose();
-      _preloadExitDialogBannerAd();
     }
   }
 
@@ -8942,7 +9148,6 @@ class _HomePageState extends State<HomePage>
     final shouldZeroFutures =
         currentMarketSession == _UsMarketSession.regular ||
             !_isAfterKstFuturesStart(nowUtc) ||
-            !_isUsMarketOpenDayForFuturesFromUtc(nowUtc) ||
             !_isUsTechFuturesSessionFromUtc(nowUtc);
     final futuresReferencePrice =
         futuresPreviousClose > 0 ? futuresPreviousClose : futuresBaselinePrice;
@@ -9007,7 +9212,6 @@ class _HomePageState extends State<HomePage>
     final totalAsset = qldValue + tqqqValue + cashAmount;
     final whiteMode = isWhiteModeEnabled(context);
     final pageBg = whiteMode ? _lightAppBg : _appBg;
-    final cardBg = whiteMode ? _lightSurface : _cardBg;
     final cardLine = whiteMode ? _lightLine : _cardLine;
     final primaryText = whiteMode ? _lightText : _darkText;
     final secondaryText = whiteMode ? _lightMuted : _darkMuted;
@@ -9030,19 +9234,6 @@ class _HomePageState extends State<HomePage>
         : extendedSessionPercent < 0
             ? _portfolioLossRed
             : tertiaryText;
-    final homeInfoLabelStyle = TextStyle(
-      fontSize: 11.2,
-      color: tertiaryText,
-      fontWeight: FontWeight.w600,
-    );
-    final homeInfoValueStyle = TextStyle(
-      fontSize: 11.2,
-      color: secondaryText,
-      fontWeight: FontWeight.w700,
-    );
-    final homeInfoEmphasisValueStyle = homeInfoValueStyle.copyWith(
-      fontSize: 12.0,
-    );
     final homeFearGreedScore = homeFearGreedData?.score;
     final fearGreedValue = homeFearGreedScore?.toStringAsFixed(0) ?? '--';
     final fearGreedValueColor = homeFearGreedScore == null
@@ -9058,7 +9249,6 @@ class _HomePageState extends State<HomePage>
                     ? accentBlue
                     : const Color(0xFF4ADE80);
     final vixValue = vixPrice > 0 ? vixPrice.toStringAsFixed(1) : '--';
-    final scheduleLabel = nextMajorSchedule?.title ?? 'CPI';
     final scheduleValue = nextMajorSchedule == null
         ? '--'
         : _scheduleDdayLabel(nextMajorSchedule.date);
@@ -9080,61 +9270,28 @@ class _HomePageState extends State<HomePage>
     final l10n = AppLocalizations.of(context)!;
 
     // RSI
-    final latestRsi = qldMiniCandles.isEmpty ? null : qldMiniCandles.reversed.map((c) => c.rsi).firstWhere((r) => r != null, orElse: () => null);
+    final latestRsi = qldMiniCandles.isEmpty
+        ? null
+        : qldMiniCandles.reversed
+            .map((c) => c.rsi)
+            .firstWhere((r) => r != null, orElse: () => null);
     final rsiText = latestRsi != null ? latestRsi.toStringAsFixed(1) : '--';
-    final rsiColor = latestRsi == null ? secondaryText : latestRsi >= 70 ? _portfolioLossRed : latestRsi <= 30 ? accentCyan : (whiteMode ? const Color(0xFF16A34A) : const Color(0xFF4ADE80));
-    final rsiLabel = latestRsi == null ? '' : latestRsi >= 70 ? l10n.rsiOverbought : latestRsi <= 30 ? l10n.rsiOversold : l10n.rsiNormal;
-
-    // 포트폴리오
-    final totalAssetDash = qldShares * qldPrice + cashAmount;
-    final profitLoss = qldAveragePrice > 0 && qldShares > 0 ? (qldPrice - qldAveragePrice) * qldShares : null;
-    final profitLossColor = profitLoss == null ? secondaryText : profitLoss >= 0 ? (whiteMode ? const Color(0xFF16A34A) : const Color(0xFF4ADE80)) : _portfolioLossRed;
-
-    // 장 카운트다운 (DST·공휴일·조기마감 반영)
-    final utcNow = DateTime.now().toUtc();
-    final ny = _toNewYorkTime(utcNow);
-    final session = _usMarketSessionFromUtc(utcNow);
-    final nyDate = ny.toString().substring(0, 10);
-    final isWeekend = ny.weekday == DateTime.saturday || ny.weekday == DateTime.sunday;
-    final isHoliday = !isWeekend && _isUsMarketClosedDate(nyDate);
-    final String marketCountdownLabel;
-    final String marketCountdownValue;
-    final Color marketCountdownColor;
-    if (session == _UsMarketSession.regular) {
-      final closeMin = _usMarketCloseMinute(ny);
-      final closeNy = DateTime.utc(ny.year, ny.month, ny.day, closeMin ~/ 60, closeMin % 60);
-      final diff = closeNy.difference(ny);
-      final h = diff.inHours;
-      final m = diff.inMinutes % 60;
-      final s = diff.inSeconds % 60;
-      marketCountdownLabel = l10n.marketToCloseLabel;
-      marketCountdownValue = h > 0 ? '${h}h ${m}m ${s}s' : '${m}m ${s}s';
-      marketCountdownColor = whiteMode ? const Color(0xFF16A34A) : const Color(0xFF4ADE80);
-    } else if (session == _UsMarketSession.pre) {
-      final openNy = DateTime.utc(ny.year, ny.month, ny.day, 9, 30);
-      final diff = openNy.difference(ny);
-      final h = diff.inHours;
-      final m = diff.inMinutes % 60;
-      final s = diff.inSeconds % 60;
-      marketCountdownLabel = l10n.marketPreOpenLabel;
-      marketCountdownValue = h > 0 ? '${h}h ${m}m ${s}s' : '${m}m ${s}s';
-      marketCountdownColor = whiteMode ? const Color(0xFFD97706) : Colors.amberAccent;
-    } else {
-      // closed / afterHours → 다음 거래일 9:30 ET까지
-      var nextOpen = DateTime.utc(ny.year, ny.month, ny.day, 9, 30).add(const Duration(days: 1));
-      for (int i = 0; i < 10; i++) {
-        final d = _dateString(nextOpen.year, nextOpen.month, nextOpen.day);
-        if (nextOpen.weekday >= DateTime.monday && nextOpen.weekday <= DateTime.friday && !_isUsMarketClosedDate(d)) break;
-        nextOpen = nextOpen.add(const Duration(days: 1));
-      }
-      final diff = nextOpen.difference(ny);
-      final h = diff.inHours;
-      final m = diff.inMinutes % 60;
-      final s = diff.inSeconds % 60;
-      marketCountdownLabel = isWeekend ? l10n.marketWeekendLabel : (isHoliday ? l10n.marketClosedLabel : l10n.marketPreOpenLabel);
-      marketCountdownValue = h > 0 ? '${h}h ${m}m ${s}s' : '${m}m ${s}s';
-      marketCountdownColor = secondaryText;
-    }
+    final rsiColor = latestRsi == null
+        ? secondaryText
+        : latestRsi >= 70
+            ? _portfolioLossRed
+            : latestRsi <= 30
+                ? accentCyan
+                : (whiteMode
+                    ? const Color(0xFF16A34A)
+                    : const Color(0xFF4ADE80));
+    final rsiLabel = latestRsi == null
+        ? ''
+        : latestRsi >= 70
+            ? l10n.rsiOverbought
+            : latestRsi <= 30
+                ? l10n.rsiOversold
+                : l10n.rsiNormal;
 
     Widget buildIndicatorBox({
       required IconData icon,
@@ -9143,24 +9300,13 @@ class _HomePageState extends State<HomePage>
       required Color valueColor,
       required String description,
       VoidCallback? onTap,
+      bool blink = false,
     }) {
       return GestureDetector(
         onTap: onTap,
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
-          decoration: BoxDecoration(
-            color: whiteMode ? Colors.white : const Color(0xFF0D1926),
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: whiteMode ? Colors.transparent : const Color(0xFF1A2F42)),
-            boxShadow: [
-              BoxShadow(
-                color: whiteMode ? Colors.black.withValues(alpha: 0.08) : Colors.black.withValues(alpha: 0.20),
-                blurRadius: 10,
-                spreadRadius: 0,
-                offset: const Offset(0, 2),
-              ),
-            ],
-          ),
+          decoration: homeCardDecoration(whiteMode),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
@@ -9170,14 +9316,36 @@ class _HomePageState extends State<HomePage>
                   Icon(icon, size: 12, color: secondaryText),
                   const SizedBox(width: 4),
                   Expanded(
-                    child: Text(label, style: TextStyle(fontSize: 10, color: secondaryText, fontWeight: FontWeight.w600), maxLines: 1, overflow: TextOverflow.ellipsis, textAlign: TextAlign.center),
+                    child: Text(label,
+                        style: TextStyle(
+                            fontSize: 10,
+                            color: secondaryText,
+                            fontWeight: FontWeight.w600),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.center),
                   ),
                 ],
               ),
-              const SizedBox(height: 4),
-              Text(value, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: valueColor), textAlign: TextAlign.center),
-              const SizedBox(height: 2),
-              Text(description, style: TextStyle(fontSize: 10, color: tertiaryText, fontWeight: FontWeight.w500), maxLines: 1, overflow: TextOverflow.ellipsis, textAlign: TextAlign.center),
+              const SizedBox(height: 3),
+              Opacity(
+                opacity: blink && !_boxBlinkVisible ? 0.5 : 1.0,
+                child: Text(value,
+                    style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w800,
+                        color: valueColor),
+                    textAlign: TextAlign.center),
+              ),
+              const SizedBox(height: 1),
+              Text(description,
+                  style: TextStyle(
+                      fontSize: 10,
+                      color: tertiaryText,
+                      fontWeight: FontWeight.w500),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center),
             ],
           ),
         ),
@@ -9185,7 +9353,17 @@ class _HomePageState extends State<HomePage>
     }
 
     Widget buildIndicatorGrid() {
-      final fearGreedDesc = homeFearGreedScore == null ? l10n.noData : homeFearGreedScore <= 25 ? l10n.fearGreedExtremeFear : homeFearGreedScore <= 45 ? l10n.fearGreedFear : homeFearGreedScore <= 55 ? l10n.fearGreedNeutral : homeFearGreedScore <= 75 ? l10n.fearGreedGreed : l10n.fearGreedExtremeGreed;
+      final fearGreedDesc = homeFearGreedScore == null
+          ? l10n.noData
+          : homeFearGreedScore <= 25
+              ? l10n.fearGreedExtremeFear
+              : homeFearGreedScore <= 45
+                  ? l10n.fearGreedFear
+                  : homeFearGreedScore <= 55
+                      ? l10n.fearGreedNeutral
+                      : homeFearGreedScore <= 75
+                          ? l10n.fearGreedGreed
+                          : l10n.fearGreedExtremeGreed;
       final athValue = basePrice <= 0 || qldPrice <= 0
           ? '--'
           : dropPercent >= 0
@@ -9197,118 +9375,148 @@ class _HomePageState extends State<HomePage>
               ? (whiteMode ? const Color(0xFF16A34A) : const Color(0xFF4ADE80))
               : _portfolioLossRed;
       final athDesc = l10n.checkStrategyCard;
-      Widget athTargetPage() {
-        if (dropPercent <= -50) return const Minus50Page();
-        if (dropPercent <= -40) return const Minus40Page();
-        if (dropPercent <= -30) return const Minus30Page();
-        if (dropPercent <= -20) return const Minus20Page();
-        return const NoBuyZonePage();
-      }
+
+      // 깜빡임 조건
+      final blinkFearGreed = homeFearGreedScore != null &&
+          (homeFearGreedScore <= 25 || homeFearGreedScore >= 75);
+      final blinkVix = vixPrice >= 30;
+      final blinkSchedule = nextMajorSchedule != null &&
+          _daysUntilSchedule(nextMajorSchedule.date) == 0;
+      final blinkYield = tenYearYield >= 5.0;
+      final blinkAth = basePrice > 0 && qldPrice > 0 && dropPercent <= -20;
+      final blinkRsi =
+          latestRsi != null && (latestRsi <= 30 || latestRsi >= 70);
+
       return Padding(
-        padding: const EdgeInsets.fromLTRB(12, 4, 12, 6),
+        padding: const EdgeInsets.fromLTRB(12, 3, 12, 5),
         child: Column(
           children: [
             Row(children: [
-              Expanded(child: buildIndicatorBox(icon: Icons.psychology_rounded, label: l10n.indicatorCnnFearGreed, value: fearGreedValue, valueColor: fearGreedValueColor, description: fearGreedDesc, onTap: () => openFearGreedPage(context))),
+              Expanded(
+                  child: buildIndicatorBox(
+                      icon: Icons.psychology_rounded,
+                      label: l10n.indicatorCnnFearGreed,
+                      value: fearGreedValue,
+                      valueColor: fearGreedValueColor,
+                      description: fearGreedDesc,
+                      onTap: () => openFearGreedPage(context),
+                      blink: blinkFearGreed)),
               const SizedBox(width: 8),
-              Expanded(child: buildIndicatorBox(icon: Icons.bolt_rounded, label: l10n.indicatorVix, value: vixValue, valueColor: vixValueColor, description: vixPrice <= 0 ? l10n.indicatorVixDefault : vixPrice >= 30 ? l10n.indicatorVixHigh : vixPrice >= 20 ? l10n.indicatorVixCaution : vixPrice >= 12 ? l10n.indicatorVixStable : l10n.indicatorVixLow, onTap: openVixTradingView)),
+              Expanded(
+                  child: buildIndicatorBox(
+                      icon: Icons.bolt_rounded,
+                      label: l10n.indicatorVix,
+                      value: vixValue,
+                      valueColor: vixValueColor,
+                      description: vixPrice <= 0
+                          ? l10n.indicatorVixDefault
+                          : vixPrice >= 30
+                              ? l10n.indicatorVixHigh
+                              : vixPrice >= 20
+                                  ? l10n.indicatorVixCaution
+                                  : vixPrice >= 12
+                                      ? l10n.indicatorVixStable
+                                      : l10n.indicatorVixLow,
+                      onTap: openVixTradingView,
+                      blink: blinkVix)),
             ]),
-            const SizedBox(height: 6),
+            const SizedBox(height: 4),
             Row(children: [
-              Expanded(child: buildIndicatorBox(icon: Icons.calendar_today_rounded, label: l10n.indicatorUsSchedule, value: scheduleValue, valueColor: scheduleValueColor, description: nextMajorSchedule?.title ?? l10n.noData, onTap: () => _showMajorUsScheduleSheet(context, onChanged: () { if (mounted) setState(() {}); }))),
+              Expanded(
+                  child: buildIndicatorBox(
+                      icon: Icons.calendar_today_rounded,
+                      label: l10n.indicatorUsSchedule,
+                      value: scheduleValue,
+                      valueColor: scheduleValueColor,
+                      description: nextMajorSchedule?.title ?? l10n.noData,
+                      onTap: () =>
+                          _showMajorUsScheduleSheet(context, onChanged: () {
+                            if (mounted) setState(() {});
+                          }),
+                      blink: blinkSchedule)),
               const SizedBox(width: 8),
-              Expanded(child: buildIndicatorBox(icon: Icons.show_chart_rounded, label: l10n.indicatorTenYearYield, value: tenYearYieldValue, valueColor: tenYearYieldColor, description: l10n.indicatorTenYearDesc, onTap: openTenYearYieldTradingView)),
+              Expanded(
+                  child: buildIndicatorBox(
+                      icon: Icons.show_chart_rounded,
+                      label: l10n.indicatorTenYearYield,
+                      value: tenYearYieldValue,
+                      valueColor: tenYearYieldColor,
+                      description: l10n.indicatorTenYearDesc,
+                      onTap: openTenYearYieldTradingView,
+                      blink: blinkYield)),
             ]),
-            const SizedBox(height: 6),
+            const SizedBox(height: 4),
             Row(children: [
-              Expanded(child: buildIndicatorBox(icon: Icons.show_chart_rounded, label: l10n.from10yHigh, value: athValue, valueColor: athColor, description: athDesc, onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => athTargetPage())))),
+              Expanded(
+                  child: buildIndicatorBox(
+                      icon: Icons.show_chart_rounded,
+                      label: l10n.from10yHigh,
+                      value: athValue,
+                      valueColor: athColor,
+                      description: athDesc,
+                      onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (_) => currentStrategyPageForDropPercent(
+                                  dropPercent))),
+                      blink: blinkAth)),
               const SizedBox(width: 8),
-              Expanded(child: buildIndicatorBox(icon: Icons.candlestick_chart_rounded, label: 'RSI', value: rsiText, valueColor: rsiColor, description: rsiLabel.isEmpty ? '70↑ ${l10n.rsiOverbought} / 30↓ ${l10n.rsiOversold}' : '$rsiLabel  (70↑${l10n.rsiOverbought} / 30↓${l10n.rsiOversold})', onTap: () {
-                showDialog<void>(
-                  context: context,
-                  builder: (dialogContext) {
-                    final wm = isWhiteModeEnabled(dialogContext);
-                    final bg = wm ? _lightSurface : _darkSurface;
-                    final pt = wm ? _lightText : _darkText;
-                    final st = wm ? _lightMuted : _darkMuted;
-                    return AlertDialog(
-                      backgroundColor: bg,
-                      title: Text('RSI(14)란?', style: TextStyle(color: pt, fontWeight: FontWeight.w900, fontSize: 16)),
-                      content: Text(
-                        'RSI(Relative Strength Index)는 최근 14일간의 상승폭과 하락폭을 비교해 현재 주가의 과열·침체 여부를 0~100으로 나타내는 지표입니다.\n\n'
-                        '• 70 이상 → 과매수 구간\n  단기 급등으로 조정 가능성이 높습니다.\n\n'
-                        '• 30 이하 → 과매도 구간\n  단기 급락으로 반등 가능성이 있습니다.\n\n'
-                        '• 30~70 → 정상 범위\n  과열·침체 신호 없음.',
-                        style: TextStyle(color: st, fontSize: 13, height: 1.55),
-                      ),
-                      actions: [
-                        FilledButton(onPressed: () => Navigator.pop(dialogContext), child: const Text('확인')),
-                      ],
-                    );
-                  },
-                );
-              })),
+              Expanded(
+                  child: buildIndicatorBox(
+                      icon: Icons.candlestick_chart_rounded,
+                      label: 'RSI',
+                      value: rsiText,
+                      valueColor: rsiColor,
+                      description: rsiLabel.isEmpty
+                          ? '70↑ ${l10n.rsiOverbought} / 30↓ ${l10n.rsiOversold}'
+                          : '$rsiLabel  (70↑${l10n.rsiOverbought} / 30↓${l10n.rsiOversold})',
+                      blink: blinkRsi,
+                      onTap: () {
+                        showDialog<void>(
+                          context: context,
+                          builder: (dialogContext) {
+                            final wm = isWhiteModeEnabled(dialogContext);
+                            final bg = wm ? _lightSurface : _darkSurface;
+                            final pt = wm ? _lightText : _darkText;
+                            final st = wm ? _lightMuted : _darkMuted;
+                            return AlertDialog(
+                              backgroundColor: bg,
+                              title: Text(l10n.rsiDialogTitle,
+                                  style: TextStyle(
+                                      color: pt,
+                                      fontWeight: FontWeight.w900,
+                                      fontSize: 16)),
+                              content: Text(
+                                l10n.rsiDialogContent,
+                                style: TextStyle(
+                                    color: st, fontSize: 13, height: 1.55),
+                              ),
+                              actions: [
+                                FilledButton(
+                                    onPressed: () =>
+                                        Navigator.pop(dialogContext),
+                                    child: const Text('OK')),
+                              ],
+                            );
+                          },
+                        );
+                      })),
             ]),
           ],
         ),
       );
     }
 
-    Widget buildInlineInfoSegment({
-      required String label,
-      required String value,
-      required Color valueColor,
-      TextStyle? valueStyle,
-      VoidCallback? onTap,
-    }) {
-      final text = FittedBox(
-        fit: BoxFit.scaleDown,
-        alignment: Alignment.centerLeft,
-        child: RichText(
-          maxLines: 1,
-          text: TextSpan(
-            children: [
-              TextSpan(text: '$label ', style: homeInfoLabelStyle),
-              TextSpan(
-                text: value,
-                style: (valueStyle ?? homeInfoValueStyle).copyWith(
-                  color: valueColor,
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
-
-      if (onTap == null) return text;
-
-      return GestureDetector(
-        onTap: onTap,
-        behavior: HitTestBehavior.opaque,
-        child: text,
-      );
-    }
-
-    final cardShadow = whiteMode
-        ? [
-            BoxShadow(
-              color: const Color(0xFF0F172A).withValues(alpha: 0.08),
-              blurRadius: 24,
-              offset: const Offset(0, 12),
-            ),
-          ]
-        : [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.30),
-              blurRadius: 22,
-              offset: const Offset(0, 12),
-            ),
-          ];
-
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, result) {
         if (didPop) return;
+
+        final scaffoldState = _homeScaffoldKey.currentState;
+        if (scaffoldState != null && scaffoldState.isEndDrawerOpen) {
+          scaffoldState.closeEndDrawer();
+          return;
+        }
 
         final primaryFocus = FocusManager.instance.primaryFocus;
         if (primaryFocus != null && !primaryFocus.hasPrimaryFocus) {
@@ -9319,763 +9527,949 @@ class _HomePageState extends State<HomePage>
         unawaited(showExitAdDialog());
       },
       child: Scaffold(
+        key: _homeScaffoldKey,
         backgroundColor: pageBg,
         extendBody: false,
         appBar: AppBar(
           toolbarHeight: 48,
           automaticallyImplyLeading: false,
-          titleSpacing: 12,
-          title: Row(
-            children: [
-              AnimatedBuilder(
-                animation: _blinkAnimation,
-                builder: (context, child) {
-                  final pulse = _blinkAnimation.value;
-                  final color = Color.lerp(
-                        _commentGreen.withValues(alpha: 0.58),
-                        _commentGreen,
-                        pulse,
-                      ) ??
-                      _commentGreen;
-
-                  return IconButton(
-                    visualDensity: VisualDensity.compact,
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(
-                      minWidth: 32,
-                      minHeight: 32,
-                    ),
-                    icon: Icon(
-                      Icons.notifications_active_rounded,
-                      color: color.withValues(alpha: 0.58 + pulse * 0.42),
-                      size: 19,
-                    ),
-                    onPressed: showAlertSettingsSheet,
-                  );
-                },
-              ),
-              const SizedBox(width: 4),
-              InkWell(
-                onTap: showAlertTestSheet,
-                borderRadius: BorderRadius.circular(8),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 7,
-                    vertical: 5,
-                  ),
-                  decoration: BoxDecoration(
-                    color:
-                        whiteMode ? const Color(0xFFF1F5F9) : _darkSurfaceSoft,
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(
-                      color:
-                          whiteMode ? const Color(0xFFCBD5E1) : _darkLineSoft,
-                    ),
-                  ),
-                  child: Text(
-                    'TEST',
-                    style: TextStyle(
-                      color: whiteMode ? _lightText : _darkMuted,
-                      fontSize: 9,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  'QLD DIP ALERT',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: primaryText,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: 0,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 8),
-              SizedBox(
-                width: 40,
-                child: buildWhiteModeButton(context, iconSize: 20),
-              ),
-              SizedBox(
-                width: 40,
-                child: buildLanguageMenuButton(context, iconSize: 20),
-              ),
-            ],
+          titleSpacing: 16,
+          title: Text(
+            'QLD DIP ALERT',
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              color: primaryText,
+              fontSize: 15,
+              fontWeight: FontWeight.w900,
+              letterSpacing: 0.2,
+            ),
           ),
           centerTitle: true,
           backgroundColor: whiteMode ? _lightAppBg : _appBg,
           elevation: 0,
+          actions: [
+            Builder(
+              builder: (ctx) => IconButton(
+                visualDensity: VisualDensity.compact,
+                icon: Icon(
+                  Icons.menu_rounded,
+                  color: primaryText,
+                  size: 26,
+                ),
+                tooltip: MaterialLocalizations.of(ctx).openAppDrawerTooltip,
+                onPressed: () => Scaffold.of(ctx).openEndDrawer(),
+              ),
+            ),
+            const SizedBox(width: 6),
+          ],
         ),
+        endDrawer: _buildSettingsDrawer(context),
         bottomNavigationBar: buildFixedAdBottomBar(
           _buildBottomNav(dropPercent),
         ),
-        body: Stack(children: [Container(
-          decoration: BoxDecoration(
-            color: whiteMode ? _lightAppBg : _appBg,
-          ),
-          child: isLoading
-              ? const Center(
-                  child: CircularProgressIndicator(),
-                )
-              : Stack(
-                  clipBehavior: Clip.hardEdge,
-                  children: [
-                      SingleChildScrollView(
-                      physics: const NeverScrollableScrollPhysics(),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
+        body: Stack(children: [
+          Container(
+            decoration: BoxDecoration(
+              color: whiteMode ? _lightAppBg : _appBg,
+            ),
+            child: isLoading
+                ? const Center(
+                    child: CircularProgressIndicator(),
+                  )
+                : LayoutBuilder(
+                    builder: (context, constraints) {
+                      final sheetExtent = constraints.maxHeight;
+                      const indicatorGridBottom = 365.0;
+                      final collapsedSheetSize =
+                          ((sheetExtent - indicatorGridBottom) / sheetExtent)
+                              .clamp(0.22, 0.60)
+                              .toDouble();
+
+                      return Stack(
+                        clipBehavior: Clip.hardEdge,
                         children: [
-                      Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.fromLTRB(18, 10, 18, 10),
-                        decoration: BoxDecoration(
-                          color: whiteMode ? cardBg : _darkSurface,
-                          borderRadius: BorderRadius.circular(0),
-                        ),
-                        child: Column(
-                          children: [
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Expanded(
-                                  child: Column(
-                                    children: [
-                                      Text(
-                                        AppLocalizations.of(context)!
-                                            .tenYearHigh,
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                          color: secondaryText,
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 3),
-                                      FittedBox(
-                                        fit: BoxFit.scaleDown,
-                                        child: Text(
-                                          '\$${basePrice.toStringAsFixed(2)}',
-                                          style: TextStyle(
-                                            fontSize: 25,
-                                            fontWeight: FontWeight.w800,
-                                            color: primaryText,
-                                          ),
-                                        ),
-                                      ),
-                                      const SizedBox(height: 1),
-                                      Text(
-                                        highDate,
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                          color: tertiaryText,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 8),
-                                      Center(
-                                        child: Text(
-                                          localizedPriceRefreshStatusWithCountdown(
-                                            Localizations.localeOf(context),
-                                            isRefreshing: isRefreshingPrice,
-                                            isCached: isUsingCachedPrice,
-                                            countdownSeconds: priceRefreshCountdownSeconds,
-                                          ),
-                                          textAlign: TextAlign.center,
-                                          style: TextStyle(
-                                            fontSize: 10,
-                                            color: isRefreshingPrice ? accentCyan : isUsingCachedPrice ? Colors.amberAccent : tertiaryText,
-                                            fontWeight: FontWeight.w600,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                Container(
-                                  width: 1,
-                                  height: 104,
-                                  color: whiteMode
-                                      ? cardLine
-                                      : _darkLineSoft.withValues(alpha: 0.88),
-                                ),
-                                Expanded(
-                                  child: Column(
-                                    children: [
-                                      Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          Text(
-                                            AppLocalizations.of(context)!
-                                                .currentPrice,
-                                            style: TextStyle(
-                                              fontSize: 12,
-                                              color: secondaryText,
-                                              fontWeight: FontWeight.w600,
-                                            ),
-                                          ),
-                                          const SizedBox(width: 5),
-                                          Container(
-                                            padding: const EdgeInsets.symmetric(
-                                              horizontal: 3,
-                                              vertical: 1,
-                                            ),
-                                            decoration: BoxDecoration(
-                                              color: (isRegularMarket
-                                                      ? const Color(0xFF1FD16B)
-                                                      : Colors.redAccent)
-                                                  .withValues(
-                                                alpha: whiteMode ? 0.10 : 0.14,
-                                              ),
-                                              borderRadius:
-                                                  BorderRadius.circular(6),
-                                              border: Border.all(
-                                                color: (isRegularMarket
-                                                        ? const Color(
-                                                            0xFF1FD16B)
-                                                        : Colors.redAccent)
-                                                    .withValues(alpha: 0.38),
-                                              ),
-                                            ),
-                                            child: Row(
-                                              mainAxisSize: MainAxisSize.min,
-                                              children: [
-                                                Icon(
-                                                  Icons.access_time_rounded,
-                                                  size: 9,
-                                                  color: isRegularMarket
-                                                      ? const Color(0xFF1FD16B)
-                                                      : Colors.redAccent,
-                                                ),
-                                                if (isRegularMarket) ...[
-                                                  const SizedBox(width: 3),
-                                                  const Text(
-                                                    'LIVE',
+                          RefreshIndicator(
+                            onRefresh: () => fetchCurrentPrices(force: true),
+                            child: SingleChildScrollView(
+                              physics: const AlwaysScrollableScrollPhysics(),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  Container(
+                                    width: double.infinity,
+                                    margin: const EdgeInsets.fromLTRB(
+                                        12, 10, 12, 3),
+                                    padding: const EdgeInsets.fromLTRB(
+                                        16, 11, 16, 11),
+                                    decoration: homeCardDecoration(whiteMode),
+                                    child: Column(
+                                      children: [
+                                        Row(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Expanded(
+                                              child: Column(
+                                                children: [
+                                                  Text(
+                                                    AppLocalizations.of(
+                                                            context)!
+                                                        .tenYearHigh,
                                                     style: TextStyle(
-                                                      fontSize: 7,
-                                                      color: Color(0xFF1FD16B),
+                                                      fontSize: 12,
+                                                      color: secondaryText,
                                                       fontWeight:
                                                           FontWeight.w600,
                                                     ),
                                                   ),
-                                                ],
-                                              ],
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      const SizedBox(height: 3),
-                                      GestureDetector(
-                                        onTap: openTradingView,
-                                        behavior: HitTestBehavior.opaque,
-                                        child: FittedBox(
-                                          fit: BoxFit.scaleDown,
-                                          child: Row(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              Text(
-                                                qldPrice > 0
-                                                    ? '\$${qldPrice.toStringAsFixed(2)}'
-                                                    : '--',
-                                                style: TextStyle(
-                                                  fontSize: 25,
-                                                  fontWeight: FontWeight.w800,
-                                                  color: primaryText,
-                                                ),
-                                              ),
-                                              const SizedBox(width: 4),
-                                              Icon(
-                                                Icons.chevron_right_rounded,
-                                                color: tertiaryText,
-                                                size: 18,
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                      FittedBox(
-                                        fit: BoxFit.scaleDown,
-                                        child: RichText(
-                                          text: TextSpan(
-                                            style: const TextStyle(
-                                              fontSize: 13,
-                                              fontWeight: FontWeight.w600,
-                                            ),
-                                            children: [
-                                              TextSpan(
-                                                text:
-                                                    signedPriceChangeAmountText(
-                                                  previousCloseChange,
-                                                ),
-                                                style: TextStyle(
-                                                  color: primaryText,
-                                                ),
-                                              ),
-                                              if (signedPriceChangePercentText(
-                                                previousClosePercent,
-                                              ).isNotEmpty) ...[
-                                                const TextSpan(text: ' '),
-                                                TextSpan(
-                                                  text:
-                                                      signedPriceChangePercentText(
-                                                    previousClosePercent,
-                                                  ),
-                                                  style: TextStyle(
-                                                    color: previousCloseColor,
-                                                  ),
-                                                ),
-                                              ],
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                      const SizedBox(height: 5),
-                                      FittedBox(
-                                        fit: BoxFit.scaleDown,
-                                        child: Row(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            Icon(
-                                              showSunFuturesIcon
-                                                  ? Icons.wb_sunny_rounded
-                                                  : Icons.dark_mode_rounded,
-                                              size: 9,
-                                              color: futuresIconColor,
-                                            ),
-                                            const SizedBox(width: 5),
-                                            RichText(
-                                              text: TextSpan(
-                                                style: const TextStyle(
-                                                  fontSize: 12,
-                                                  fontWeight: FontWeight.w600,
-                                                ),
-                                                children: [
-                                                  TextSpan(
-                                                    text:
-                                                        extendedSessionPriceText(),
-                                                    style: TextStyle(
-                                                      color: primaryText,
+                                                  const SizedBox(height: 3),
+                                                  FittedBox(
+                                                    fit: BoxFit.scaleDown,
+                                                    child: Text(
+                                                      '\$${basePrice.toStringAsFixed(2)}',
+                                                      style: TextStyle(
+                                                        fontSize: 25,
+                                                        fontWeight:
+                                                            FontWeight.w800,
+                                                        color: primaryText,
+                                                      ),
                                                     ),
                                                   ),
-                                                  if (extendedSessionPercentText()
-                                                      .isNotEmpty) ...[
-                                                    const TextSpan(text: ' '),
-                                                    TextSpan(
-                                                      text:
-                                                          extendedSessionPercentText(),
+                                                  const SizedBox(height: 1),
+                                                  Text(
+                                                    highDate,
+                                                    style: TextStyle(
+                                                      fontSize: 12,
+                                                      color: tertiaryText,
+                                                      fontWeight:
+                                                          FontWeight.w500,
+                                                    ),
+                                                  ),
+                                                  const SizedBox(height: 6),
+                                                  Center(
+                                                    child: Text(
+                                                      localizedPriceRefreshStatusWithCountdown(
+                                                        Localizations.localeOf(
+                                                            context),
+                                                        isRefreshing:
+                                                            isRefreshingPrice,
+                                                        isCached:
+                                                            isUsingCachedPrice,
+                                                        countdownSeconds:
+                                                            priceRefreshCountdownSeconds,
+                                                      ),
+                                                      textAlign:
+                                                          TextAlign.center,
                                                       style: TextStyle(
-                                                        color:
-                                                            extendedSessionPercentColor,
+                                                        fontSize: 10,
+                                                        color: isRefreshingPrice
+                                                            ? accentCyan
+                                                            : isUsingCachedPrice
+                                                                ? Colors
+                                                                    .amberAccent
+                                                                : tertiaryText,
+                                                        fontWeight:
+                                                            FontWeight.w600,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                            Container(
+                                              width: 1,
+                                              height: 96,
+                                              color: whiteMode
+                                                  ? cardLine
+                                                  : _darkLineSoft.withValues(
+                                                      alpha: 0.88),
+                                            ),
+                                            Expanded(
+                                              child: Column(
+                                                children: [
+                                                  Row(
+                                                    mainAxisSize:
+                                                        MainAxisSize.min,
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .center,
+                                                    children: [
+                                                      Text(
+                                                        AppLocalizations.of(
+                                                                context)!
+                                                            .currentPrice,
+                                                        style: TextStyle(
+                                                          fontSize: 12,
+                                                          color: secondaryText,
+                                                          fontWeight:
+                                                              FontWeight.w600,
+                                                        ),
+                                                      ),
+                                                      const SizedBox(width: 5),
+                                                      Container(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .symmetric(
+                                                          horizontal: 3,
+                                                          vertical: 1,
+                                                        ),
+                                                        decoration:
+                                                            BoxDecoration(
+                                                          color: (isRegularMarket
+                                                                  ? const Color(
+                                                                      0xFF1FD16B)
+                                                                  : Colors
+                                                                      .redAccent)
+                                                              .withValues(
+                                                            alpha: whiteMode
+                                                                ? 0.10
+                                                                : 0.14,
+                                                          ),
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(6),
+                                                          border: Border.all(
+                                                            color: (isRegularMarket
+                                                                    ? const Color(
+                                                                        0xFF1FD16B)
+                                                                    : Colors
+                                                                        .redAccent)
+                                                                .withValues(
+                                                                    alpha:
+                                                                        0.38),
+                                                          ),
+                                                        ),
+                                                        child: Row(
+                                                          mainAxisSize:
+                                                              MainAxisSize.min,
+                                                          children: [
+                                                            Icon(
+                                                              Icons
+                                                                  .access_time_rounded,
+                                                              size: 9,
+                                                              color: isRegularMarket
+                                                                  ? const Color(
+                                                                      0xFF1FD16B)
+                                                                  : Colors
+                                                                      .redAccent,
+                                                            ),
+                                                            if (isRegularMarket) ...[
+                                                              const SizedBox(
+                                                                  width: 3),
+                                                              const Text(
+                                                                'LIVE',
+                                                                style:
+                                                                    TextStyle(
+                                                                  fontSize: 7,
+                                                                  color: Color(
+                                                                      0xFF1FD16B),
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w600,
+                                                                ),
+                                                              ),
+                                                            ],
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  const SizedBox(height: 3),
+                                                  GestureDetector(
+                                                    onTap: openTradingView,
+                                                    behavior:
+                                                        HitTestBehavior.opaque,
+                                                    child: FittedBox(
+                                                      fit: BoxFit.scaleDown,
+                                                      child: Row(
+                                                        mainAxisSize:
+                                                            MainAxisSize.min,
+                                                        children: [
+                                                          Text(
+                                                            qldPrice > 0
+                                                                ? '\$${qldPrice.toStringAsFixed(2)}'
+                                                                : '--',
+                                                            style: TextStyle(
+                                                              fontSize: 25,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w800,
+                                                              color:
+                                                                  primaryText,
+                                                            ),
+                                                          ),
+                                                          const SizedBox(
+                                                              width: 4),
+                                                          Icon(
+                                                            Icons
+                                                                .chevron_right_rounded,
+                                                            color: tertiaryText,
+                                                            size: 18,
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  FittedBox(
+                                                    fit: BoxFit.scaleDown,
+                                                    child: RichText(
+                                                      text: TextSpan(
+                                                        style: const TextStyle(
+                                                          fontSize: 13,
+                                                          fontWeight:
+                                                              FontWeight.w600,
+                                                        ),
+                                                        children: [
+                                                          TextSpan(
+                                                            text:
+                                                                signedPriceChangeAmountText(
+                                                              previousCloseChange,
+                                                            ),
+                                                            style: TextStyle(
+                                                              color:
+                                                                  primaryText,
+                                                            ),
+                                                          ),
+                                                          if (signedPriceChangePercentText(
+                                                            previousClosePercent,
+                                                          ).isNotEmpty) ...[
+                                                            const TextSpan(
+                                                                text: ' '),
+                                                            TextSpan(
+                                                              text:
+                                                                  signedPriceChangePercentText(
+                                                                previousClosePercent,
+                                                              ),
+                                                              style: TextStyle(
+                                                                color:
+                                                                    previousCloseColor,
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  const SizedBox(height: 4),
+                                                  FittedBox(
+                                                    fit: BoxFit.scaleDown,
+                                                    child: Row(
+                                                      mainAxisSize:
+                                                          MainAxisSize.min,
+                                                      children: [
+                                                        Icon(
+                                                          showSunFuturesIcon
+                                                              ? Icons
+                                                                  .wb_sunny_rounded
+                                                              : Icons
+                                                                  .dark_mode_rounded,
+                                                          size: 9,
+                                                          color:
+                                                              futuresIconColor,
+                                                        ),
+                                                        const SizedBox(
+                                                            width: 5),
+                                                        RichText(
+                                                          text: TextSpan(
+                                                            style:
+                                                                const TextStyle(
+                                                              fontSize: 12,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w600,
+                                                            ),
+                                                            children: [
+                                                              TextSpan(
+                                                                text:
+                                                                    extendedSessionPriceText(),
+                                                                style:
+                                                                    TextStyle(
+                                                                  color:
+                                                                      primaryText,
+                                                                ),
+                                                              ),
+                                                              if (extendedSessionPercentText()
+                                                                  .isNotEmpty) ...[
+                                                                const TextSpan(
+                                                                    text: ' '),
+                                                                TextSpan(
+                                                                  text:
+                                                                      extendedSessionPercentText(),
+                                                                  style:
+                                                                      TextStyle(
+                                                                    color:
+                                                                        extendedSessionPercentColor,
+                                                                  ),
+                                                                ),
+                                                              ],
+                                                            ],
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  buildIndicatorGrid(),
+                                ],
+                              ),
+                            ), // SingleChildScrollView
+                          ), // RefreshIndicator
+                          DraggableScrollableSheet(
+                            controller: _sheetController,
+                            initialChildSize: collapsedSheetSize,
+                            minChildSize: collapsedSheetSize,
+                            maxChildSize: 0.97,
+                            snap: true,
+                            snapSizes: [collapsedSheetSize, 0.97],
+                            builder: (context, scrollController) =>
+                                AnimatedBuilder(
+                              animation: _sheetController,
+                              builder: (context, _) {
+                                final sheetSize = _sheetController.isAttached
+                                    ? _sheetController.size
+                                    : collapsedSheetSize;
+                                final coverOpacity = ((0.97 - sheetSize) /
+                                        (0.97 - collapsedSheetSize))
+                                    .clamp(0.0, 1.0);
+                                return Container(
+                                  decoration: BoxDecoration(
+                                    color: whiteMode ? _lightAppBg : _appBg,
+                                    borderRadius: const BorderRadius.vertical(
+                                        top: Radius.circular(24)),
+                                    border: Border(
+                                      top: BorderSide(
+                                          color: whiteMode
+                                              ? const Color(0xFFD0DAE6)
+                                              : const Color(0xFF1E3448),
+                                          width: 1),
+                                      left: BorderSide(
+                                          color: whiteMode
+                                              ? const Color(0xFFD0DAE6)
+                                              : const Color(0xFF1E3448),
+                                          width: 1),
+                                      right: BorderSide(
+                                          color: whiteMode
+                                              ? const Color(0xFFD0DAE6)
+                                              : const Color(0xFF1E3448),
+                                          width: 1),
+                                    ),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: whiteMode
+                                            ? Colors.black
+                                                .withValues(alpha: 0.10)
+                                            : Colors.black
+                                                .withValues(alpha: 0.35),
+                                        blurRadius: 16,
+                                        offset: const Offset(0, -4),
+                                      ),
+                                    ],
+                                  ),
+                                  child: ClipRRect(
+                                    borderRadius: const BorderRadius.vertical(
+                                        top: Radius.circular(24)),
+                                    child: Stack(
+                                      children: [
+                                        RefreshIndicator(
+                                          onRefresh: () =>
+                                              fetchCurrentPrices(force: true),
+                                          child: CustomScrollView(
+                                            controller: scrollController,
+                                            physics:
+                                                const AlwaysScrollableScrollPhysics(
+                                                    parent:
+                                                        ClampingScrollPhysics()),
+                                            slivers: [
+                                              SliverToBoxAdapter(
+                                                  child: Padding(
+                                                padding:
+                                                    const EdgeInsets.fromLTRB(
+                                                        12, 6, 12, 0),
+                                                child: Stack(
+                                                  alignment: Alignment.center,
+                                                  children: [
+                                                    Center(
+                                                      child: Container(
+                                                        width: 40,
+                                                        height: 4,
+                                                        decoration:
+                                                            BoxDecoration(
+                                                          color: whiteMode
+                                                              ? Colors.black26
+                                                              : Colors.white30,
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(2),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    Align(
+                                                      alignment:
+                                                          Alignment.centerRight,
+                                                      child: InkWell(
+                                                        onTap:
+                                                            showUsageGuideInfo,
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(8),
+                                                        child: Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                  .symmetric(
+                                                                  horizontal: 4,
+                                                                  vertical: 3),
+                                                          child: Text(
+                                                            '${AppLocalizations.of(context)!.usageGuideCardTitle} >',
+                                                            style: TextStyle(
+                                                              color: (whiteMode
+                                                                      ? Colors
+                                                                          .black
+                                                                      : Colors
+                                                                          .white)
+                                                                  .withValues(
+                                                                      alpha:
+                                                                          0.28),
+                                                              fontSize: 11,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w600,
+                                                            ),
+                                                          ),
+                                                        ),
                                                       ),
                                                     ),
                                                   ],
-                                                ],
+                                                ),
+                                              )),
+                                              SliverPadding(
+                                                  padding:
+                                                      const EdgeInsets.fromLTRB(
+                                                          12, 6, 12, 80),
+                                                  sliver: SliverList(
+                                                      delegate:
+                                                          SliverChildListDelegate([
+                                                    Column(
+                                                      children: [
+                                                        const SizedBox(
+                                                            height: 0),
+                                                        GestureDetector(
+                                                            onTap:
+                                                                showBasePositionInfo,
+                                                            child: Container(
+                                                              width: double
+                                                                  .infinity,
+                                                              padding:
+                                                                  const EdgeInsets
+                                                                      .symmetric(
+                                                                      horizontal:
+                                                                          14,
+                                                                      vertical:
+                                                                          8),
+                                                              decoration:
+                                                                  BoxDecoration(
+                                                                color: whiteMode
+                                                                    ? const Color(
+                                                                        0xFFFFFBEB)
+                                                                    : null,
+                                                                gradient: whiteMode
+                                                                    ? null
+                                                                    : LinearGradient(
+                                                                        begin: Alignment
+                                                                            .centerLeft,
+                                                                        end: Alignment
+                                                                            .centerRight,
+                                                                        colors: [
+                                                                          _cyan.withValues(
+                                                                              alpha: 0.18),
+                                                                          const Color(
+                                                                              0xFF0E1B2A),
+                                                                        ],
+                                                                      ),
+                                                                borderRadius:
+                                                                    BorderRadius
+                                                                        .circular(
+                                                                            24),
+                                                                border:
+                                                                    Border.all(
+                                                                  color: whiteMode
+                                                                      ? const Color(0xFFE9C46A).withValues(
+                                                                          alpha:
+                                                                              0.34)
+                                                                      : _cyan.withValues(
+                                                                          alpha:
+                                                                              0.22),
+                                                                ),
+                                                                boxShadow:
+                                                                    whiteMode
+                                                                        ? [
+                                                                            BoxShadow(
+                                                                              color: const Color(0xFFD4A017).withValues(alpha: 0.04),
+                                                                              blurRadius: 18,
+                                                                              offset: const Offset(0, 8),
+                                                                            ),
+                                                                          ]
+                                                                        : [
+                                                                            BoxShadow(
+                                                                              color: _cyan.withValues(alpha: 0.04),
+                                                                              blurRadius: 18,
+                                                                              offset: const Offset(0, 8),
+                                                                            ),
+                                                                          ],
+                                                              ),
+                                                              clipBehavior: Clip
+                                                                  .antiAlias,
+                                                              child: Stack(
+                                                                children: [
+                                                                  Row(
+                                                                    children: [
+                                                                      Container(
+                                                                        width:
+                                                                            36,
+                                                                        height:
+                                                                            36,
+                                                                        decoration:
+                                                                            BoxDecoration(
+                                                                          shape:
+                                                                              BoxShape.circle,
+                                                                          color: whiteMode
+                                                                              ? const Color(0xFFFFF3C4)
+                                                                              : _cyan.withValues(alpha: 0.08),
+                                                                          border:
+                                                                              Border.all(
+                                                                            color: whiteMode
+                                                                                ? const Color(0xFFE9C46A).withValues(alpha: 0.65)
+                                                                                : _cyan.withValues(alpha: 0.26),
+                                                                          ),
+                                                                        ),
+                                                                        child:
+                                                                            Icon(
+                                                                          Icons
+                                                                              .shield_outlined,
+                                                                          color: whiteMode
+                                                                              ? const Color(0xFFA16207)
+                                                                              : _cyan,
+                                                                          size:
+                                                                              22,
+                                                                        ),
+                                                                      ),
+                                                                      const SizedBox(
+                                                                          width:
+                                                                              12),
+                                                                      Expanded(
+                                                                        child:
+                                                                            Column(
+                                                                          crossAxisAlignment:
+                                                                              CrossAxisAlignment.start,
+                                                                          children: [
+                                                                            Text(
+                                                                              AppLocalizations.of(context)!.basePosition,
+                                                                              maxLines: 1,
+                                                                              overflow: TextOverflow.ellipsis,
+                                                                              style: TextStyle(
+                                                                                fontSize: 12,
+                                                                                fontWeight: FontWeight.w600,
+                                                                                color: secondaryText,
+                                                                              ),
+                                                                            ),
+                                                                            const SizedBox(height: 2),
+                                                                            Text(
+                                                                              AppLocalizations.of(context)!.holdQLDPlusCash,
+                                                                              maxLines: 1,
+                                                                              overflow: TextOverflow.ellipsis,
+                                                                              style: TextStyle(
+                                                                                fontSize: 14,
+                                                                                fontWeight: FontWeight.w800,
+                                                                                color: primaryText,
+                                                                              ),
+                                                                            ),
+                                                                          ],
+                                                                        ),
+                                                                      ),
+                                                                      const SizedBox(
+                                                                          width:
+                                                                              12),
+                                                                      Icon(
+                                                                        Icons
+                                                                            .chevron_right_rounded,
+                                                                        color:
+                                                                            tertiaryText,
+                                                                        size:
+                                                                            21,
+                                                                      ),
+                                                                    ],
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                            )),
+                                                        const SizedBox(
+                                                            height: 11),
+                                                        buildAlertCard(
+                                                          dropPercent,
+                                                        ),
+                                                        const SizedBox(
+                                                            height: 11),
+                                                        buildPortfolioCard(
+                                                          qldValue,
+                                                          tqqqValue,
+                                                          totalAsset,
+                                                        ),
+                                                        const SizedBox(
+                                                            height: 18),
+                                                        Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                  .symmetric(
+                                                                  horizontal:
+                                                                      2),
+                                                          child: Row(
+                                                            children: [
+                                                              Icon(
+                                                                Icons
+                                                                    .candlestick_chart_rounded,
+                                                                color:
+                                                                    accentCyan,
+                                                                size: 17,
+                                                              ),
+                                                              const SizedBox(
+                                                                  width: 7),
+                                                              Expanded(
+                                                                child: Text(
+                                                                  AppLocalizations.of(
+                                                                          context)!
+                                                                      .chartMiniTitle,
+                                                                  maxLines: 1,
+                                                                  overflow:
+                                                                      TextOverflow
+                                                                          .ellipsis,
+                                                                  style:
+                                                                      TextStyle(
+                                                                    color:
+                                                                        primaryText,
+                                                                    fontSize:
+                                                                        14,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .w700,
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        ),
+                                                        const SizedBox(
+                                                            height: 8),
+                                                        buildQldMiniChart(),
+                                                        const SizedBox(
+                                                            height: 8),
+                                                        buildChartGuideInfoStrip(),
+                                                        const SizedBox(
+                                                            height: 14),
+                                                        buildInvestmentCalculatorCard(),
+                                                        const SizedBox(
+                                                            height: 8),
+                                                        if (DateTime.now()
+                                                            .isBefore(
+                                                                DateTime(1900)))
+                                                          Text(
+                                                            '짤 2026 Dong Hwan. All rights reserved.',
+                                                            textAlign: TextAlign
+                                                                .center,
+                                                            style: TextStyle(
+                                                              color: whiteMode
+                                                                  ? _lightMuted
+                                                                  : Colors
+                                                                      .white30,
+                                                              fontSize: 10,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w500,
+                                                            ),
+                                                          ),
+                                                        Text(
+                                                          '(C) 2026 Dong Hwan. All rights reserved.',
+                                                          textAlign:
+                                                              TextAlign.center,
+                                                          style: TextStyle(
+                                                            color: whiteMode
+                                                                ? _lightMuted
+                                                                : Colors
+                                                                    .white30,
+                                                            fontSize: 10,
+                                                            fontWeight:
+                                                                FontWeight.w500,
+                                                          ),
+                                                        ),
+                                                        const SizedBox(
+                                                            height: 32),
+                                                      ],
+                                                    ),
+                                                  ]))),
+                                            ],
+                                          ),
+                                        ), // RefreshIndicator
+                                        // 커버 오버레이: 시트가 낮을 때 콘텐츠를 가리고 힌트를 표시
+                                        if (coverOpacity > 0)
+                                          Positioned.fill(
+                                            top: 24,
+                                            child: GestureDetector(
+                                              behavior: HitTestBehavior.opaque,
+                                              onVerticalDragUpdate: (details) {
+                                                if (!_sheetController
+                                                    .isAttached) return;
+                                                final delta =
+                                                    -details.delta.dy /
+                                                        sheetExtent;
+                                                final next =
+                                                    (_sheetController.size +
+                                                            delta)
+                                                        .clamp(
+                                                            collapsedSheetSize,
+                                                            0.97);
+                                                _sheetController.jumpTo(next);
+                                              },
+                                              onVerticalDragEnd: (details) {
+                                                if (!_sheetController
+                                                    .isAttached) return;
+                                                final velocity =
+                                                    details.primaryVelocity ??
+                                                        0;
+                                                final size =
+                                                    _sheetController.size;
+                                                final target = velocity > 300
+                                                    ? collapsedSheetSize
+                                                    : velocity < -300
+                                                        ? 0.97
+                                                        : (size >
+                                                                (collapsedSheetSize +
+                                                                        0.97) /
+                                                                    2
+                                                            ? 0.97
+                                                            : collapsedSheetSize);
+                                                _sheetController.animateTo(
+                                                    target,
+                                                    duration: const Duration(
+                                                        milliseconds: 320),
+                                                    curve: Curves.easeOutCubic);
+                                              },
+                                              child: Opacity(
+                                                opacity: coverOpacity,
+                                                child: Container(
+                                                  color: whiteMode
+                                                      ? _lightAppBg
+                                                      : _appBg,
+                                                  child: Column(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment.start,
+                                                    mainAxisSize:
+                                                        MainAxisSize.min,
+                                                    children: [
+                                                      const SizedBox(
+                                                          height: 16),
+                                                      Column(
+                                                        mainAxisSize:
+                                                            MainAxisSize.min,
+                                                        children: [
+                                                          Row(
+                                                            mainAxisAlignment:
+                                                                MainAxisAlignment
+                                                                    .center,
+                                                            mainAxisSize:
+                                                                MainAxisSize
+                                                                    .min,
+                                                            children: [
+                                                              Icon(
+                                                                  Icons
+                                                                      .bar_chart_rounded,
+                                                                  size: 13,
+                                                                  color: whiteMode
+                                                                      ? const Color(
+                                                                          0xFF607D8B)
+                                                                      : Colors
+                                                                          .white60),
+                                                              const SizedBox(
+                                                                  width: 5),
+                                                              Text(
+                                                                l10n.coverStrategyTab,
+                                                                style:
+                                                                    TextStyle(
+                                                                  color: whiteMode
+                                                                      ? const Color(
+                                                                          0xFF546E7A)
+                                                                      : Colors
+                                                                          .white70,
+                                                                  fontSize: 12,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w700,
+                                                                ),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                          const SizedBox(
+                                                              height: 5),
+                                                          Row(
+                                                            mainAxisAlignment:
+                                                                MainAxisAlignment
+                                                                    .center,
+                                                            mainAxisSize:
+                                                                MainAxisSize
+                                                                    .min,
+                                                            children: [
+                                                              Icon(
+                                                                  Icons
+                                                                      .arrow_upward_rounded,
+                                                                  size: 12,
+                                                                  color: whiteMode
+                                                                      ? const Color(
+                                                                          0xFF1565C0)
+                                                                      : const Color(
+                                                                          0xFF42A5F5)),
+                                                              const SizedBox(
+                                                                  width: 4),
+                                                              Text(
+                                                                l10n.coverStrategyHint,
+                                                                style:
+                                                                    TextStyle(
+                                                                  color: whiteMode
+                                                                      ? const Color(
+                                                                          0xFF90A4AE)
+                                                                      : Colors
+                                                                          .white54,
+                                                                  fontSize: 12,
+                                                                ),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
                                               ),
                                             ),
-                                          ],
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                      buildIndicatorGrid(),
+                                          ),
+                                      ], // Stack children
+                                    ), // Stack
+                                  ), // ClipRRect
+                                ); // Container (AnimatedBuilder builder return)
+                              }, // AnimatedBuilder builder
+                            ), // AnimatedBuilder
+                          ), // DraggableScrollableSheet
                         ],
-                      ),
-                      ), // SingleChildScrollView
-                      DraggableScrollableSheet(
-                        controller: _sheetController,
-                        initialChildSize: 0.70,
-                        minChildSize: 0.22,
-                        maxChildSize: 0.97,
-                        snap: true,
-                        snapSizes: const [0.22, 0.70, 0.97],
-                        builder: (context, scrollController) => AnimatedBuilder(
-                          animation: _sheetController,
-                          builder: (context, _) {
-                            final sheetSize = _sheetController.isAttached ? _sheetController.size : 0.70;
-                            final coverOpacity = ((0.97 - sheetSize) / (0.97 - 0.70)).clamp(0.0, 1.0);
-                            return Container(
-                          decoration: BoxDecoration(
-                            color: whiteMode ? _lightAppBg : _appBg,
-                            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-                            border: Border(
-                              top: BorderSide(color: whiteMode ? const Color(0xFFD0DAE6) : const Color(0xFF1E3448), width: 1),
-                              left: BorderSide(color: whiteMode ? const Color(0xFFD0DAE6) : const Color(0xFF1E3448), width: 1),
-                              right: BorderSide(color: whiteMode ? const Color(0xFFD0DAE6) : const Color(0xFF1E3448), width: 1),
-                            ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: whiteMode ? Colors.black.withValues(alpha: 0.10) : Colors.black.withValues(alpha: 0.35),
-                                blurRadius: 16,
-                                offset: const Offset(0, -4),
-                              ),
-                            ],
-                          ),
-                          child: ClipRRect(
-                            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-                            child: Stack(
-                              children: [
-                                CustomScrollView(
-                              controller: scrollController,
-                              physics: const AlwaysScrollableScrollPhysics(parent: ClampingScrollPhysics()),
-                              slivers: [
-                                SliverToBoxAdapter(child: Padding(
-                                  padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
-                                  child: Stack(
-                                    alignment: Alignment.center,
-                                    children: [
-                                      Center(
-                                        child: Container(
-                                          width: 40, height: 4,
-                                          decoration: BoxDecoration(
-                                            color: whiteMode ? Colors.black26 : Colors.white30,
-                                            borderRadius: BorderRadius.circular(2),
-                                          ),
-                                        ),
-                                      ),
-                                      Align(
-                                        alignment: Alignment.centerRight,
-                                        child: InkWell(
-                                          onTap: showUsageGuideInfo,
-                                          borderRadius: BorderRadius.circular(8),
-                                          child: Padding(
-                                            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 3),
-                                            child: Text(
-                                              '${AppLocalizations.of(context)!.usageGuideCardTitle} >',
-                                              style: TextStyle(
-                                                color: (whiteMode ? Colors.black : Colors.white).withValues(alpha: 0.28),
-                                                fontSize: 11,
-                                                fontWeight: FontWeight.w600,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                )),
-                                SliverPadding(
-                                  padding: const EdgeInsets.fromLTRB(12, 8, 12, 80),
-                                  sliver: SliverList(delegate: SliverChildListDelegate([
-                        Column(
-                          children: [
-                      const SizedBox(height: 0),
-                      GestureDetector(
-                          onTap: showBasePositionInfo,
-                          child: Container(
-                            width: double.infinity,
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 14, vertical: 10),
-                            decoration: BoxDecoration(
-                              color: whiteMode ? const Color(0xFFFFFBEB) : null,
-                              gradient: whiteMode
-                                  ? null
-                                  : LinearGradient(
-                                      begin: Alignment.centerLeft,
-                                      end: Alignment.centerRight,
-                                      colors: [
-                                        _cyan.withValues(alpha: 0.18),
-                                        const Color(0xFF0E1B2A),
-                                      ],
-                                    ),
-                              borderRadius: BorderRadius.circular(24),
-                              border: Border.all(
-                                color: whiteMode
-                                    ? const Color(0xFFE9C46A)
-                                        .withValues(alpha: 0.34)
-                                    : _cyan.withValues(alpha: 0.22),
-                              ),
-                              boxShadow: whiteMode
-                                  ? [
-                                      BoxShadow(
-                                        color: const Color(0xFFD4A017)
-                                            .withValues(alpha: 0.04),
-                                        blurRadius: 18,
-                                        offset: const Offset(0, 8),
-                                      ),
-                                    ]
-                                  : [
-                                      BoxShadow(
-                                        color: _cyan.withValues(alpha: 0.04),
-                                        blurRadius: 18,
-                                        offset: const Offset(0, 8),
-                                      ),
-                                    ],
-                            ),
-                            clipBehavior: Clip.antiAlias,
-                            child: Stack(
-                              children: [
-                                Row(
-                                  children: [
-                                    Container(
-                                      width: 40,
-                                      height: 40,
-                                      decoration: BoxDecoration(
-                                        shape: BoxShape.circle,
-                                        color: whiteMode
-                                            ? const Color(0xFFFFF3C4)
-                                            : _cyan.withValues(alpha: 0.08),
-                                        border: Border.all(
-                                          color: whiteMode
-                                              ? const Color(0xFFE9C46A)
-                                                  .withValues(alpha: 0.65)
-                                              : _cyan.withValues(alpha: 0.26),
-                                        ),
-                                      ),
-                                      child: Icon(
-                                        Icons.shield_outlined,
-                                        color: whiteMode
-                                            ? const Color(0xFFA16207)
-                                            : _cyan,
-                                        size: 22,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 12),
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            AppLocalizations.of(context)!
-                                                .basePosition,
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis,
-                                            style: TextStyle(
-                                              fontSize: 12,
-                                              fontWeight: FontWeight.w600,
-                                              color: secondaryText,
-                                            ),
-                                          ),
-                                          const SizedBox(height: 3),
-                                          Text(
-                                            AppLocalizations.of(context)!
-                                                .holdQLDPlusCash,
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis,
-                                            style: TextStyle(
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.w800,
-                                              color: primaryText,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    const SizedBox(width: 12),
-                                    Icon(
-                                      Icons.chevron_right_rounded,
-                                      color: tertiaryText,
-                                      size: 21,
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          )),
-                      const SizedBox(height: 14),
-                      buildAlertCard(
-                        dropPercent,
-                      ),
-                      const SizedBox(height: 14),
-                      buildPortfolioCard(
-                        qldValue,
-                        tqqqValue,
-                        totalAsset,
-                      ),
-                      const SizedBox(height: 24),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 2),
-                        child: Row(
-                          children: [
-                            Icon(
-                              Icons.candlestick_chart_rounded,
-                              color: accentCyan,
-                              size: 17,
-                            ),
-                            const SizedBox(width: 7),
-                            Expanded(
-                              child: Text(
-                                AppLocalizations.of(context)!.chartMiniTitle,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
-                                  color: primaryText,
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      buildQldMiniChart(),
-                      const SizedBox(height: 8),
-                      buildChartGuideInfoStrip(),
-                      const SizedBox(height: 14),
-                      buildInvestmentCalculatorCard(),
-                      const SizedBox(height: 8),
-                      if (DateTime.now().isBefore(DateTime(1900)))
-                        Text(
-                          '짤 2026 Dong Hwan. All rights reserved.',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: whiteMode ? _lightMuted : Colors.white30,
-                            fontSize: 10,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      Text(
-                        '(C) 2026 Dong Hwan. All rights reserved.',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          color: whiteMode ? _lightMuted : Colors.white30,
-                          fontSize: 10,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      const SizedBox(height: 32),
-                    ],
+                      );
+                    },
                   ),
-                ]))
-                              ),
-                              ],
-                            ),
-                            // 커버 오버레이: 시트가 낮을 때 콘텐츠를 가리고 힌트를 표시
-                            if (coverOpacity > 0)
-                            Positioned.fill(
-                              top: 36,
-                              child: GestureDetector(
-                                behavior: HitTestBehavior.opaque,
-                                onVerticalDragUpdate: (details) {
-                                  if (!_sheetController.isAttached) return;
-                                  final screenH = MediaQuery.of(context).size.height;
-                                  final delta = -details.delta.dy / screenH;
-                                  final next = (_sheetController.size + delta).clamp(0.22, 0.97);
-                                  _sheetController.jumpTo(next);
-                                },
-                                onVerticalDragEnd: (details) {
-                                  if (!_sheetController.isAttached) return;
-                                  final velocity = details.primaryVelocity ?? 0;
-                                  final size = _sheetController.size;
-                                  final target = velocity > 300
-                                      ? 0.22
-                                      : velocity < -300
-                                          ? (size < 0.50 ? 0.70 : 0.97)
-                                          : (size > 0.85 ? 0.97 : size > 0.50 ? 0.70 : 0.22);
-                                  _sheetController.animateTo(target, duration: const Duration(milliseconds: 320), curve: Curves.easeOutCubic);
-                                },
-                                child: Opacity(
-                                  opacity: coverOpacity,
-                                  child: Container(
-                                    color: whiteMode ? _lightAppBg : _appBg,
-                                    child: Column(
-                                      mainAxisAlignment: MainAxisAlignment.start,
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        const SizedBox(height: 16),
-                                        Column(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            Row(
-                                              mainAxisAlignment: MainAxisAlignment.center,
-                                              mainAxisSize: MainAxisSize.min,
-                                              children: [
-                                                Icon(Icons.bar_chart_rounded, size: 13, color: whiteMode ? const Color(0xFF607D8B) : Colors.white60),
-                                                const SizedBox(width: 5),
-                                                Text(
-                                                  l10n.coverStrategyTab,
-                                                  style: TextStyle(
-                                                    color: whiteMode ? const Color(0xFF546E7A) : Colors.white70,
-                                                    fontSize: 12,
-                                                    fontWeight: FontWeight.w700,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                            const SizedBox(height: 5),
-                                            Row(
-                                              mainAxisAlignment: MainAxisAlignment.center,
-                                              mainAxisSize: MainAxisSize.min,
-                                              children: [
-                                                Icon(Icons.arrow_upward_rounded, size: 12, color: whiteMode ? const Color(0xFF1565C0) : const Color(0xFF42A5F5)),
-                                                const SizedBox(width: 4),
-                                                Text(
-                                                  l10n.coverStrategyHint,
-                                                  style: TextStyle(
-                                                    color: whiteMode ? const Color(0xFF90A4AE) : Colors.white54,
-                                                    fontSize: 12,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],    // Stack children
-                        ),      // Stack
-                      ),        // ClipRRect
-                    );          // Container (AnimatedBuilder builder return)
-                  },            // AnimatedBuilder builder
-                ),              // AnimatedBuilder
-                      ),        // DraggableScrollableSheet
-                  ],
-                ),
-        ),
-      _buildDraggableContentButton(),
-    ]),
+          ),
+        ]),
       ),
-    );
-  }
-
-  Widget _buildDraggableContentButton() {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final maxX = constraints.maxWidth - 64;
-        final maxY = constraints.maxHeight - 58;
-        if (contentWidgetButtonX < 0) contentWidgetButtonX = 0;
-        if (contentWidgetButtonY < 0) contentWidgetButtonY = maxY;
-        return Stack(
-          children: [
-            Positioned(
-              left: contentWidgetButtonX.clamp(0, maxX),
-              top: contentWidgetButtonY.clamp(0, maxY),
-              child: GestureDetector(
-                onPanUpdate: (details) {
-                  setState(() {
-                    contentWidgetButtonX = (contentWidgetButtonX + details.delta.dx).clamp(0, maxX);
-                    contentWidgetButtonY = (contentWidgetButtonY + details.delta.dy).clamp(0, maxY);
-                  });
-                  showContentWidgetButtonTemporarily();
-                },
-                child: AnimatedOpacity(
-                  opacity: showContentWidgetButton ? 1.0 : 0.50,
-                  duration: const Duration(milliseconds: 650),
-                  curve: Curves.easeInOutCubic,
-                  child: buildCloseGuessRankingCard(),
-                ),
-              ),
-            ),
-          ],
-        );
-      },
     );
   }
 
@@ -10572,15 +10966,12 @@ class _HomePageState extends State<HomePage>
         .map((c) => c.rsi)
         .firstWhere((r) => r != null, orElse: () => null);
 
-    final rsiColor = whiteMode
-        ? const Color(0xFF7C3AED)
-        : const Color(0xFFA78BFA);
-    final rsiOverboughtColor = whiteMode
-        ? const Color(0xFFEF4444)
-        : Colors.redAccent;
-    final rsiOversoldColor = whiteMode
-        ? const Color(0xFF16A34A)
-        : const Color(0xFF4ADE80);
+    final rsiColor =
+        whiteMode ? const Color(0xFF7C3AED) : const Color(0xFFA78BFA);
+    final rsiOverboughtColor =
+        whiteMode ? const Color(0xFFEF4444) : Colors.redAccent;
+    final rsiOversoldColor =
+        whiteMode ? const Color(0xFF16A34A) : const Color(0xFF4ADE80);
 
     String rsiZoneLabel = l10n.rsiNormalZone;
     String rsiStatusLabel = l10n.rsiNormal;
@@ -10799,10 +11190,11 @@ class _HomePageState extends State<HomePage>
                               final bg = wm ? _lightSurface : _darkSurface;
                               final pt = wm ? _lightText : _darkText;
                               final st = wm ? _lightMuted : _darkMuted;
+                              final dl10n = AppLocalizations.of(dialogContext)!;
                               return AlertDialog(
                                 backgroundColor: bg,
                                 title: Text(
-                                  'RSI(14)란?',
+                                  dl10n.rsiDialogTitle,
                                   style: TextStyle(
                                     color: pt,
                                     fontWeight: FontWeight.w900,
@@ -10810,13 +11202,7 @@ class _HomePageState extends State<HomePage>
                                   ),
                                 ),
                                 content: Text(
-                                  'RSI(Relative Strength Index)는 최근 14일간의 상승폭과 하락폭을 비교해 현재 주가의 과열·침체 여부를 0~100으로 나타내는 지표입니다.\n\n'
-                                  '• 70 이상 → 과매수 구간\n'
-                                  '  단기 급등으로 조정 가능성이 높습니다.\n\n'
-                                  '• 30 이하 → 과매도 구간\n'
-                                  '  단기 급락으로 반등 가능성이 있습니다.\n\n'
-                                  '• 30~70 → 정상 범위\n'
-                                  '  과열·침체 신호 없음.',
+                                  dl10n.rsiDialogContent,
                                   style: TextStyle(
                                     color: st,
                                     fontSize: 13,
@@ -10827,7 +11213,7 @@ class _HomePageState extends State<HomePage>
                                   FilledButton(
                                     onPressed: () =>
                                         Navigator.pop(dialogContext),
-                                    child: const Text('확인'),
+                                    child: const Text('OK'),
                                   ),
                                 ],
                               );
@@ -10891,8 +11277,7 @@ class _HomePageState extends State<HomePage>
                         ),
                       ),
                     ),
-                    VerticalDivider(
-                        width: 1, thickness: 1, color: chartLine),
+                    VerticalDivider(width: 1, thickness: 1, color: chartLine),
                     Expanded(
                       child: Padding(
                         padding: const EdgeInsets.symmetric(
@@ -10969,7 +11354,7 @@ class _HomePageState extends State<HomePage>
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 15),
+      padding: const EdgeInsets.fromLTRB(16, 13, 16, 12),
       decoration: BoxDecoration(
         color: cardBg,
         borderRadius: BorderRadius.circular(28),
@@ -11036,13 +11421,13 @@ class _HomePageState extends State<HomePage>
               ),
             ],
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: 4),
           Row(
             children: [
               Expanded(
                 flex: 6,
                 child: SizedBox(
-                  height: 142,
+                  height: 132,
                   child: Stack(
                     alignment: Alignment.center,
                     children: [
@@ -11518,88 +11903,6 @@ class _HomePageState extends State<HomePage>
     );
   }
 
-  Widget buildCloseGuessRankingCard() {
-    final whiteMode = isWhiteModeEnabled(context);
-    final cardBg =
-        whiteMode ? const Color(0xFFF0F7FF) : const Color(0xFF102033);
-    final cardLine =
-        whiteMode ? const Color(0xFFB7D8FF) : _cyan.withValues(alpha: 0.22);
-    final accent = whiteMode ? _lightBlue : _cyan;
-    return Semantics(
-      button: true,
-      label: 'Contents',
-      child: Container(
-        width: 48,
-        height: 42,
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: whiteMode
-                ? [
-                    cardBg,
-                    const Color(0xFFEAFDF7),
-                  ]
-                : [
-                    cardBg,
-                    const Color(0xFF0C2B2D),
-                  ],
-          ),
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: cardLine),
-          boxShadow: whiteMode
-              ? [
-                  BoxShadow(
-                    color: _lightBlue.withValues(alpha: 0.16),
-                    blurRadius: 8,
-                    offset: const Offset(0, 4),
-                  ),
-                ]
-              : [
-                  BoxShadow(
-                    color: _cyan.withValues(alpha: 0.12),
-                    blurRadius: 8,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-        ),
-        child: InkWell(
-          onTap: () {
-            openContentListPageFromContext(context);
-          },
-          borderRadius: BorderRadius.circular(10),
-          child: Center(
-            child: Container(
-              width: 32,
-              height: 32,
-              padding: const EdgeInsets.all(2),
-              decoration: BoxDecoration(
-                color: accent.withValues(alpha: whiteMode ? 0.10 : 0.14),
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(
-                  color: accent.withValues(alpha: 0.42),
-                ),
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(6),
-                child: Image.asset(
-                  'assets/qld_widget_icon.png',
-                  fit: BoxFit.contain,
-                  gaplessPlayback: true,
-                  errorBuilder: (_, __, ___) => Icon(
-                    Icons.apps_rounded,
-                    color: accent,
-                    size: 18,
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
   Widget buildInvestmentCalculatorCard() {
     final whiteMode = isWhiteModeEnabled(context);
     final l10n = AppLocalizations.of(context)!;
@@ -11652,7 +11955,7 @@ class _HomePageState extends State<HomePage>
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 14),
+      padding: const EdgeInsets.fromLTRB(16, 13, 16, 12),
       decoration: BoxDecoration(
         color: cardBg,
         borderRadius: BorderRadius.circular(24),
@@ -11722,7 +12025,7 @@ class _HomePageState extends State<HomePage>
               ),
             ],
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: 11),
           Row(
             children: [
               Expanded(
@@ -11745,7 +12048,7 @@ class _HomePageState extends State<HomePage>
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 10),
           buildCalculatorSection(
             title: l10n.investmentCalculatorLumpSumTitle,
             icon: Icons.savings_rounded,
@@ -11803,7 +12106,7 @@ class _HomePageState extends State<HomePage>
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 10),
           buildCalculatorSection(
             title: l10n.investmentCalculatorMonthlyTitle,
             icon: Icons.auto_graph_rounded,
@@ -11874,7 +12177,7 @@ class _HomePageState extends State<HomePage>
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 10),
           Text(
             l10n.investmentCalculatorDisclaimer,
             style: TextStyle(
@@ -11933,7 +12236,7 @@ class _HomePageState extends State<HomePage>
   }) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(13),
+      padding: const EdgeInsets.all(11),
       decoration: BoxDecoration(
         color: panelBg,
         borderRadius: BorderRadius.circular(18),
@@ -11956,7 +12259,7 @@ class _HomePageState extends State<HomePage>
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 10),
           ...children,
         ],
       ),
@@ -12332,6 +12635,67 @@ class _HomePageState extends State<HomePage>
     ];
   }
 
+  Widget _strategyCardBadge(BuildContext context, {required Color accent}) {
+    final whiteMode = isWhiteModeEnabled(context);
+    final l10n = AppLocalizations.of(context)!;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      decoration: BoxDecoration(
+        color: accent.withValues(alpha: whiteMode ? 0.10 : 0.16),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: accent.withValues(alpha: 0.35)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.bar_chart_rounded, size: 11, color: accent),
+          const SizedBox(width: 4),
+          Text(
+            l10n.strategyCardLabel,
+            style: TextStyle(
+              color: accent,
+              fontSize: 10,
+              fontWeight: FontWeight.w800,
+              letterSpacing: 0.2,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget currentStrategyPageForDropPercent(double dropPercent) {
+    if (dropPercent <= -50) return const Minus50Page();
+    if (touchedMinus50 && dropPercent > -50) {
+      return const HoldPositionPage(
+        lastZone: '-50%',
+        accent: Colors.purpleAccent,
+      );
+    }
+    if (dropPercent <= -40) return const Minus40Page();
+    if (touchedMinus40 && dropPercent > -40) {
+      return const HoldPositionPage(
+        lastZone: '-40%',
+        accent: Colors.redAccent,
+      );
+    }
+    if (dropPercent <= -30) return const Minus30Page();
+    if (touchedMinus30 && dropPercent > -30) {
+      return const HoldPositionPage(
+        lastZone: '-30%',
+        accent: Colors.orangeAccent,
+      );
+    }
+    if (dropPercent <= -20) return const Minus20Page();
+    if (touchedMinus20 && dropPercent > -20) {
+      return const HoldPositionPage(
+        lastZone: '-20%',
+        accent: Colors.greenAccent,
+      );
+    }
+    return const NoBuyZonePage();
+  }
+
   Widget buildAlertCard(double dropPercent) {
     return ValueListenableBuilder<int>(
       valueListenable: rebalanceCardTriggeredAt,
@@ -12351,9 +12715,8 @@ class _HomePageState extends State<HomePage>
           final whiteMode = isWhiteModeEnabled(context);
           const goldColor = Color(0xFFD4A017);
           const goldLight = Color(0xFFFFD700);
-          final surface = whiteMode
-              ? const Color(0xFFFFFBEA)
-              : const Color(0xFF1A1500);
+          final surface =
+              whiteMode ? const Color(0xFFFFFBEA) : const Color(0xFF1A1500);
           return GestureDetector(
             onTap: () async {
               await dismissRebalanceCard();
@@ -12370,7 +12733,7 @@ class _HomePageState extends State<HomePage>
               width: double.infinity,
               padding: const EdgeInsets.symmetric(
                 horizontal: 18,
-                vertical: 15,
+                vertical: 12,
               ),
               decoration: BoxDecoration(
                 color: surface,
@@ -12384,102 +12747,109 @@ class _HomePageState extends State<HomePage>
                   ),
                 ],
               ),
-              child: Row(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Container(
-                    width: 52,
-                    height: 52,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: goldColor.withValues(alpha: 0.15),
-                      border: Border.all(
-                        color: goldColor.withValues(alpha: 0.35),
+                  _strategyCardBadge(context, accent: goldColor),
+                  const SizedBox(height: 10),
+                  Row(
+                    children: [
+                      Container(
+                        width: 48,
+                        height: 48,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: goldColor.withValues(alpha: 0.15),
+                          border: Border.all(
+                            color: goldColor.withValues(alpha: 0.35),
+                          ),
+                        ),
+                        child: const Center(
+                          child: Text('🏆', style: TextStyle(fontSize: 24)),
+                        ),
                       ),
-                    ),
-                    child: const Center(
-                      child: Text('🏆', style: TextStyle(fontSize: 24)),
-                    ),
-                  ),
-                  const SizedBox(width: 14),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        FittedBox(
-                          fit: BoxFit.scaleDown,
-                          alignment: Alignment.centerLeft,
-                          child: RichText(
-                            text: TextSpan(
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            FittedBox(
+                              fit: BoxFit.scaleDown,
+                              alignment: Alignment.centerLeft,
+                              child: RichText(
+                                text: TextSpan(
+                                  children: [
+                                    TextSpan(
+                                      text:
+                                          '${AppLocalizations.of(context)!.from10yHigh} ',
+                                      style: TextStyle(
+                                        fontSize: 13,
+                                        color: whiteMode
+                                            ? _lightMuted
+                                            : _darkMuted,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                    TextSpan(
+                                      text:
+                                          '${dropPercent.toStringAsFixed(2)}%',
+                                      style: const TextStyle(
+                                        fontSize: 18,
+                                        color: Colors.redAccent,
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 5),
+                            Row(
                               children: [
-                                TextSpan(
-                                  text:
-                                      '${AppLocalizations.of(context)!.from10yHigh} ',
+                                Text(
+                                  AppLocalizations.of(context)!.rebalanceTitle,
                                   style: TextStyle(
-                                    fontSize: 13,
-                                    color: whiteMode
-                                        ? _lightMuted
-                                        : _darkMuted,
-                                    fontWeight: FontWeight.w600,
+                                    color: goldLight,
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w800,
                                   ),
                                 ),
-                                TextSpan(
-                                  text:
-                                      '${dropPercent.toStringAsFixed(2)}%',
-                                  style: const TextStyle(
-                                    fontSize: 18,
-                                    color: Colors.redAccent,
-                                    fontWeight: FontWeight.w700,
+                                const Spacer(),
+                                Text(
+                                  '${hoursLeft}h',
+                                  style: TextStyle(
+                                    color: goldColor.withValues(alpha: 0.7),
+                                    fontSize: 12,
                                   ),
                                 ),
                               ],
                             ),
-                          ),
-                        ),
-                        const SizedBox(height: 7),
-                        Row(
-                          children: [
+                            const SizedBox(height: 4),
                             Text(
-                              '리밸런싱 구간',
+                              'TQQQ 정리 및 기본 포지션 복귀',
                               style: TextStyle(
-                                color: goldLight,
-                                fontSize: 15,
-                                fontWeight: FontWeight.w800,
-                              ),
-                            ),
-                            const Spacer(),
-                            Text(
-                              '${hoursLeft}h',
-                              style: TextStyle(
-                                color: goldColor.withValues(alpha: 0.7),
+                                color: whiteMode
+                                    ? const Color(0xFF78500A)
+                                    : const Color(0xFFD4A017)
+                                        .withValues(alpha: 0.85),
                                 fontSize: 12,
                               ),
                             ),
                           ],
                         ),
-                        const SizedBox(height: 4),
-                        Text(
-                          'TQQQ 정리 및 기본 포지션 복귀',
-                          style: TextStyle(
-                            color: whiteMode
-                                ? const Color(0xFF78500A)
-                                : const Color(0xFFD4A017)
-                                    .withValues(alpha: 0.85),
-                            fontSize: 12,
-                          ),
-                        ),
-                      ],
-                    ),
+                      ),
+                      const SizedBox(width: 12),
+                      Icon(
+                        Icons.chevron_right_rounded,
+                        color: goldColor.withValues(alpha: 0.6),
+                        size: 24,
+                      ),
+                    ],
                   ),
-                  const SizedBox(width: 12),
-                  Icon(
-                    Icons.chevron_right_rounded,
-                    color: goldColor.withValues(alpha: 0.6),
-                      size: 24,
-                    ),
-                  ],
-                ),
+                ],
               ),
-            );
+            ),
+          );
         }
 
         final whiteMode = isWhiteModeEnabled(context);
@@ -12487,175 +12857,160 @@ class _HomePageState extends State<HomePage>
         IconData icon;
         String title;
         String subtitle;
-        Widget page;
+        final page = currentStrategyPageForDropPercent(dropPercent);
         bool useStrongAccent = true;
 
         if (dropPercent <= -50) {
-      color = Colors.purple;
-      icon = Icons.bolt_rounded;
-      title = AppLocalizations.of(context)!.minus50Headline;
-      subtitle = AppLocalizations.of(context)!.tapToViewStrategy;
-      page = const Minus50Page();
-    } else if (touchedMinus50 && dropPercent > -50) {
-      color = Colors.purple;
-      icon = Icons.check_circle_outline_rounded;
-      title = AppLocalizations.of(context)!.hold;
-      subtitle = AppLocalizations.of(context)!.tapToViewStrategy;
-      page = const HoldPositionPage(
-        lastZone: '-50%',
-        accent: Colors.purpleAccent,
-      );
-    } else if (dropPercent <= -40) {
-      color = Colors.red;
-      icon = Icons.warning_amber_rounded;
-      title = AppLocalizations.of(context)!.minus40Headline;
-      subtitle = AppLocalizations.of(context)!.tapToViewStrategy;
-      page = const Minus40Page();
-    } else if (touchedMinus40 && dropPercent > -40 && dropPercent <= -20) {
-      color = Colors.redAccent;
-      icon = Icons.check_circle_outline_rounded;
-      title = AppLocalizations.of(context)!.hold;
-      subtitle = AppLocalizations.of(context)!.tapToViewStrategy;
-      page = const HoldPositionPage(
-        lastZone: '-40%',
-        accent: Colors.redAccent,
-      );
-    } else if (dropPercent <= -30) {
-      color = Colors.orange;
-      icon = Icons.shopping_cart_checkout_rounded;
-      title = AppLocalizations.of(context)!.minus30Headline;
-      subtitle = AppLocalizations.of(context)!.tapToViewStrategy;
-      page = const Minus30Page();
-    } else if (touchedMinus30 && dropPercent > -30 && dropPercent <= -20) {
-      color = Colors.orangeAccent;
-      icon = Icons.check_circle_outline_rounded;
-      title = AppLocalizations.of(context)!.hold;
-      subtitle = AppLocalizations.of(context)!.tapToViewStrategy;
-      page = const HoldPositionPage(
-        lastZone: '-30%',
-        accent: Colors.orangeAccent,
-      );
-    } else if (dropPercent <= -20) {
-      color = Colors.green;
-      icon = Icons.auto_graph_rounded;
-      title = AppLocalizations.of(context)!.minus20Headline;
-      subtitle = AppLocalizations.of(context)!.tapToViewStrategy;
-      page = const Minus20Page();
-    } else if (touchedMinus20 && dropPercent > -20) {
-      color = Colors.greenAccent;
-      icon = Icons.check_circle_outline_rounded;
-      title = AppLocalizations.of(context)!.hold;
-      subtitle = AppLocalizations.of(context)!.tapToViewStrategy;
-      page = const HoldPositionPage(
-        lastZone: '-20%',
-        accent: Colors.greenAccent,
-      );
-    } else {
-      color = Colors.blueGrey;
-      icon = Icons.rule_rounded;
-      title = AppLocalizations.of(context)!.noBuyZone;
-      subtitle = AppLocalizations.of(context)!.buySignalMessage;
-      page = const NoBuyZonePage();
-      useStrongAccent = false;
-    }
+          color = Colors.purple;
+          icon = Icons.bolt_rounded;
+          title = AppLocalizations.of(context)!.minus50Headline;
+          subtitle = AppLocalizations.of(context)!.tapToViewStrategy;
+        } else if (touchedMinus50 && dropPercent > -50) {
+          color = Colors.purple;
+          icon = Icons.check_circle_outline_rounded;
+          title = AppLocalizations.of(context)!.hold;
+          subtitle = AppLocalizations.of(context)!.tapToViewStrategy;
+        } else if (dropPercent <= -40) {
+          color = Colors.red;
+          icon = Icons.warning_amber_rounded;
+          title = AppLocalizations.of(context)!.minus40Headline;
+          subtitle = AppLocalizations.of(context)!.tapToViewStrategy;
+        } else if (touchedMinus40 && dropPercent > -40) {
+          color = Colors.redAccent;
+          icon = Icons.check_circle_outline_rounded;
+          title = AppLocalizations.of(context)!.hold;
+          subtitle = AppLocalizations.of(context)!.tapToViewStrategy;
+        } else if (dropPercent <= -30) {
+          color = Colors.orange;
+          icon = Icons.shopping_cart_checkout_rounded;
+          title = AppLocalizations.of(context)!.minus30Headline;
+          subtitle = AppLocalizations.of(context)!.tapToViewStrategy;
+        } else if (touchedMinus30 && dropPercent > -30) {
+          color = Colors.orangeAccent;
+          icon = Icons.check_circle_outline_rounded;
+          title = AppLocalizations.of(context)!.hold;
+          subtitle = AppLocalizations.of(context)!.tapToViewStrategy;
+        } else if (dropPercent <= -20) {
+          color = Colors.green;
+          icon = Icons.auto_graph_rounded;
+          title = AppLocalizations.of(context)!.minus20Headline;
+          subtitle = AppLocalizations.of(context)!.tapToViewStrategy;
+        } else if (touchedMinus20 && dropPercent > -20) {
+          color = Colors.greenAccent;
+          icon = Icons.check_circle_outline_rounded;
+          title = AppLocalizations.of(context)!.hold;
+          subtitle = AppLocalizations.of(context)!.tapToViewStrategy;
+        } else {
+          color = Colors.blueGrey;
+          icon = Icons.rule_rounded;
+          title = AppLocalizations.of(context)!.noBuyZone;
+          subtitle = AppLocalizations.of(context)!.buySignalMessage;
+          useStrongAccent = false;
+        }
 
-    return GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => page,
+        return GestureDetector(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => page,
+              ),
+            );
+          },
+          child: Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(
+              horizontal: 18,
+              vertical: 12,
+            ),
+            decoration: BoxDecoration(
+              color: whiteMode ? _lightSurface : _darkSurface,
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(
+                color: whiteMode
+                    ? color.withValues(alpha: 0.22)
+                    : color.withValues(alpha: useStrongAccent ? 0.26 : 0.20),
+              ),
+              boxShadow: whiteMode
+                  ? [
+                      BoxShadow(
+                        color: const Color(0xFF0F172A).withValues(alpha: 0.04),
+                        blurRadius: 20,
+                        offset: const Offset(0, 10),
+                      ),
+                    ]
+                  : [
+                      BoxShadow(
+                        color: color.withValues(
+                            alpha: useStrongAccent ? 0.04 : 0.02),
+                        blurRadius: 18,
+                        offset: const Offset(0, 8),
+                      ),
+                    ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _strategyCardBadge(context, accent: color),
+                const SizedBox(height: 10),
+                Row(
+                  children: [
+                    Container(
+                      width: 48,
+                      height: 48,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: color.withValues(alpha: whiteMode ? 0.10 : 0.10),
+                        border: Border.all(
+                          color:
+                              color.withValues(alpha: whiteMode ? 0.22 : 0.32),
+                        ),
+                      ),
+                      child: Icon(
+                        icon,
+                        color: whiteMode ? _lightText : color,
+                        size: 26,
+                      ),
+                    ),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            title,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w800,
+                              color: whiteMode ? _lightText : _darkText,
+                              height: 1.3,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            subtitle,
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: whiteMode ? _lightMuted : _darkMuted,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Icon(
+                      Icons.chevron_right_rounded,
+                      color: whiteMode ? _lightMuted : _darkFaint,
+                      size: 24,
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         );
-      },
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(
-          horizontal: 18,
-          vertical: 15,
-        ),
-        decoration: BoxDecoration(
-          color: whiteMode ? _lightSurface : _darkSurface,
-          borderRadius: BorderRadius.circular(24),
-          border: Border.all(
-            color: whiteMode
-                ? color.withValues(alpha: 0.22)
-                : color.withValues(alpha: useStrongAccent ? 0.26 : 0.20),
-          ),
-          boxShadow: whiteMode
-              ? [
-                  BoxShadow(
-                    color: const Color(0xFF0F172A).withValues(alpha: 0.04),
-                    blurRadius: 20,
-                    offset: const Offset(0, 10),
-                  ),
-                ]
-              : [
-                  BoxShadow(
-                    color:
-                        color.withValues(alpha: useStrongAccent ? 0.04 : 0.02),
-                    blurRadius: 18,
-                    offset: const Offset(0, 8),
-                  ),
-                ],
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 52,
-              height: 52,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: color.withValues(alpha: whiteMode ? 0.10 : 0.10),
-                border: Border.all(
-                  color: color.withValues(alpha: whiteMode ? 0.22 : 0.32),
-                ),
-              ),
-              child: Icon(
-                icon,
-                color: whiteMode ? _lightText : color,
-                size: 28,
-              ),
-            ),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w800,
-                      color: whiteMode ? _lightText : _darkText,
-                      height: 1.3,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    subtitle,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: whiteMode ? _lightMuted : _darkMuted,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(width: 12),
-            Icon(
-              Icons.chevron_right_rounded,
-              color: whiteMode ? _lightMuted : _darkFaint,
-              size: 24,
-            ),
-          ],
-        ),
-      ),
-    );
       },
     );
   }
@@ -12858,12 +13213,13 @@ class _InvestmentCurrencyOption {
 
 Future<void> launchTradingViewPage([String symbolPath = 'AMEX-QLD']) async {
   final uri = tradingViewSymbolOverviewUri(symbolPath);
-
-  if (await canLaunchUrl(uri)) {
+  try {
     await launchUrl(
       uri,
       mode: LaunchMode.externalApplication,
     );
+  } catch (error) {
+    debugPrint('TradingView launch failed: $error');
   }
 }
 
@@ -13144,7 +13500,7 @@ class UsageGuidePage extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: pageBg,
-      bottomNavigationBar: buildAdOnlyBottomBar(),
+      bottomNavigationBar: buildDefaultAdBottomBar(context),
       appBar: AppBar(
         title: Text(l10n.usageGuideTitle),
         foregroundColor: primaryText,
@@ -13533,7 +13889,7 @@ class ContentListPage extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: pageBg,
-      bottomNavigationBar: buildAdOnlyBottomBar(),
+      bottomNavigationBar: buildDefaultAdBottomBar(context),
       appBar: AppBar(
         title: Text(l10n.contentTitle),
         foregroundColor: primaryText,
@@ -13551,23 +13907,6 @@ class ContentListPage extends StatelessWidget {
             children: [
               item(
                 number: 1,
-                icon: Icons.help_outline_rounded,
-                title: l10n.contentInquiry,
-                subtitle: l10n.contentInquirySubtitle,
-                color: const Color(0xFF2563EB),
-                badge: l10n.contentInquiryBadge,
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => const InquiryPage(),
-                    ),
-                  );
-                },
-              ),
-              gap(),
-              item(
-                number: 2,
                 icon: Icons.menu_book_rounded,
                 title: l10n.contentBookReader,
                 subtitle: l10n.contentBookReaderSubtitle,
@@ -13584,7 +13923,7 @@ class ContentListPage extends StatelessWidget {
               ),
               gap(),
               item(
-                number: 3,
+                number: 2,
                 icon: Icons.format_quote_rounded,
                 title: l10n.contentStockQuote,
                 subtitle: l10n.contentStockQuoteSubtitle,
@@ -13601,7 +13940,7 @@ class ContentListPage extends StatelessWidget {
               ),
               gap(),
               item(
-                number: 4,
+                number: 3,
                 icon: Icons.casino_rounded,
                 title: l10n.contentNumberGuess,
                 subtitle: l10n.contentNumberGuessSubtitle,
@@ -13618,7 +13957,7 @@ class ContentListPage extends StatelessWidget {
               ),
               gap(),
               item(
-                number: 5,
+                number: 4,
                 icon: Icons.directions_run_rounded,
                 title: l10n.contentJumpDodge,
                 subtitle: l10n.contentJumpDodgeSubtitle,
@@ -13651,18 +13990,21 @@ class StockQuotePage extends StatefulWidget {
 class _StockQuotePageState extends State<StockQuotePage> {
   final random = math.Random();
   int currentIndex = 0;
+  bool _initialized = false;
 
   @override
-  void initState() {
-    super.initState();
-    currentIndex = random.nextInt(stockQuotes.length);
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_initialized) {
+      _initialized = true;
+      final quotes = localizedQuotes(context);
+      if (quotes.isNotEmpty) currentIndex = random.nextInt(quotes.length);
+    }
   }
 
   void showRandomQuote() {
-    final quotes = localizedQuotes(Localizations.localeOf(context));
-    if (quotes.length < 2) {
-      return;
-    }
+    final quotes = localizedQuotes(context);
+    if (quotes.length < 2) return;
 
     var nextIndex = random.nextInt(quotes.length);
     while (nextIndex == currentIndex) {
@@ -13674,516 +14016,14 @@ class _StockQuotePageState extends State<StockQuotePage> {
     });
   }
 
-  static const stockQuotes = <String>[
-    '다른 사람이 탐욕스러울 때는 조심하고, 모두가 두려워할 때는 기회를 보라. — 워런 버핏',
-    '가격은 지불하는 것이고, 가치는 얻는 것이다. — 워런 버핏',
-    '훌륭한 회사를 적당한 가격에 사는 편이 낫다. — 워런 버핏',
-    '이해하지 못하는 사업에는 투자하지 마라. — 워런 버핏',
-    '위험은 자신이 무엇을 하는지 모를 때 커진다. — 워런 버핏',
-    '좋은 기업을 샀다면 보유 기간은 길수록 좋다. — 워런 버핏',
-    '평판을 쌓는 데는 오래 걸리지만 잃는 데는 짧은 순간이면 충분하다. — 워런 버핏',
-    '시장 변동은 적이 아니라 기회가 될 수 있다. — 워런 버핏',
-    '비가 온 뒤에야 누가 무리하게 헤엄쳤는지 보인다. — 워런 버핏',
-    '투자자는 홈런보다 큰 실수를 피하는 데 집중해야 한다. — 워런 버핏',
-    '능력 범위 안에서만 움직이면 실수는 줄어든다. — 워런 버핏',
-    '주식을 사는 것은 종이 조각이 아니라 기업 일부를 사는 일이다. — 워런 버핏',
-    '시장이 10년 닫혀도 보유할 종목만 사라. — 워런 버핏',
-    '단기 가격보다 기업의 장기 수익력을 보라. — 워런 버핏',
-    '훌륭한 경영진보다 훌륭한 사업 구조가 더 중요할 때가 많다. — 워런 버핏',
-    '복잡한 것보다 단순하고 확실한 것을 선택하라. — 워런 버핏',
-    '자신에게 투자하는 것이 가장 좋은 투자일 수 있다. — 워런 버핏',
-    '조급한 매매보다 오래 버틸 수 있는 판단이 중요하다. — 워런 버핏',
-    '모든 공을 칠 필요는 없다. 좋은 공이 올 때까지 기다려라. — 워런 버핏',
-    '투자는 IQ보다 기질이 더 중요하다. — 워런 버핏',
-    '훌륭한 기업은 시간이 지날수록 가치를 드러낸다. — 워런 버핏',
-    '싼 가격보다 중요한 것은 좋은 사업을 제대로 이해하는 것이다. — 워런 버핏',
-    '시장의 소음보다 기업의 현금흐름을 보라. — 워런 버핏',
-    '빚에 기대는 투자는 좋은 판단도 위험하게 만든다. — 워런 버핏',
-    '현금은 기회가 왔을 때 행동할 수 있게 해 준다. — 워런 버핏',
-    '큰돈은 잦은 매매가 아니라 기다림에서 나온다. — 찰리 멍거',
-    '똑똑해지려 애쓰기보다 어리석은 행동을 피하라. — 찰리 멍거',
-    '문제를 풀기 어렵다면 거꾸로 생각해 보라. — 찰리 멍거',
-    '평판과 정직함은 한순간에 사라질 수 있는 자산이다. — 찰리 멍거',
-    '좋은 사업을 오래 보유하는 것이 복리의 핵심이다. — 찰리 멍거',
-    '인센티브를 이해하면 사람의 행동을 더 잘 이해할 수 있다. — 찰리 멍거',
-    '자주 움직일수록 실수할 기회도 늘어난다. — 찰리 멍거',
-    '투자는 기다리는 능력을 요구한다. — 찰리 멍거',
-    '좋은 판단은 여러 분야의 지식을 연결할 때 나온다. — 찰리 멍거',
-    '질 좋은 사업은 시간이 투자자의 편이 되게 만든다. — 찰리 멍거',
-    '기회가 드물다면 준비된 사람이 유리하다. — 찰리 멍거',
-    '매일 똑똑해지기보다 매일 덜 어리석어져라. — 찰리 멍거',
-    '성공은 복잡한 공식보다 기본기를 지키는 데서 온다. — 찰리 멍거',
-    '좋은 투자는 인내심 없는 사람에게 불편하게 느껴진다. — 찰리 멍거',
-    '세상 모든 실수를 직접 경험할 필요는 없다. 남의 실수에서 배워라. — 찰리 멍거',
-    '탁월한 결과는 드문 기회에 크게 행동할 때 나온다. — 찰리 멍거',
-    '좋은 사업을 비싸게 사는 실수를 경계하라. — 찰리 멍거',
-    '투자에서 가장 위험한 말은 대충 안다는 착각이다. — 찰리 멍거',
-    '단순함을 유지하는 것이 장기 성과에 도움이 된다. — 찰리 멍거',
-    '시장을 이기려면 먼저 자신의 충동을 이겨야 한다. — 찰리 멍거',
-    '안전마진은 투자자의 방어막이다. — 벤저민 그레이엄',
-    '단기 시장은 인기투표지만 장기 시장은 저울이다. — 벤저민 그레이엄',
-    '현명한 투자자는 낙관론자에게 팔고 비관론자에게 산다. — 벤저민 그레이엄',
-    '가격 변동은 명령이 아니라 제안일 뿐이다. — 벤저민 그레이엄',
-    '투자는 분석에 근거해야 하고 투기는 기대에 의존한다. — 벤저민 그레이엄',
-    'Mr. Market의 기분에 휘둘리지 말고 이용하라. — 벤저민 그레이엄',
-    '가치보다 충분히 싸게 사는 것이 실수에 대비하는 방법이다. — 벤저민 그레이엄',
-    '손실을 막는 원칙이 수익을 만드는 원칙보다 먼저다. — 벤저민 그레이엄',
-    '시장은 때로 비이성적이지만 가치는 결국 반영된다. — 벤저민 그레이엄',
-    '확실하지 않을수록 안전마진은 더 커야 한다. — 벤저민 그레이엄',
-    '투자자는 가격보다 가치를 먼저 계산해야 한다. — 벤저민 그레이엄',
-    '좋은 분석은 흥분보다 차분함에서 나온다. — 벤저민 그레이엄',
-    '방어적인 투자자는 과도한 자신감을 피한다. — 벤저민 그레이엄',
-    '원칙 없는 기대수익은 투자라기보다 투기에 가깝다. — 벤저민 그레이엄',
-    '시장의 변덕은 장기 투자자의 친구가 될 수 있다. — 벤저민 그레이엄',
-    '싸다는 이유만으로 충분하지 않다. 가치와 안전마진이 필요하다. — 벤저민 그레이엄',
-    '대중의 감정보다 숫자와 가치를 믿어라. — 벤저민 그레이엄',
-    '실수할 가능성을 인정하는 사람이 더 오래 살아남는다. — 벤저민 그레이엄',
-    '투자에서 첫 번째 질문은 얼마나 벌 수 있느냐가 아니라 얼마나 잃을 수 있느냐다. — 벤저민 그레이엄',
-    '좋은 투자란 충분한 근거와 충분한 안전마진을 함께 가진 결정이다. — 벤저민 그레이엄',
-    '무엇을 보유했는지, 왜 보유했는지 알아야 한다. — 피터 린치',
-    '주식은 복권이 아니라 기업의 일부다. — 피터 린치',
-    '기업이 잘하면 장기적으로 주가도 따라간다. — 피터 린치',
-    '자신이 이해하는 곳에서 투자 아이디어를 찾을 수 있다. — 피터 린치',
-    '조사를 하지 않은 투자는 희망에 가깝다. — 피터 린치',
-    '하락장은 반복된다. 중요한 것은 견딜 수 있는가다. — 피터 린치',
-    '주식시장에서 배짱은 지식만큼 중요하다. — 피터 린치',
-    '좋은 종목도 스토리가 변하면 다시 점검해야 한다. — 피터 린치',
-    '모든 종목이 성공할 필요는 없다. 큰 승자가 포트폴리오를 바꾼다. — 피터 린치',
-    '주가보다 기업의 이야기가 먼저다. — 피터 린치',
-    '잘 아는 사업이라도 숫자를 확인해야 한다. — 피터 린치',
-    '시장을 맞히려 하기보다 좋은 회사를 찾는 데 집중하라. — 피터 린치',
-    '개인 투자자는 일상 속에서 좋은 기업을 먼저 발견할 수 있다. — 피터 린치',
-    '인기 없는 좋은 기업이 더 큰 기회를 줄 때가 있다. — 피터 린치',
-    '급락을 견딜 배짱이 없다면 주식 비중을 낮춰야 한다. — 피터 린치',
-    '종목을 사랑하지 말고 기업의 실적을 확인하라. — 피터 린치',
-    '가장 큰 실수는 모르는 것을 아는 척하는 것이다. — 피터 린치',
-    '좋은 투자 아이디어는 복잡한 설명을 필요로 하지 않는다. — 피터 린치',
-    '주가가 내렸다는 이유만으로 싸다고 착각하지 마라. — 피터 린치',
-    '성장주는 성장 스토리가 깨지는 순간 다시 봐야 한다. — 피터 린치',
-    '투자의 승리 공식은 넓게 보유하고 오래 버티는 것이다. — 존 보글',
-    '코스를 지켜라. 시장의 소음 때문에 계획을 바꾸지 마라. — 존 보글',
-    '건초더미에서 바늘을 찾지 말고 건초더미 전체를 사라. — 존 보글',
-    '비용은 확실한 손실이고 수익은 불확실하다. — 존 보글',
-    '시간은 친구이고 충동은 적이다. — 존 보글',
-    '투기에는 감정이 앞서고 투자는 감정을 줄인다. — 존 보글',
-    '장기 투자자는 시장을 예측하지 않아도 된다. — 존 보글',
-    '낮은 비용은 투자자가 통제할 수 있는 가장 강력한 변수다. — 존 보글',
-    '시장 전체를 보유하면 개별 종목 실수를 줄일 수 있다. — 존 보글',
-    '가만히 있는 능력은 투자자의 경쟁력이다. — 존 보글',
-    '복잡한 상품보다 단순한 인덱스가 더 오래 살아남는다. — 존 보글',
-    '수익률을 쫓는 행동이 수익률을 낮출 수 있다. — 존 보글',
-    '투자자는 미래를 알 수 없지만 비용은 줄일 수 있다. — 존 보글',
-    '분산과 낮은 비용, 장기 보유가 기본이다. — 존 보글',
-    '시장은 장기적으로 기업 전체의 성과를 반영한다. — 존 보글',
-    '자주 확인할수록 흔들릴 이유만 늘어난다. — 존 보글',
-    '투자 계획은 감정이 아니라 원칙으로 유지해야 한다. — 존 보글',
-    '지루한 투자가 가장 강한 결과를 만들 수 있다. — 존 보글',
-    '시장의 평균을 꾸준히 받는 것도 강한 전략이다. — 존 보글',
-    '장기 투자에서 가장 큰 적은 비용과 감정이다. — 존 보글',
-    '뛰어난 투자는 남들과 다르게, 더 깊게 생각하는 데서 시작된다. — 하워드 막스',
-    '위험은 변동성이 아니라 영구 손실 가능성에 가깝다. — 하워드 막스',
-    '리스크를 없앨 수는 없지만 통제할 수는 있다. — 하워드 막스',
-    '가격이 높을수록 미래 수익률의 안전마진은 줄어든다. — 하워드 막스',
-    '사이클을 무시하는 투자자는 반복해서 놀라게 된다. — 하워드 막스',
-    '좋은 자산도 너무 비싸게 사면 나쁜 투자가 된다. — 하워드 막스',
-    '투자에서 중요한 것은 맞히는 빈도보다 손익의 비대칭이다. — 하워드 막스',
-    '방어는 약세장이 오기 전에 준비해야 한다. — 하워드 막스',
-    '대중이 확신할수록 반대로 생각할 필요가 커진다. — 하워드 막스',
-    '수익은 가격과 가치의 차이를 이해할 때 생긴다. — 하워드 막스',
-    '성공한 투자는 확률 게임을 잘하는 것이다. — 하워드 막스',
-    '너무 좋은 분위기는 위험을 싸게 보이게 만든다. — 하워드 막스',
-    '시장의 심리는 가격을 가치에서 멀어지게 만들 수 있다. — 하워드 막스',
-    '보수적인 투자는 기회를 포기하는 것이 아니라 생존 확률을 높이는 것이다. — 하워드 막스',
-    '리스크 관리는 수익률이 좋을 때 가장 필요하다. — 하워드 막스',
-    '2차적 사고는 모두가 보는 것을 다르게 해석하는 능력이다. — 하워드 막스',
-    '최고의 매수는 대개 가장 편안한 순간에 오지 않는다. — 하워드 막스',
-    '위험을 인식하지 못하는 것이 가장 큰 위험이다. — 하워드 막스',
-    '시장이 극단에 가까워질수록 신중함은 더 중요하다. — 하워드 막스',
-    '투자는 확실성의 게임이 아니라 확률의 게임이다. — 하워드 막스',
-    '최대 비관의 시기는 최고의 매수 기회가 될 수 있다. — 존 템플턴',
-    '최대 낙관의 시기는 매도를 고민할 때다. — 존 템플턴',
-    '강세장은 비관에서 태어나 회의 속에 자라고 낙관 속에 성숙한다. — 존 템플턴',
-    '환희가 시장을 지배할 때 강세장은 위험해진다. — 존 템플턴',
-    '가장 좋은 기회는 사람들이 외면하는 곳에 있다. — 존 템플턴',
-    '남들이 팔 때 살 수 있는 용기가 필요하다. — 존 템플턴',
-    '이번에는 다르다는 말은 대개 가장 위험하다. — 존 템플턴',
-    '세계 어디든 싼 가치가 있다면 찾아볼 수 있어야 한다. — 존 템플턴',
-    '비관론은 가격을 낮추고, 낮은 가격은 기회를 만든다. — 존 템플턴',
-    '군중이 싫어하는 자산을 차분히 살펴보라. — 존 템플턴',
-    '투자자는 낙관주의자이되 가격에는 냉정해야 한다. — 존 템플턴',
-    '위대한 기회는 대중의 관심 밖에서 시작된다. — 존 템플턴',
-    '최악의 뉴스가 항상 최악의 투자를 의미하지는 않는다. — 존 템플턴',
-    '가격이 충분히 낮다면 불확실성도 보상받을 수 있다. — 존 템플턴',
-    '비관 속에서 산 사람은 낙관 속에서 팔 준비를 해야 한다. — 존 템플턴',
-    '시장은 감정의 극단에서 가장 큰 실수를 만든다. — 존 템플턴',
-    '기회는 편안한 곳보다 불편한 곳에서 자주 나온다. — 존 템플턴',
-    '군중과 반대로 가려면 근거와 용기가 함께 필요하다. — 존 템플턴',
-    '장기 수익은 가장 인기 없는 순간의 판단에서 시작될 수 있다. — 존 템플턴',
-    '투자자는 공포를 피하는 사람이 아니라 공포를 분석하는 사람이다. — 존 템플턴',
-    '큰돈은 맞히는 것보다 끝까지 버티는 데서 나왔다. — 제시 리버모어',
-    '시장은 틀리지 않는다. 의견이 틀릴 뿐이다. — 제시 리버모어',
-    '계속 행동하려는 욕구가 많은 손실을 만든다. — 제시 리버모어',
-    '손실은 작을 때 인정해야 한다. — 제시 리버모어',
-    '추세가 살아 있다면 조급하게 내릴 필요가 없다. — 제시 리버모어',
-    '맞고도 버티지 못하면 큰돈은 벌기 어렵다. — 제시 리버모어',
-    '매일 돈을 벌어야 한다는 생각은 트레이더를 망친다. — 제시 리버모어',
-    '손실 포지션에 물타기하는 것은 위험한 습관이다. — 제시 리버모어',
-    '시장을 설득하려 하지 말고 시장의 말을 들어라. — 제시 리버모어',
-    '가격 움직임 앞에서 자존심은 비용이 된다. — 제시 리버모어',
-    '매수보다 중요한 것은 언제 틀렸는지 아는 것이다. — 제시 리버모어',
-    '큰 추세는 인내한 사람에게 보상한다. — 제시 리버모어',
-    '좋은 판단도 조급한 청산으로 무너질 수 있다. — 제시 리버모어',
-    '시장은 개인의 희망을 신경 쓰지 않는다. — 제시 리버모어',
-    '잦은 매매는 기회보다 실수를 더 많이 만든다. — 제시 리버모어',
-    '큰돈은 조용히 앉아 있을 줄 아는 사람에게 간다. — 제시 리버모어',
-    '투기에서 살아남으려면 먼저 손실을 제한해야 한다. — 제시 리버모어',
-    '가격이 말하는 방향을 무시하지 마라. — 제시 리버모어',
-    '확신보다 중요한 것은 틀렸을 때 빠져나오는 능력이다. — 제시 리버모어',
-    '트레이딩에서 자제력은 분석력만큼 중요하다. — 제시 리버모어',
-    '주식시장은 돈과 심리로 움직인다. — 앙드레 코스톨라니',
-    '주인은 천천히 걷고 개는 앞뒤로 뛰지만 결국 함께 간다. — 앙드레 코스톨라니',
-    '투자자는 돈, 생각, 인내를 가져야 한다. — 앙드레 코스톨라니',
-    '주식시장에서 가장 비싼 것은 조급함이다. — 앙드레 코스톨라니',
-    '대중이 흥분할 때는 한 걸음 물러나라. — 앙드레 코스톨라니',
-    '좋은 투자자는 시장의 기분을 읽되 따라가지 않는다. — 앙드레 코스톨라니',
-    '가격은 심리에 흔들리지만 가치는 시간이 필요하다. — 앙드레 코스톨라니',
-    '투자에는 상상력도 필요하지만 인내가 더 필요하다. — 앙드레 코스톨라니',
-    '빚으로 투자하면 시간이 적이 된다. — 앙드레 코스톨라니',
-    '주식은 인내심 없는 사람의 돈을 인내심 있는 사람에게 옮긴다. — 앙드레 코스톨라니',
-    '대중과 같은 생각을 하면서 대중보다 나은 결과를 기대하기 어렵다. — 앙드레 코스톨라니',
-    '시장에는 논리보다 심리가 먼저 움직이는 날이 많다. — 앙드레 코스톨라니',
-    '기다림 없는 투자는 투기와 가까워진다. — 앙드레 코스톨라니',
-    '돈이 급한 투자자는 시장의 변덕을 견디기 어렵다. — 앙드레 코스톨라니',
-    '하락은 고통스럽지만 기회의 언어이기도 하다. — 앙드레 코스톨라니',
-    '시장을 너무 자주 보면 생각보다 감정이 앞선다. — 앙드레 코스톨라니',
-    '인내심은 투자자의 숨은 자본이다. — 앙드레 코스톨라니',
-    '좋은 아이디어도 시간이 없으면 실패할 수 있다. — 앙드레 코스톨라니',
-    '투자자는 군중의 환호보다 자신의 판단을 믿어야 한다. — 앙드레 코스톨라니',
-    '시장에서 오래 살아남는 사람이 결국 많은 것을 배운다. — 앙드레 코스톨라니',
-    '고통은 성찰을 만나야 진보가 된다. — 레이 달리오',
-    '모르는 것을 인정하는 것이 리스크 관리의 시작이다. — 레이 달리오',
-    '상관관계가 낮은 자산을 섞으면 포트폴리오가 더 안정될 수 있다. — 레이 달리오',
-    '원칙이 없으면 위기 때 감정이 결정을 대신한다. — 레이 달리오',
-    '현실을 있는 그대로 보는 능력이 좋은 의사결정의 출발점이다. — 레이 달리오',
-    '투자자는 확신보다 검증 가능한 원칙을 가져야 한다. — 레이 달리오',
-    '분산은 무지를 숨기는 것이 아니라 불확실성을 인정하는 방법이다. — 레이 달리오',
-    '자신의 약점을 모르면 시장이 대신 알려준다. — 레이 달리오',
-    '좋은 시스템은 감정적인 순간에도 같은 기준을 적용한다. — 레이 달리오',
-    '큰 그림을 이해하면 단기 소음에 덜 흔들린다. — 레이 달리오',
-    '중요한 것은 맞고 틀림이 아니라 맞을 때 얼마나 벌고 틀릴 때 얼마나 잃느냐다. — 조지 소로스',
-    '시장은 현실을 반영할 뿐 아니라 현실에 영향을 주기도 한다. — 조지 소로스',
-    '틀렸다는 것을 빨리 인정하는 능력은 강한 무기다. — 조지 소로스',
-    '생존이 먼저이고 수익은 그다음이다. — 조지 소로스',
-    '확신이 커질수록 반대 가능성도 점검해야 한다. — 조지 소로스',
-    '시장의 착각은 오래 지속될 수 있다. — 조지 소로스',
-    '좋은 투자자는 자신의 오류를 빠르게 수정한다. — 조지 소로스',
-    '위험한 것은 틀리는 것이 아니라 틀린 채 버티는 것이다. — 조지 소로스',
-    '기회가 클수록 포지션 관리가 더 중요하다. — 조지 소로스',
-    '투자는 불완전한 정보 속에서 결정을 내리는 일이다. — 조지 소로스',
-    '공격보다 방어가 먼저다. — 폴 튜더 존스',
-    '손실 포지션에 물타기하는 사람은 결국 더 큰 위험을 만든다. — 폴 튜더 존스',
-    '자본을 지키면 다음 기회가 온다. — 폴 튜더 존스',
-    '시장에서 영웅이 되려 하지 마라. — 폴 튜더 존스',
-    '손실을 작게 만드는 능력이 장기 성과를 만든다. — 폴 튜더 존스',
-    '가격이 자신의 생각과 다르게 움직이면 먼저 리스크를 줄여라. — 폴 튜더 존스',
-    '큰 수익보다 큰 손실을 피하는 것이 먼저다. — 폴 튜더 존스',
-    '트레이딩에서 자존심은 손실을 키운다. — 폴 튜더 존스',
-    '방어적인 마음가짐은 약함이 아니라 생존 전략이다. — 폴 튜더 존스',
-    '손실 관리 없는 공격은 오래가지 못한다. — 폴 튜더 존스',
-    '손실은 작을 때 자르는 것이 원칙이다. — 윌리엄 오닐·마크 미너비니',
-    '강한 주식은 강한 이유가 있다. — 윌리엄 오닐·마크 미너비니',
-    '추세와 싸우지 마라. — 윌리엄 오닐·마크 미너비니',
-    '차트는 의견보다 빠르게 위험을 보여줄 때가 있다. — 윌리엄 오닐·마크 미너비니',
-    '큰 승자를 잡으려면 먼저 큰 패자를 피해야 한다. — 윌리엄 오닐·마크 미너비니',
-    '규칙 없는 매매는 감정의 기록일 뿐이다. — 윌리엄 오닐·마크 미너비니',
-    '시장의 리더를 찾되 리스크는 숫자로 제한하라. — 윌리엄 오닐·마크 미너비니',
-    '매수보다 중요한 것은 틀렸을 때의 행동이다. — 윌리엄 오닐·마크 미너비니',
-    '좋은 진입도 나쁜 손절 습관을 이기지 못한다. — 윌리엄 오닐·마크 미너비니',
-    '강세장에서는 강한 종목이 더 강해질 수 있다. — 윌리엄 오닐·마크 미너비니',
-    '대부분의 투자자에게 시장 전체를 보유하는 것이 합리적이다. — 버턴 말킬',
-    '시장을 맞히기 어렵다면 낮은 비용으로 오래 참여하라. — 버턴 말킬',
-    '무작위처럼 보이는 가격 움직임에 과도한 의미를 붙이지 마라. — 버턴 말킬',
-    '인덱스 투자는 단순하지만 강력한 선택이다. — 버턴 말킬',
-    '예측이 어렵다면 비용과 분산을 통제하라. — 버턴 말킬',
-    '투자자는 자신이 통제할 수 있는 것에 집중해야 한다. — 버턴 말킬',
-    '장기적으로 시장에 머무는 것이 시장을 맞히는 것보다 현실적이다. — 버턴 말킬',
-    '유행하는 전략보다 검증된 단순함이 오래간다. — 버턴 말킬',
-    '복잡한 예측은 낮은 비용의 힘을 자주 이기지 못한다. — 버턴 말킬',
-    '평균을 꾸준히 얻는 전략은 생각보다 강하다. — 버턴 말킬',
-    '훌륭한 기업은 숫자 너머의 질적 요소가 있다. — 필립 피셔',
-    '성장주는 경영진과 시장 기회를 함께 봐야 한다. — 필립 피셔',
-    '좋은 기업은 오래 보유할수록 진가가 드러날 수 있다. — 필립 피셔',
-    '기업을 이해하려면 주변의 목소리까지 조사하라. — 필립 피셔',
-    '매도는 매수보다 더 어려운 결정일 수 있다. — 필립 피셔',
-    '장기 성장 기업은 단기 변동을 견딜 이유를 제공한다. — 필립 피셔',
-    '좋은 경영진은 숫자에 보이지 않는 가치를 만든다. — 필립 피셔',
-    '성장 가능성과 가격을 함께 보라. — 필립 피셔',
-    '기업의 질을 모르면 장기 보유도 흔들린다. — 필립 피셔',
-    '훌륭한 기업은 시간이 투자자의 친구가 되게 한다. — 필립 피셔',
-    '안전마진은 불확실성을 인정하는 투자자의 언어다. — 세스 클라만',
-    '가치투자는 인기보다 가격과 가치의 차이를 본다. — 세스 클라만',
-    '위험은 남들이 위험하지 않다고 느낄 때 커질 수 있다. — 세스 클라만',
-    '인내심은 가치투자자의 가장 중요한 자산 중 하나다. — 세스 클라만',
-    '싼 가격에도 이유가 있는지 확인해야 한다. — 세스 클라만',
-    '손실을 피하려는 태도가 장기 수익의 기반이 된다. — 세스 클라만',
-    '좋은 기회는 자주 오지 않기 때문에 현금이 필요할 수 있다. — 세스 클라만',
-    '투자자는 시장의 인기가 아니라 자신의 분석에 의존해야 한다. — 세스 클라만',
-    '가치와 가격의 괴리가 클수록 기회도 커질 수 있다. — 세스 클라만',
-    '안전마진 없는 확신은 위험한 자신감이다. — 세스 클라만',
-    '좋은 회사를 싸게 사는 원칙은 단순하지만 쉽지 않다. — 조엘 그린블라트',
-    '수익률이 높은 사업과 낮은 가격이 만나면 기회가 된다. — 조엘 그린블라트',
-    '단순한 원칙도 지키지 못하면 성과가 나지 않는다. — 조엘 그린블라트',
-    '가치투자는 지루해 보여도 시간이 필요하다. — 조엘 그린블라트',
-    '시장이 단기적으로 틀릴 수 있다는 사실이 기회를 만든다. — 조엘 그린블라트',
-    '좋은 전략은 모두가 따라 하기 어려워야 오래간다. — 조엘 그린블라트',
-    '가격이 가치보다 낮을 때 투자자의 우위가 생긴다. — 조엘 그린블라트',
-    '기업의 질과 가격을 함께 봐야 한다. — 조엘 그린블라트',
-    '장기적으로 숫자는 이야기보다 강하다. — 조엘 그린블라트',
-    '인내 없이 가치투자를 하기는 어렵다. — 조엘 그린블라트',
-    '동전 던지기에서 앞면이면 크게 벌고 뒷면이면 적게 잃는 구조를 찾아라. — 모니시 파브라이',
-    '단순한 아이디어가 큰 수익을 만들 수 있다. — 모니시 파브라이',
-    '좋은 투자자는 훌륭한 투자자의 원칙을 복제할 줄 안다. — 모니시 파브라이',
-    '하방은 제한하고 상방은 열어 두는 투자가 좋다. — 모니시 파브라이',
-    '복잡한 문제보다 명확한 기회를 기다려라. — 모니시 파브라이',
-    '투자자는 많은 결정보다 좋은 결정을 해야 한다. — 모니시 파브라이',
-    '가끔 오는 확실한 기회에 집중하라. — 모니시 파브라이',
-    '잃을 가능성을 먼저 계산하면 더 오래 살아남는다. — 모니시 파브라이',
-    '좋은 투자는 설명이 단순해야 한다. — 모니시 파브라이',
-    '기다림은 가치투자의 일부다. — 모니시 파브라이',
-    '훌륭한 기업과 오래 동행하는 것이 가장 강한 전략이 될 수 있다. — 닉 슬립',
-    '투자자는 거래자가 아니라 소유자가 되어야 한다. — 닉 슬립',
-    '장기 관점은 경쟁자가 쉽게 따라 하기 어렵다. — 닉 슬립',
-    '좋은 기업 문화는 시간이 지날수록 복리처럼 작동한다. — 닉 슬립',
-    '고객을 오래 생각하는 기업은 투자자에게도 보상할 수 있다. — 닉 슬립',
-    '진정한 장기 투자는 분기 실적의 소음을 견딘다. — 닉 슬립',
-    '훌륭한 기업의 내재가치는 느리지만 강하게 쌓인다. — 닉 슬립',
-    '소유자의 관점은 매매 충동을 줄여 준다. — 닉 슬립',
-    '오래 보유할수록 기업의 질이 중요해진다. — 닉 슬립',
-    '장기 동행할 기업을 찾는 것이 잦은 매매보다 낫다. — 닉 슬립',
-    '떨어지는 칼날을 무조건 잡으려 하지 마라. — 월가 격언',
-    '소문에 사고 뉴스에 팔라는 말은 군중 심리를 경계하라는 뜻이다. — 월가 격언',
-    '강세장에서는 모두가 똑똑해 보인다. — 월가 격언',
-    '손실은 빠르게 자르고 이익은 오래 키워라. — 월가 격언',
-    '시장은 희망보다 냉정하다. — 월가 격언',
-    '추세는 친구일 수 있지만 끝나는 순간도 있다. — 월가 격언',
-    '돈을 잃지 않는 법을 먼저 배워라. — 월가 격언',
-    '분산은 한 번의 실수를 치명상으로 만들지 않게 한다. — 월가 격언',
-    '레버리지는 시간을 압축하지만 실수도 압축한다. — 월가 격언',
-    '시장은 언제나 다음 교훈을 준비하고 있다. — 월가 격언',
-    '훌륭한 투자 기회는 자주 오지 않으니, 왔을 때 준비되어 있어야 한다. — 워런 버핏',
-    '장기적으로 보유할 마음이 없다면 단기 매수도 신중해야 한다. — 워런 버핏',
-    '시장의 가격표가 매일 바뀐다고 기업의 본질이 매일 바뀌지는 않는다. — 워런 버핏',
-    '사업을 이해하는 능력은 복잡한 예측보다 더 강한 무기다. — 워런 버핏',
-    '좋은 기업은 시간이 지날수록 투자자의 실수를 줄여 준다. — 워런 버핏',
-    '대중의 공포는 준비된 투자자에게 할인된 가격표가 될 수 있다. — 워런 버핏',
-    '모든 기회를 잡으려는 욕심보다 확실한 기회를 기다리는 인내가 낫다. — 워런 버핏',
-    '투자는 멋진 행동보다 합리적인 행동을 요구한다. — 워런 버핏',
-    '싸게 보이는 주식보다 오래 벌 수 있는 사업을 먼저 보라. — 워런 버핏',
-    '좋은 기업을 오래 보유하는 일은 생각보다 지루하고, 그 지루함이 성과가 된다. — 워런 버핏',
-    '투자에서 가장 큰 우위는 자신이 모르는 것을 인정하는 태도다. — 찰리 멍거',
-    '좋은 사업을 찾았다면 불필요한 행동을 줄이는 것이 도움이 된다. — 찰리 멍거',
-    '인내심은 지식과 함께할 때 강력한 투자 도구가 된다. — 찰리 멍거',
-    '많은 실수는 복잡한 것을 단순하게 보지 못해서 생긴다. — 찰리 멍거',
-    '투자자는 자신이 왜 틀릴 수 있는지 먼저 생각해야 한다. — 찰리 멍거',
-    '최고의 투자자는 매일 거래하는 사람이 아니라 오래 기다리는 사람일 수 있다. — 찰리 멍거',
-    '거꾸로 생각하면 피해야 할 길이 먼저 보인다. — 찰리 멍거',
-    '남의 실수를 배우는 것은 가장 저렴한 수업료다. — 찰리 멍거',
-    '복리는 좋은 기업과 긴 시간이 만날 때 강해진다. — 찰리 멍거',
-    '좋은 기질은 뛰어난 지능보다 투자 성과에 더 오래 남는다. — 찰리 멍거',
-    '가치와 가격의 차이를 모르면 투자자는 시장의 기분에 끌려간다. — 벤저민 그레이엄',
-    '시장은 매일 기회를 주지만 매일 따를 필요는 없다. — 벤저민 그레이엄',
-    '투자자는 시장의 하인이 아니라 시장의 주인이 되어야 한다. — 벤저민 그레이엄',
-    '안전마진은 미래를 모른다는 사실에 대한 보험이다. — 벤저민 그레이엄',
-    '주가가 떨어진다고 항상 위험해지는 것은 아니며, 비싸게 사는 것이 더 위험할 수 있다. — 벤저민 그레이엄',
-    '분석 없는 확신은 투자자를 투기꾼으로 만든다. — 벤저민 그레이엄',
-    '가격 변동은 투자자의 감정을 시험하지만, 가치는 투자자의 이성을 요구한다. — 벤저민 그레이엄',
-    '시장 가격은 사실이지만 항상 진실은 아니다. — 벤저민 그레이엄',
-    '충분히 싸게 사는 것은 완벽한 미래 예측보다 현실적인 방어다. — 벤저민 그레이엄',
-    '현명한 투자자는 인기보다 안전마진을 먼저 찾는다. — 벤저민 그레이엄',
-    '주식을 사기 전에는 그 회사가 어떻게 돈을 버는지 설명할 수 있어야 한다. — 피터 린치',
-    '좋은 투자 아이디어는 먼 곳보다 일상 가까이에 있을 수 있다. — 피터 린치',
-    '주가가 아니라 기업의 스토리가 계속 유지되는지 확인하라. — 피터 린치',
-    '하락을 견딜 마음이 없다면 상승의 열매도 오래 누리기 어렵다. — 피터 린치',
-    '종목 이름보다 그 기업의 실적과 전망을 알아야 한다. — 피터 린치',
-    '시장을 예측하는 데 시간을 쓰기보다 기업을 연구하는 데 시간을 써라. — 피터 린치',
-    '한두 번의 실패가 전체 투자를 망치지 않도록 구조를 만들어라. — 피터 린치',
-    '성공하는 종목은 시간이 필요하고, 실패하는 종목은 점검이 필요하다. — 피터 린치',
-    '모르는 기업을 사는 것은 남의 이야기에 돈을 맡기는 것이다. — 피터 린치',
-    '주식은 숫자와 이야기, 둘 다 확인해야 한다. — 피터 린치',
-    '평범한 시장수익률을 꾸준히 얻는 것은 결코 평범한 일이 아니다. — 존 보글',
-    '투자자는 시장 전체의 성과를 얻기 위해 복잡한 예측을 할 필요가 없다. — 존 보글',
-    '낮은 비용은 시간이 지날수록 투자자의 편에 선다. — 존 보글',
-    '가만히 있는 전략은 쉬워 보이지만 실제로는 가장 어렵다. — 존 보글',
-    '인덱스 투자의 힘은 천재적인 선택이 아니라 불필요한 선택을 줄이는 데 있다. — 존 보글',
-    '장기 투자자는 하루의 뉴스보다 수십 년의 복리를 본다. — 존 보글',
-    '투자의 기본은 더 많이 맞히는 것이 아니라 덜 새는 구조를 만드는 것이다. — 존 보글',
-    '비용과 세금, 감정을 낮추면 장기 성과는 더 좋아질 수 있다. — 존 보글',
-    '시장에 남아 있는 시간이 시장 타이밍보다 중요하다. — 존 보글',
-    '단순한 포트폴리오는 위기 때도 지키기 쉽다. — 존 보글',
-    '좋은 투자자는 무엇을 살지뿐 아니라 얼마에 살지를 묻는다. — 하워드 막스',
-    '모두가 낙관할 때는 좋은 뉴스보다 가격을 의심해야 한다. — 하워드 막스',
-    '모두가 두려워할 때는 나쁜 뉴스보다 가격을 다시 봐야 한다. — 하워드 막스',
-    '리스크는 보이지 않을 때 가장 위험하다. — 하워드 막스',
-    '투자자는 미래를 맞히는 사람이 아니라 확률을 유리하게 만드는 사람이다. — 하워드 막스',
-    '싸이클의 끝에서는 논리보다 심리가 가격을 밀어 올린다. — 하워드 막스',
-    '위험을 잘 관리하면 수익을 얻을 기회가 다시 온다. — 하워드 막스',
-    '남들과 같은 생각으로는 남들과 다른 결과를 얻기 어렵다. — 하워드 막스',
-    '최고의 매수 기회는 대개 가장 불편한 뉴스와 함께 온다. — 하워드 막스',
-    '성공한 투자자는 확실성보다 불확실성의 가격을 본다. — 하워드 막스',
-    '절망적인 분위기 속에서도 가격이 충분히 낮다면 기회는 존재한다. — 존 템플턴',
-    '모두가 좋아하는 시장은 이미 많은 기대를 가격에 담고 있을 수 있다. — 존 템플턴',
-    '비관은 투자자의 눈을 가리지만 가치투자자에게는 지도일 수 있다. — 존 템플턴',
-    '대중이 버린 곳에서 가장 큰 할인율이 나타날 수 있다. — 존 템플턴',
-    '시장이 환호할 때는 수익보다 위험을 먼저 계산하라. — 존 템플턴',
-    '가장 인기 없는 시장이 가장 좋은 출발점이 될 때가 있다. — 존 템플턴',
-    '비관이 지나치면 가격은 가치보다 더 멀리 내려갈 수 있다. — 존 템플턴',
-    '세계 어디든 기회는 있고, 군중의 시야는 늘 제한적이다. — 존 템플턴',
-    '두려움 속에서 산다는 것은 용기만이 아니라 분석을 요구한다. — 존 템플턴',
-    '낙관의 끝에서는 기대보다 안전마진을 봐야 한다. — 존 템플턴',
-    '시장과 싸우기 시작하면 손실은 자존심의 비용이 된다. — 제시 리버모어',
-    '틀렸다는 신호가 나오면 고집보다 퇴장이 먼저다. — 제시 리버모어',
-    '큰 추세를 맞히고도 너무 일찍 내리면 큰돈은 남지 않는다. — 제시 리버모어',
-    '매일 거래하려는 욕심은 시장을 월급처럼 착각하게 만든다. — 제시 리버모어',
-    '가격이 내 편이 아닐 때는 이유보다 리스크를 먼저 줄여라. — 제시 리버모어',
-    '투기에서 희망은 계획이 아니다. — 제시 리버모어',
-    '잘못된 포지션은 작을 때 정리해야 다시 기회를 볼 수 있다. — 제시 리버모어',
-    '시장은 개인의 확신보다 더 오래 움직일 수 있다. — 제시 리버모어',
-    '앉아 있는 능력과 빠져나오는 능력은 둘 다 필요하다. — 제시 리버모어',
-    '추세를 따르되 손실은 제한하라. — 제시 리버모어',
-    '주가는 때로 경제보다 심리를 먼저 반영한다. — 앙드레 코스톨라니',
-    '인내가 없는 돈은 시장에서 오래 살아남기 어렵다. — 앙드레 코스톨라니',
-    '군중은 대개 늦게 흥분하고 늦게 두려워한다. — 앙드레 코스톨라니',
-    '시장의 개는 앞서 뛰지만 결국 주인에게 돌아온다. — 앙드레 코스톨라니',
-    '좋은 아이디어도 시간이 없으면 좋은 투자가 되기 어렵다. — 앙드레 코스톨라니',
-    '빚은 투자자의 인내심을 빼앗는다. — 앙드레 코스톨라니',
-    '시장에서 돈보다 먼저 필요한 것은 버틸 수 있는 시간이다. — 앙드레 코스톨라니',
-    '대중의 감정은 가격을 흔들지만 영원히 지배하지는 못한다. — 앙드레 코스톨라니',
-    '투자자는 소음 속에서 방향을 잃지 않는 사람이 되어야 한다. — 앙드레 코스톨라니',
-    '주식시장은 계산기와 심리학 책을 함께 요구한다. — 앙드레 코스톨라니',
-    '분산은 확신이 아니라 겸손에서 출발한다. — 레이 달리오',
-    '좋은 원칙은 좋은 날보다 나쁜 날에 더 필요하다. — 레이 달리오',
-    '자신의 약점을 알면 포트폴리오도 더 현실적으로 만들 수 있다. — 레이 달리오',
-    '불확실한 세상에서는 한 가지 결과에 모든 것을 걸지 말아야 한다. — 레이 달리오',
-    '고통스러운 손실도 제대로 복기하면 다음 판단의 재료가 된다. — 레이 달리오',
-    '시장보다 먼저 자신이 어떤 사람인지 알아야 한다. — 레이 달리오',
-    '서로 다른 위험을 섞는 것은 오래 버티기 위한 기술이다. — 레이 달리오',
-    '현실을 부정하는 투자는 언젠가 현실에 의해 조정된다. — 레이 달리오',
-    '좋은 의사결정은 감정보다 원칙과 피드백에 의존한다. — 레이 달리오',
-    '투자자는 확신이 아니라 균형을 설계해야 할 때가 많다. — 레이 달리오',
-    '틀린 판단을 빨리 고치면 손실은 수업료로 끝날 수 있다. — 조지 소로스',
-    '시장의 착각을 이해하면 기회와 위험을 동시에 볼 수 있다. — 조지 소로스',
-    '포지션 크기는 확신만큼이나 중요하다. — 조지 소로스',
-    '맞았을 때 크게 벌고 틀렸을 때 작게 잃는 구조가 중요하다. — 조지 소로스',
-    '투자는 완벽한 예측보다 오류 수정 능력을 요구한다. — 조지 소로스',
-    '살아남는 투자자는 자신의 생각을 바꿀 줄 안다. — 조지 소로스',
-    '시장은 참여자의 믿음에 의해 더 크게 흔들릴 수 있다. — 조지 소로스',
-    '강한 확신도 손실 제한 규칙 없이는 위험하다. — 조지 소로스',
-    '자신이 틀렸음을 알게 되는 순간이 가장 중요한 순간이다. — 조지 소로스',
-    '시장의 기회는 대개 불완전한 정보 속에서 나타난다. — 조지 소로스',
-    '자본을 지키는 사람만 다음 추세를 잡을 수 있다. — 폴 튜더 존스',
-    '손실이 커지기 전에 작게 인정하는 것이 프로의 습관이다. — 폴 튜더 존스',
-    '위험을 줄이는 것은 겁이 아니라 전략이다. — 폴 튜더 존스',
-    '매수 이유보다 손실 제한 계획이 먼저 준비되어야 한다. — 폴 튜더 존스',
-    '시장은 자존심을 보상하지 않는다. — 폴 튜더 존스',
-    '좋은 트레이더는 먼저 살아남고 그다음에 번다. — 폴 튜더 존스',
-    '방어를 잘하는 투자자는 공격할 기회를 잃지 않는다. — 폴 튜더 존스',
-    '틀린 포지션을 오래 들고 있는 것은 분석이 아니라 고집이다. — 폴 튜더 존스',
-    '리스크를 통제하면 마음도 통제된다. — 폴 튜더 존스',
-    '큰 손실을 피하는 것이 복리의 출발점이다. — 폴 튜더 존스',
-    '시장의 리더는 약세장 이후 먼저 힘을 보일 때가 많다. — 윌리엄 오닐·마크 미너비니',
-    '손절 규칙은 감정이 아니라 숫자로 정해야 한다. — 윌리엄 오닐·마크 미너비니',
-    '추세를 무시하면 좋은 분석도 손실로 끝날 수 있다. — 윌리엄 오닐·마크 미너비니',
-    '강한 종목을 비싸다는 이유만으로 무시하지 마라. — 윌리엄 오닐·마크 미너비니',
-    '약한 종목을 싸다는 이유만으로 붙잡지 마라. — 윌리엄 오닐·마크 미너비니',
-    '좋은 매매는 시장이 틀렸다고 우기는 데서 나오지 않는다. — 윌리엄 오닐·마크 미너비니',
-    '승률보다 손익비와 손실 제한이 더 중요할 수 있다. — 윌리엄 오닐·마크 미너비니',
-    '차트는 미래를 보장하지 않지만 위험 신호를 줄 수 있다. — 윌리엄 오닐·마크 미너비니',
-    '강한 상승에는 이유가 있고, 약한 반등에는 한계가 있다. — 윌리엄 오닐·마크 미너비니',
-    '규칙을 지키는 투자자는 감정적인 시장에서도 흔들림이 줄어든다. — 윌리엄 오닐·마크 미너비니',
-    '시장 전체를 보유하는 전략은 예측의 부담을 줄여 준다. — 버턴 말킬',
-    '무작위에 가까운 단기 움직임을 예언하려 애쓰지 마라. — 버턴 말킬',
-    '낮은 비용과 넓은 분산은 투자자가 실제로 통제할 수 있는 영역이다. — 버턴 말킬',
-    '장기 인덱스 투자는 화려하지 않지만 꾸준하다. — 버턴 말킬',
-    '복잡한 예측보다 단순한 참여가 더 나을 때가 많다. — 버턴 말킬',
-    '평균을 우습게 보면 평균에도 못 미칠 수 있다. — 버턴 말킬',
-    '시장 타이밍의 유혹은 크지만 성공 확률은 낮다. — 버턴 말킬',
-    '투자자는 확실한 비용을 줄이는 데서 먼저 이긴다. — 버턴 말킬',
-    '분산된 포트폴리오는 모르는 미래에 대한 현실적인 답이다. — 버턴 말킬',
-    '단순한 전략은 오래 유지할 수 있을 때 더 강해진다. — 버턴 말킬',
-    '위대한 기업은 매출보다 더 깊은 경쟁력을 가진다. — 필립 피셔',
-    '성장 기업을 볼 때는 숫자와 사람을 함께 봐야 한다. — 필립 피셔',
-    '기업의 품질은 시간이 지날수록 주가보다 더 중요해질 수 있다. — 필립 피셔',
-    '좋은 경영진은 어려운 시기에 더 잘 드러난다. — 필립 피셔',
-    '장기 성장주는 단기 실망보다 장기 방향성이 중요하다. — 필립 피셔',
-    '깊은 조사는 확신을 만들고 확신은 인내를 만든다. — 필립 피셔',
-    '좋은 기업을 너무 빨리 파는 것은 흔한 실수다. — 필립 피셔',
-    '성장성만 보고 가격을 무시하면 좋은 기업도 나쁜 투자가 된다. — 필립 피셔',
-    '기업 문화와 연구개발 능력은 장기 성장의 씨앗이 될 수 있다. — 필립 피셔',
-    '훌륭한 회사를 찾았다면 단기 변동보다 장기 경쟁력을 보라. — 필립 피셔',
-    '가치투자자는 인기 없는 가격에서 편안함을 찾아야 한다. — 세스 클라만',
-    '안전마진은 투자자의 겸손을 숫자로 표현한 것이다. — 세스 클라만',
-    '현금은 아무것도 하지 않는 자산이 아니라 선택권일 수 있다. — 세스 클라만',
-    '하락 위험을 먼저 본 투자자는 상승 기회도 더 오래 기다릴 수 있다. — 세스 클라만',
-    '싼 자산에는 이유가 있으니 가치와 함정을 구분해야 한다. — 세스 클라만',
-    '시장이 무시하는 곳에서 가치는 조용히 쌓일 수 있다. — 세스 클라만',
-    '확실한 기회가 없을 때 기다리는 것도 투자 결정이다. — 세스 클라만',
-    '손실 회피는 소심함이 아니라 복리를 지키는 방법이다. — 세스 클라만',
-    '분위기가 좋을수록 안전마진은 더 필요하다. — 세스 클라만',
-    '좋은 투자는 매수 순간부터 방어력을 갖고 있어야 한다. — 세스 클라만',
-    '시장이 단기적으로 비합리적이기 때문에 장기 기회가 생긴다. — 조엘 그린블라트',
-    '좋은 회사를 싼 가격에 사는 원칙은 단순하지만 실천은 어렵다. — 조엘 그린블라트',
-    '가치투자 전략은 지루한 기간을 견뎌야 보상받는다. — 조엘 그린블라트',
-    '수익성 높은 기업을 낮은 가격에 사는 것이 핵심이다. — 조엘 그린블라트',
-    '좋은 전략도 사람들이 포기할 만큼 힘든 구간이 있어야 오래 작동한다. — 조엘 그린블라트',
-    '가격과 품질을 함께 보면 실수 확률을 줄일 수 있다. — 조엘 그린블라트',
-    '시장은 가끔 훌륭한 기업에 잘못된 가격을 붙인다. — 조엘 그린블라트',
-    '단기 성과에 흔들리지 않는 규율이 전략을 완성한다. — 조엘 그린블라트',
-    '싸기만 한 기업보다 싸고 좋은 기업이 낫다. — 조엘 그린블라트',
-    '투자 공식보다 중요한 것은 그 공식을 버티는 마음이다. — 조엘 그린블라트',
-    '하방이 작고 상방이 큰 구조를 찾는 것이 핵심이다. — 모니시 파브라이',
-    '좋은 투자 아이디어는 이해하기 쉬워야 오래 버틸 수 있다. — 모니시 파브라이',
-    '기다림은 기회가 없는 시간이 아니라 기회를 고르는 시간이다. — 모니시 파브라이',
-    '검증된 원칙을 따라 하는 것도 훌륭한 투자 능력이다. — 모니시 파브라이',
-    '적게 잃고 크게 벌 수 있는 구조가 가치투자의 매력이다. — 모니시 파브라이',
-    '복잡한 투자는 실수할 부분도 많다. — 모니시 파브라이',
-    '투자자는 많은 아이디어보다 좋은 몇 개의 아이디어가 필요하다. — 모니시 파브라이',
-    '불확실성이 있어도 가격이 충분히 낮다면 기회가 될 수 있다. — 모니시 파브라이',
-    '큰 기회는 자주 오지 않으니 평소에는 참아야 한다. — 모니시 파브라이',
-    '투자에서 단순함은 약점이 아니라 장점이 될 수 있다. — 모니시 파브라이',
-    '진짜 장기 투자는 기업과 함께 시간을 보내는 일이다. — 닉 슬립',
-    '훌륭한 기업은 시간이 지날수록 고객과 투자자 모두에게 가치를 줄 수 있다. — 닉 슬립',
-    '거래 빈도를 줄이면 소유자의 관점이 더 선명해진다. — 닉 슬립',
-    '좋은 기업 문화는 재무제표보다 늦게 보이지만 오래 남는다. — 닉 슬립',
-    '장기 보유는 아무 기업이나 오래 들고 있는 것이 아니다. — 닉 슬립',
-    '기업의 방향성이 맞다면 단기 변동은 소음에 가까울 수 있다. — 닉 슬립',
-    '오래 동행할 기업은 고객을 대하는 방식에서 힌트를 준다. — 닉 슬립',
-    '좋은 기업은 시간이 지날수록 선택지를 넓힌다. — 닉 슬립',
-    '단기 매매는 가격을 보게 하고 장기 보유는 사업을 보게 한다. — 닉 슬립',
-    '투자자는 가격표보다 사업의 누적 가치를 관찰해야 한다. — 닉 슬립',
-    '시장은 당신이 버틸 수 있는 시간보다 더 오래 흔들릴 수 있다. — 월가 격언',
-    '싸게 사는 것보다 더 중요한 것은 버틸 수 있게 사는 것이다. — 월가 격언',
-    '최고의 전략도 감정적으로 지킬 수 없다면 좋은 전략이 아니다. — 월가 격언',
-    '수익을 키우려면 먼저 손실이 계좌를 망치지 않게 해야 한다. — 월가 격언',
-    '시장의 소음은 크지만 계좌를 지키는 것은 조용한 원칙이다. — 월가 격언',
-    '현금은 조급한 사람에게 답답함이고 준비된 사람에게 기회다. — 월가 격언',
-    '모두가 같은 방향을 볼 때 반대편 위험을 확인하라. — 월가 격언',
-    '레버리지는 방향을 맞혀도 시간을 틀리면 위험해진다. — 월가 격언',
-    '분산은 대박을 줄일 수 있지만 파산 가능성도 줄인다. — 월가 격언',
-    '하락장은 포트폴리오보다 먼저 투자자의 마음을 테스트한다. — 월가 격언',
-    '뉴스가 급할수록 주문은 천천히 내야 한다. — 월가 격언',
-    '계좌를 오래 유지하는 사람이 다음 상승장을 볼 수 있다. — 월가 격언',
-    '이익은 가능성이고 손실 제한은 책임이다. — 월가 격언',
-    '매수 전에는 기대수익보다 최악의 경우를 먼저 적어 보라. — 월가 격언',
-    '시장에는 확신보다 확률이 더 잘 어울린다. — 월가 격언',
-  ];
-
-  List<String> localizedQuotes(Locale locale) {
-    return stockQuotes;
+  List<String> localizedQuotes(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return l10n.stockQuoteList.split('\n').where((q) => q.isNotEmpty).toList();
   }
 
   @override
   Widget build(BuildContext context) {
-    final quotes = localizedQuotes(Localizations.localeOf(context));
+    final quotes = localizedQuotes(context);
     final safeIndex = currentIndex.clamp(0, quotes.length - 1).toInt();
     final quote = quotes[safeIndex];
     final whiteMode = isWhiteModeEnabled(context);
@@ -14272,7 +14112,7 @@ class _StockQuotePageState extends State<StockQuotePage> {
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             color: primaryText,
-                            fontSize: 21,
+                            fontSize: 16,
                             height: 1.38,
                             fontWeight: FontWeight.w900,
                           ),
@@ -14319,7 +14159,6 @@ class _StockQuotePageState extends State<StockQuotePage> {
     );
   }
 }
-
 
 class JumpDodgeGamePage extends StatefulWidget {
   const JumpDodgeGamePage({super.key});
@@ -14748,7 +14587,9 @@ class _JumpDodgeGamePageState extends State<JumpDodgeGamePage> {
                                   border: Border.all(color: cardLine),
                                 ),
                                 child: Text(
-                                  gameOver ? l10n.jumpTapToRestart : l10n.jumpTapToStart,
+                                  gameOver
+                                      ? l10n.jumpTapToRestart
+                                      : l10n.jumpTapToStart,
                                   style: TextStyle(
                                     color: primaryText,
                                     fontSize: 16,
@@ -14849,6 +14690,7 @@ class _NumberGuessGamePageState extends State<NumberGuessGamePage> {
 
   late int answer;
   int attempts = 0;
+  final List<int> _guessHistory = [];
   _NumGuessMsg messageType = _NumGuessMsg.prompt;
   bool solved = false;
   bool rankingsLoading = false;
@@ -14869,6 +14711,7 @@ class _NumberGuessGamePageState extends State<NumberGuessGamePage> {
   void resetGame() {
     answer = random.nextInt(1000) + 1;
     attempts = 0;
+    _guessHistory.clear();
     solved = false;
     messageType = _NumGuessMsg.prompt;
     guessController.clear();
@@ -14944,6 +14787,7 @@ class _NumberGuessGamePageState extends State<NumberGuessGamePage> {
     var completed = false;
     setState(() {
       attempts += 1;
+      _guessHistory.add(guess);
       if (guess == answer) {
         solved = true;
         completed = true;
@@ -15044,6 +14888,45 @@ class _NumberGuessGamePageState extends State<NumberGuessGamePage> {
                       fontWeight: FontWeight.w700,
                     ),
                   ),
+                  if (_guessHistory.isNotEmpty) ...[
+                    const SizedBox(height: 10),
+                    Wrap(
+                      spacing: 6,
+                      runSpacing: 5,
+                      children: _guessHistory.map((g) {
+                        final isCorrect = g == answer;
+                        final isHigh = g > answer;
+                        final chipColor = isCorrect
+                            ? const Color(0xFF22C55E)
+                            : isHigh
+                                ? const Color(0xFFEF4444)
+                                : accent;
+                        final symbol = isCorrect
+                            ? '✓'
+                            : isHigh
+                                ? '▼'
+                                : '▲';
+                        return Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 3),
+                          decoration: BoxDecoration(
+                            color: chipColor.withValues(alpha: 0.13),
+                            borderRadius: BorderRadius.circular(6),
+                            border: Border.all(
+                                color: chipColor.withValues(alpha: 0.45)),
+                          ),
+                          child: Text(
+                            '$g $symbol',
+                            style: TextStyle(
+                              color: chipColor,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  ],
                   const SizedBox(height: 16),
                   TextField(
                     controller: guessController,
@@ -15340,26 +15223,29 @@ class _InquiryPageState extends State<InquiryPage> {
     return controller;
   }
 
-  Future<void> submitInquiryReply(Map<String, String> item) async {
+  Future<bool> submitInquiryReply(Map<String, String> item) async {
     final inquiryId = item['inquiryId'] ?? '';
-    if (inquiryId.isEmpty || replyingInquiryIds.contains(inquiryId)) return;
+    if (inquiryId.isEmpty || replyingInquiryIds.contains(inquiryId))
+      return false;
 
     final identity = await ensureAnonymousUserIdentity();
-    if (!mounted) return;
+    if (!mounted) return false;
     if (!appUserAdminNotifier.value) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(AppLocalizations.of(context)!.inquiryAdminOnlyReply)),
+        SnackBar(
+            content: Text(AppLocalizations.of(context)!.inquiryAdminOnlyReply)),
       );
-      return;
+      return false;
     }
 
     final answer =
         replyControllerFor(inquiryId, item['answer'] ?? '').text.trim();
     if (answer.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(AppLocalizations.of(context)!.inquiryReplyEmpty)),
+        SnackBar(
+            content: Text(AppLocalizations.of(context)!.inquiryReplyEmpty)),
       );
-      return;
+      return false;
     }
 
     setState(() {
@@ -15383,11 +15269,14 @@ class _InquiryPageState extends State<InquiryPage> {
       }
       final data = jsonDecode(response.body) as Map<String, dynamic>;
       applyInquiryResponse(data);
+      return true;
     } catch (_) {
-      if (!mounted) return;
+      if (!mounted) return false;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(AppLocalizations.of(context)!.inquiryReplyError)),
+        SnackBar(
+            content: Text(AppLocalizations.of(context)!.inquiryReplyError)),
       );
+      return false;
     } finally {
       if (mounted) {
         setState(() {
@@ -15405,7 +15294,8 @@ class _InquiryPageState extends State<InquiryPage> {
     final content = controller.text.trim();
     if (content.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(AppLocalizations.of(context)!.inquiryReplyEmpty)),
+        SnackBar(
+            content: Text(AppLocalizations.of(context)!.inquiryReplyEmpty)),
       );
       return;
     }
@@ -15438,7 +15328,8 @@ class _InquiryPageState extends State<InquiryPage> {
     } catch (_) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(AppLocalizations.of(context)!.inquiryReplyError)),
+        SnackBar(
+            content: Text(AppLocalizations.of(context)!.inquiryReplyError)),
       );
     } finally {
       if (mounted) {
@@ -15446,6 +15337,41 @@ class _InquiryPageState extends State<InquiryPage> {
           replyingInquiryIds.remove(inquiryId);
         });
       }
+    }
+  }
+
+  Future<void> editInquiryUserMessage(Map<String, String> item,
+      String messageCreatedAt, String newContent) async {
+    final inquiryId = item['inquiryId'] ?? '';
+    if (inquiryId.isEmpty) return;
+
+    final identity = await ensureAnonymousUserIdentity();
+    if (!mounted) return;
+
+    try {
+      final response = await http
+          .post(
+            Uri.parse(_inquiriesMessageEditUrl),
+            headers: {'Content-Type': 'application/json'},
+            body: jsonEncode({
+              'uid': identity.uid,
+              'inquiryId': inquiryId,
+              'messageCreatedAt': messageCreatedAt,
+              'content': newContent,
+            }),
+          )
+          .timeout(const Duration(seconds: 8));
+      if (response.statusCode < 200 || response.statusCode >= 300) {
+        throw Exception('Edit message API ${response.statusCode}');
+      }
+      final data = jsonDecode(response.body) as Map<String, dynamic>;
+      applyInquiryResponse(data);
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content: Text(AppLocalizations.of(context)!.inquiryReplyError)),
+      );
     }
   }
 
@@ -15457,7 +15383,8 @@ class _InquiryPageState extends State<InquiryPage> {
     if (!mounted) return;
     if (!appUserAdminNotifier.value) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(AppLocalizations.of(context)!.inquiryAdminOnlyPin)),
+        SnackBar(
+            content: Text(AppLocalizations.of(context)!.inquiryAdminOnlyPin)),
       );
       return;
     }
@@ -15506,7 +15433,9 @@ class _InquiryPageState extends State<InquiryPage> {
     if (!mounted) return;
     if (!appUserAdminNotifier.value) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(AppLocalizations.of(context)!.inquiryAdminOnlyDelete)),
+        SnackBar(
+            content:
+                Text(AppLocalizations.of(context)!.inquiryAdminOnlyDelete)),
       );
       return;
     }
@@ -15566,7 +15495,8 @@ class _InquiryPageState extends State<InquiryPage> {
     } catch (_) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(AppLocalizations.of(context)!.inquiryDeleteError)),
+        SnackBar(
+            content: Text(AppLocalizations.of(context)!.inquiryDeleteError)),
       );
     } finally {
       if (mounted) {
@@ -15624,9 +15554,25 @@ class _InquiryPageState extends State<InquiryPage> {
       if (response.statusCode < 200 || response.statusCode >= 300) {
         throw Exception('Inquiry API ${response.statusCode}');
       }
-      final data = jsonDecode(response.body) as Map<String, dynamic>;
-      applyInquiryResponse(data);
       contentController.clear();
+      if (!mounted) return;
+      await showDialog<void>(
+        context: context,
+        barrierDismissible: false,
+        builder: (dialogContext) {
+          return AlertDialog(
+            content: const Text('등록 되었습니다.'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(dialogContext).pop(),
+                child: const Text('확인'),
+              ),
+            ],
+          );
+        },
+      );
+      if (!mounted) return;
+      await loadInquiries();
     } catch (_) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -15692,7 +15638,9 @@ class _InquiryPageState extends State<InquiryPage> {
 
       if (passwordController.text.trim() != _ownerAdminPassword) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(AppLocalizations.of(context)!.inquiryPasswordWrong)),
+          SnackBar(
+              content:
+                  Text(AppLocalizations.of(context)!.inquiryPasswordWrong)),
         );
         return;
       }
@@ -15701,12 +15649,16 @@ class _InquiryPageState extends State<InquiryPage> {
       final adminFcmToken = await FirebaseMessaging.instance.getToken();
       bool registered = false;
       if (adminFcmToken != null && adminFcmToken.isNotEmpty) {
-        registered = await registerDeviceSafely(adminFcmToken, _ownerAdminUid, await savedLanguageCode());
+        registered = await registerDeviceSafely(
+            adminFcmToken, _ownerAdminUid, await savedLanguageCode());
       }
       if (!mounted) return;
       setState(() {});
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(registered ? AppLocalizations.of(context)!.inquiryAdminActivatedRegistered : AppLocalizations.of(context)!.inquiryAdminActivatedFailed)),
+        SnackBar(
+            content: Text(registered
+                ? AppLocalizations.of(context)!.inquiryAdminActivatedRegistered
+                : AppLocalizations.of(context)!.inquiryAdminActivatedFailed)),
       );
     } finally {
       passwordController.dispose();
@@ -15761,7 +15713,7 @@ class _InquiryPageState extends State<InquiryPage> {
       final itemUid = item['uid'] ?? '';
 
       final identity = await ensureAnonymousUserIdentity();
-      if (!mounted) return;
+      if (!context.mounted) return;
 
       final isAdmin = appUserAdminNotifier.value;
       final canManageInquiry = isAdmin && inquiryId.isNotEmpty;
@@ -15773,13 +15725,17 @@ class _InquiryPageState extends State<InquiryPage> {
           if (raw.isEmpty) return <Map<String, dynamic>>[];
           final decoded = jsonDecode(raw);
           if (decoded is! List) return <Map<String, dynamic>>[];
-          return decoded.whereType<Map>().map((m) => Map<String, dynamic>.from(m)).toList();
+          return decoded
+              .whereType<Map>()
+              .map((m) => Map<String, dynamic>.from(m))
+              .toList();
         } catch (_) {
           return <Map<String, dynamic>>[];
         }
       }();
 
-      final replyController = canManageInquiry ? replyControllerFor(inquiryId, answer) : null;
+      final replyController =
+          canManageInquiry ? replyControllerFor(inquiryId, answer) : null;
       final userMsgController = isOwner ? TextEditingController() : null;
 
       showModalBottomSheet<void>(
@@ -15787,6 +15743,7 @@ class _InquiryPageState extends State<InquiryPage> {
         isScrollControlled: true,
         backgroundColor: Colors.transparent,
         builder: (detailContext) {
+          final l10n = AppLocalizations.of(detailContext)!;
           final keyboardBottom = MediaQuery.viewInsetsOf(detailContext).bottom;
           final replying = replyingInquiryIds.contains(inquiryId);
           final deleting = deletingInquiryIds.contains(inquiryId);
@@ -15795,67 +15752,157 @@ class _InquiryPageState extends State<InquiryPage> {
             final role = (msg['role'] ?? '').toString();
             final isAdminMsg = role == 'admin';
             final content = (msg['content'] ?? '').toString();
-            final createdAt = formatInquiryDate((msg['createdAt'] ?? '').toString());
+            final msgCreatedAt = (msg['createdAt'] ?? '').toString();
+            final createdAt = formatInquiryDate(msgCreatedAt);
+            final msgUid = (msg['uid'] ?? '').toString();
+            final isMyMessage =
+                !isAdminMsg && isOwner && msgUid == identity.uid;
             if (content.isEmpty) return const SizedBox.shrink();
-            return Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: isAdminMsg
-                    ? accent.withValues(alpha: whiteMode ? 0.08 : 0.12)
-                    : cardBg,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: isAdminMsg
-                      ? accent.withValues(alpha: 0.28)
-                      : cardLine,
-                ),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Icon(
-                        isAdminMsg
-                            ? Icons.admin_panel_settings_rounded
-                            : Icons.person_outline_rounded,
-                        color: isAdminMsg ? accent : secondaryText,
-                        size: 14,
-                      ),
-                      const SizedBox(width: 5),
-                      Expanded(
-                        child: Text(
-                          isAdminMsg ? l10n.inquiryAdminReplyLabel : (msg['nickname'] ?? '').toString(),
-                          style: TextStyle(
-                            color: isAdminMsg ? accent : secondaryText,
-                            fontSize: 11,
-                            fontWeight: FontWeight.w900,
-                          ),
-                        ),
-                      ),
-                      if (createdAt.isNotEmpty)
-                        Text(
-                          createdAt,
-                          style: TextStyle(
-                            color: secondaryText,
-                            fontSize: 10,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                    ],
-                  ),
-                  const SizedBox(height: 7),
-                  Text(
-                    content,
-                    style: TextStyle(
-                      color: primaryText,
-                      fontSize: 13,
-                      height: 1.45,
-                      fontWeight: FontWeight.w700,
+
+            void showEditDialog() {
+              final editController = TextEditingController(text: content);
+              showDialog<void>(
+                context: detailContext,
+                builder: (dialogContext) {
+                  final wm = isWhiteModeEnabled(dialogContext);
+                  final dbg = wm ? _lightSurface : _darkSurface;
+                  final dpt = wm ? _lightText : _darkText;
+                  final dst = wm ? _lightMuted : _darkMuted;
+                  final dacc = wm ? _lightBlue : _cyan;
+                  final dl10n = AppLocalizations.of(dialogContext)!;
+                  return AlertDialog(
+                    backgroundColor: dbg,
+                    title: Text(
+                      dl10n.inquiryEditMessageTitle,
+                      style: TextStyle(
+                          color: dpt,
+                          fontWeight: FontWeight.w900,
+                          fontSize: 16),
                     ),
+                    content: TextField(
+                      controller: editController,
+                      autofocus: true,
+                      minLines: 3,
+                      maxLines: 6,
+                      style: TextStyle(color: dpt, fontSize: 13),
+                      decoration: InputDecoration(
+                        filled: true,
+                        fillColor:
+                            wm ? const Color(0xFFF8FAFC) : _darkSurfaceSoft,
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(color: dacc)),
+                        focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(color: dacc)),
+                        labelStyle: TextStyle(color: dst),
+                      ),
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          editController.dispose();
+                          Navigator.pop(dialogContext);
+                        },
+                        child: Text(dl10n.inquiryCancel,
+                            style: TextStyle(color: dst)),
+                      ),
+                      FilledButton(
+                        style: FilledButton.styleFrom(backgroundColor: dacc),
+                        onPressed: () async {
+                          final newContent = editController.text.trim();
+                          editController.dispose();
+                          Navigator.pop(dialogContext);
+                          if (newContent.isNotEmpty && newContent != content) {
+                            await editInquiryUserMessage(
+                                item, msgCreatedAt, newContent);
+                            if (detailContext.mounted)
+                              Navigator.pop(detailContext);
+                          }
+                        },
+                        child: Text(dl10n.inquiryEditMessageSave,
+                            style:
+                                const TextStyle(fontWeight: FontWeight.w900)),
+                      ),
+                    ],
+                  );
+                },
+              );
+            }
+
+            return GestureDetector(
+              onTap: isMyMessage ? showEditDialog : null,
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: isAdminMsg
+                      ? accent.withValues(alpha: whiteMode ? 0.08 : 0.12)
+                      : cardBg,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color:
+                        isAdminMsg ? accent.withValues(alpha: 0.28) : cardLine,
                   ),
-                ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(
+                          isAdminMsg
+                              ? Icons.admin_panel_settings_rounded
+                              : Icons.person_outline_rounded,
+                          color: isAdminMsg ? accent : secondaryText,
+                          size: 14,
+                        ),
+                        const SizedBox(width: 5),
+                        Expanded(
+                          child: Text(
+                            isAdminMsg
+                                ? l10n.inquiryAdminReplyLabel
+                                : (msg['nickname'] ?? '').toString(),
+                            style: TextStyle(
+                              color: isAdminMsg ? accent : secondaryText,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w900,
+                            ),
+                          ),
+                        ),
+                        if (createdAt.isNotEmpty)
+                          Text(
+                            createdAt,
+                            style: TextStyle(
+                              color: secondaryText,
+                              fontSize: 10,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                      ],
+                    ),
+                    const SizedBox(height: 7),
+                    Text(
+                      content,
+                      style: TextStyle(
+                        color: primaryText,
+                        fontSize: 13,
+                        height: 1.45,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    if (isMyMessage) ...[
+                      const SizedBox(height: 6),
+                      Text(
+                        l10n.inquiryTapToEdit,
+                        style: TextStyle(
+                            color: accent,
+                            fontSize: 10,
+                            fontWeight: FontWeight.w700),
+                      ),
+                    ],
+                  ],
+                ),
               ),
             );
           }
@@ -16017,7 +16064,8 @@ class _InquiryPageState extends State<InquiryPage> {
                       AnimatedPadding(
                         duration: const Duration(milliseconds: 180),
                         curve: Curves.easeOutCubic,
-                        padding: EdgeInsets.fromLTRB(16, 8, 16, 12 + keyboardBottom),
+                        padding:
+                            EdgeInsets.fromLTRB(16, 8, 16, 12 + keyboardBottom),
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
@@ -16026,9 +16074,12 @@ class _InquiryPageState extends State<InquiryPage> {
                               minLines: 3,
                               maxLines: 5,
                               textInputAction: TextInputAction.newline,
-                              style: TextStyle(color: primaryText, fontSize: 13),
+                              style:
+                                  TextStyle(color: primaryText, fontSize: 13),
                               decoration: inputDecoration(
-                                answer.isEmpty ? l10n.inquiryAdminReplyLabel : l10n.inquiryAdminReplyEdit,
+                                answer.isEmpty
+                                    ? l10n.inquiryAdminReplyLabel
+                                    : l10n.inquiryAdminReplyEdit,
                               ),
                             ),
                             const SizedBox(height: 10),
@@ -16046,7 +16097,14 @@ class _InquiryPageState extends State<InquiryPage> {
                                     ),
                                     onPressed: replying
                                         ? null
-                                        : () => submitInquiryReply(item),
+                                        : () async {
+                                            final saved =
+                                                await submitInquiryReply(item);
+                                            if (saved &&
+                                                detailContext.mounted) {
+                                              Navigator.pop(detailContext);
+                                            }
+                                          },
                                     icon: replying
                                         ? SizedBox(
                                             width: 14,
@@ -16061,7 +16119,9 @@ class _InquiryPageState extends State<InquiryPage> {
                                         : const Icon(Icons.reply_rounded,
                                             size: 17),
                                     label: Text(
-                                      replying ? l10n.inquirySaving : l10n.inquirySubmitReply,
+                                      replying
+                                          ? l10n.inquirySaving
+                                          : l10n.inquirySubmitReply,
                                       style: const TextStyle(
                                         fontWeight: FontWeight.w900,
                                       ),
@@ -16103,7 +16163,8 @@ class _InquiryPageState extends State<InquiryPage> {
                       AnimatedPadding(
                         duration: const Duration(milliseconds: 180),
                         curve: Curves.easeOutCubic,
-                        padding: EdgeInsets.fromLTRB(16, 8, 16, 12 + keyboardBottom),
+                        padding:
+                            EdgeInsets.fromLTRB(16, 8, 16, 12 + keyboardBottom),
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
@@ -16113,8 +16174,10 @@ class _InquiryPageState extends State<InquiryPage> {
                                 minLines: 1,
                                 maxLines: 4,
                                 textInputAction: TextInputAction.newline,
-                                style: TextStyle(color: primaryText, fontSize: 13),
-                                decoration: inputDecoration(l10n.inquiryUserReplyLabel),
+                                style:
+                                    TextStyle(color: primaryText, fontSize: 13),
+                                decoration:
+                                    inputDecoration(l10n.inquiryUserReplyLabel),
                               ),
                             ),
                             const SizedBox(width: 8),
@@ -16124,7 +16187,8 @@ class _InquiryPageState extends State<InquiryPage> {
                               child: FilledButton(
                                 style: FilledButton.styleFrom(
                                   backgroundColor: accent,
-                                  foregroundColor: whiteMode ? Colors.white : _appBg,
+                                  foregroundColor:
+                                      whiteMode ? Colors.white : _appBg,
                                   padding: EdgeInsets.zero,
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(12),
@@ -16133,7 +16197,8 @@ class _InquiryPageState extends State<InquiryPage> {
                                 onPressed: replying
                                     ? null
                                     : () async {
-                                        await submitInquiryUserMessage(item, userMsgController);
+                                        await submitInquiryUserMessage(
+                                            item, userMsgController);
                                         if (detailContext.mounted) {
                                           Navigator.pop(detailContext);
                                         }
@@ -16144,7 +16209,8 @@ class _InquiryPageState extends State<InquiryPage> {
                                         height: 14,
                                         child: CircularProgressIndicator(
                                           strokeWidth: 2,
-                                          color: whiteMode ? Colors.white : _appBg,
+                                          color:
+                                              whiteMode ? Colors.white : _appBg,
                                         ),
                                       )
                                     : const Icon(Icons.send_rounded, size: 18),
@@ -16291,7 +16357,8 @@ class _InquiryPageState extends State<InquiryPage> {
                 border: Border.all(color: cardLine),
               ),
               child: Text(
-                l10n.inquiryPageOf(normalizedInquiryPage + 1, totalInquiryPages),
+                l10n.inquiryPageOf(
+                    normalizedInquiryPage + 1, totalInquiryPages),
                 style: TextStyle(
                   color: primaryText,
                   fontSize: 12,
@@ -16317,7 +16384,7 @@ class _InquiryPageState extends State<InquiryPage> {
 
     return Scaffold(
       backgroundColor: pageBg,
-      bottomNavigationBar: buildAdOnlyBottomBar(),
+      bottomNavigationBar: buildDefaultAdBottomBar(context),
       appBar: AppBar(
         title: Text(l10n.contentInquiry),
         foregroundColor: primaryText,
@@ -16413,28 +16480,54 @@ class _InquiryPageState extends State<InquiryPage> {
                       )
                     : const Icon(Icons.send_rounded, size: 18),
                 label: Text(
-                  submitting ? l10n.inquirySubmitting : l10n.inquirySubmitButton,
+                  submitting
+                      ? l10n.inquirySubmitting
+                      : l10n.inquirySubmitButton,
                   style: const TextStyle(fontWeight: FontWeight.w900),
                 ),
               ),
             ),
             const SizedBox(height: 18),
             Center(
-              child: TextButton.icon(
-                onPressed: showAdminLoginDialog,
-                icon: Icon(
-                  Icons.admin_panel_settings_rounded,
-                  color: secondaryText,
-                  size: 17,
-                ),
-                label: Text(
-                  l10n.inquiryAdminLabel,
-                  style: TextStyle(
-                    color: secondaryText,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-              ),
+              child: appUserAdminNotifier.value
+                  ? TextButton.icon(
+                      onPressed: () async {
+                        await exitOwnerAdminMode();
+                        if (mounted) {
+                          setState(() {});
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('일반 모드로 전환했습니다.')),
+                          );
+                        }
+                      },
+                      icon: Icon(
+                        Icons.logout_rounded,
+                        color: secondaryText,
+                        size: 17,
+                      ),
+                      label: Text(
+                        '일반 모드로 전환',
+                        style: TextStyle(
+                          color: secondaryText,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    )
+                  : TextButton.icon(
+                      onPressed: showAdminLoginDialog,
+                      icon: Icon(
+                        Icons.admin_panel_settings_rounded,
+                        color: secondaryText,
+                        size: 17,
+                      ),
+                      label: Text(
+                        l10n.inquiryAdminLabel,
+                        style: TextStyle(
+                          color: secondaryText,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ),
             ),
           ],
         ),
@@ -16478,7 +16571,8 @@ Widget buildPersistentBottomNav(
                     right: -9,
                     top: -7,
                     child: Container(
-                      constraints: const BoxConstraints(minWidth: 15, minHeight: 15),
+                      constraints:
+                          const BoxConstraints(minWidth: 15, minHeight: 15),
                       padding: const EdgeInsets.symmetric(horizontal: 4),
                       decoration: const BoxDecoration(
                         color: Colors.redAccent,
@@ -16520,10 +16614,19 @@ Widget buildPersistentBottomNav(
     decoration: BoxDecoration(
       color: whiteMode ? Colors.white : const Color(0xF20A1726),
       borderRadius: BorderRadius.zero,
-      border: Border(top: BorderSide(color: whiteMode ? _lightLine : _cardLine)),
+      border:
+          Border(top: BorderSide(color: whiteMode ? _lightLine : _cardLine)),
       boxShadow: whiteMode
-          ? [BoxShadow(color: const Color(0xFF0F172A).withValues(alpha: 0.06), blurRadius: 18, offset: const Offset(0, -5))]
-          : const [BoxShadow(color: Colors.black54, blurRadius: 18, offset: Offset(0, -5))],
+          ? [
+              BoxShadow(
+                  color: const Color(0xFF0F172A).withValues(alpha: 0.06),
+                  blurRadius: 18,
+                  offset: const Offset(0, -5))
+            ]
+          : const [
+              BoxShadow(
+                  color: Colors.black54, blurRadius: 18, offset: Offset(0, -5))
+            ],
     ),
     child: SafeArea(
       top: false,
@@ -16531,10 +16634,14 @@ Widget buildPersistentBottomNav(
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          item(Icons.home_rounded, l10n.navHome, false, () => goHomeAndScrollTop(context)),
-          item(Icons.show_chart_rounded, l10n.navChart, isChart, () => openChartPage(context)),
-          item(Icons.currency_exchange_rounded, l10n.navExchange, isExchange, () => openExchangePage(context)),
-          item(Icons.speed_rounded, l10n.navFearGreed, isFearGreed, () => openFearGreedPage(context)),
+          item(Icons.home_rounded, l10n.navHome, false,
+              () => goHomeAndScrollTop(context)),
+          item(Icons.show_chart_rounded, l10n.navChart, isChart,
+              () => openChartPage(context)),
+          item(Icons.currency_exchange_rounded, l10n.navExchange, isExchange,
+              () => openExchangePage(context)),
+          item(Icons.speed_rounded, l10n.navFearGreed, isFearGreed,
+              () => openFearGreedPage(context)),
           ValueListenableBuilder<int>(
             valueListenable: alertBadgeCount,
             builder: (context, count, _) {
@@ -16544,7 +16651,10 @@ Widget buildPersistentBottomNav(
                 isAlert,
                 () {
                   if (isAlert) return;
-                  Navigator.push(context, MaterialPageRoute(builder: (_) => const NotificationHistoryPage()));
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (_) => const NotificationHistoryPage()));
                 },
                 badgeCount: isAlert ? 0 : count,
               );
@@ -16552,7 +16662,8 @@ Widget buildPersistentBottomNav(
           ),
           item(Icons.rule_rounded, l10n.navStrategy, isStrategy, () {
             if (isStrategy) return;
-            Navigator.push(context, MaterialPageRoute(builder: (_) => const StrategyPage()));
+            Navigator.push(context,
+                MaterialPageRoute(builder: (_) => const StrategyPage()));
           }),
         ],
       ),
@@ -16566,6 +16677,7 @@ Widget buildFixedAdBottomBar(Widget nav, {Widget? closeGuessWidget}) {
     child: Column(
       mainAxisSize: MainAxisSize.min,
       children: [
+        const _BottomBannerAd(),
         if (closeGuessWidget != null)
           Align(
             alignment: Alignment.centerRight,
@@ -16574,8 +16686,6 @@ Widget buildFixedAdBottomBar(Widget nav, {Widget? closeGuessWidget}) {
               child: closeGuessWidget,
             ),
           ),
-        if (bottomBannerAdHeight > 0)
-          SizedBox(height: bottomBannerAdHeight, child: const StrategyBannerAd()),
         nav,
       ],
     ),
@@ -16583,13 +16693,204 @@ Widget buildFixedAdBottomBar(Widget nav, {Widget? closeGuessWidget}) {
 }
 
 Widget buildAdOnlyBottomBar() {
-  return ColoredBox(
-    color: whiteModeNotifier.value ? _lightAppBg : _appBg,
-    child: SafeArea(
-      top: false,
-      child: bottomBannerAdHeight > 0
-          ? SizedBox(height: bottomBannerAdHeight, child: const StrategyBannerAd())
-          : const SizedBox.shrink(),
-    ),
+  return const _BottomBannerAd();
+}
+
+Widget buildDefaultAdBottomBar(BuildContext context) {
+  return buildFixedAdBottomBar(
+    buildPersistentBottomNav(context, currentTab: NavTab.strategyDetail),
   );
+}
+
+class _ExitMrecAd extends StatefulWidget {
+  const _ExitMrecAd();
+
+  @override
+  State<_ExitMrecAd> createState() => _ExitMrecAdState();
+}
+
+class _ExitMrecAdState extends State<_ExitMrecAd> {
+  bool _loaded = false;
+  MethodChannel? _mrecChannel;
+
+  void _onPlatformViewCreated(int viewId) {
+    final channel = MethodChannel('qld_alert/levelplay_banner_$viewId');
+    _mrecChannel = channel;
+    channel.setMethodCallHandler((call) async {
+      if (!mounted) return;
+      if (call.method == 'loadSuccess' || call.method == 'visible') {
+        if (!_loaded) setState(() => _loaded = true);
+        debugPrint('[LevelPlay] Exit MREC ${call.method}');
+      } else if (call.method == 'loadFailed') {
+        if (_loaded) setState(() => _loaded = false);
+        debugPrint(
+            '[LevelPlay] Exit MREC placeholder retained: ${call.arguments}');
+      }
+    });
+    unawaited(_activateMrecChannel(channel));
+  }
+
+  Future<void> _activateMrecChannel(MethodChannel channel) async {
+    try {
+      final state = await channel.invokeMapMethod<String, dynamic>('ready');
+      if (!mounted || _mrecChannel != channel) return;
+      final nativeState = '${state?['state'] ?? 'idle'}';
+      if ((nativeState == 'loaded' || nativeState == 'visible') && !_loaded) {
+        setState(() => _loaded = true);
+      }
+    } catch (error) {
+      debugPrint('[LevelPlay] Exit MREC channel ready failed: $error');
+    }
+  }
+
+  @override
+  void dispose() {
+    _mrecChannel?.setMethodCallHandler(null);
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (kIsWeb ||
+        defaultTargetPlatform != TargetPlatform.android ||
+        appUserAdminNotifier.value) {
+      return const SizedBox.shrink();
+    }
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 180),
+      width: 300,
+      height: 250,
+      clipBehavior: Clip.hardEdge,
+      decoration: BoxDecoration(
+        color: whiteModeNotifier.value
+            ? const Color(0xFFF4F6FA)
+            : const Color(0xFF111827),
+        borderRadius: BorderRadius.circular(6),
+      ),
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          if (!_loaded)
+            const Center(
+              child: Text(
+                'AD',
+                style: TextStyle(
+                  color: Colors.grey,
+                  fontSize: 10,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          AndroidView(
+            viewType: 'qld_alert/levelplay_banner',
+            creationParams: const <String, dynamic>{'format': 'mrec'},
+            creationParamsCodec: const StandardMessageCodec(),
+            onPlatformViewCreated: _onPlatformViewCreated,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _BottomBannerAd extends StatefulWidget {
+  const _BottomBannerAd();
+
+  @override
+  State<_BottomBannerAd> createState() => _BottomBannerAdState();
+}
+
+class _BottomBannerAdState extends State<_BottomBannerAd> {
+  late final Future<bool> _purchased = _loadPurchased();
+  bool _loaded = false;
+  MethodChannel? _bannerChannel;
+
+  @override
+  void initState() {
+    super.initState();
+    debugPrint('[LevelPlay] Banner widget created');
+  }
+
+  void _onPlatformViewCreated(int viewId) {
+    final channel = MethodChannel('qld_alert/levelplay_banner_$viewId');
+    _bannerChannel = channel;
+    channel.setMethodCallHandler((call) async {
+      if (!mounted) return;
+      if (call.method == 'loadSuccess') {
+        if (!_loaded) setState(() => _loaded = true);
+        debugPrint('[LevelPlay] Banner load success');
+      } else if (call.method == 'visible') {
+        if (!_loaded) setState(() => _loaded = true);
+        debugPrint('[LevelPlay] Banner visible on screen');
+      } else if (call.method == 'loadFailed') {
+        if (_loaded) setState(() => _loaded = false);
+        debugPrint('[LevelPlay] Banner hidden: ${call.arguments}');
+      }
+    });
+    unawaited(_activateBannerChannel(channel));
+  }
+
+  Future<void> _activateBannerChannel(MethodChannel channel) async {
+    try {
+      final state = await channel.invokeMapMethod<String, dynamic>('ready');
+      if (!mounted || _bannerChannel != channel) return;
+      final nativeState = '${state?['state'] ?? 'idle'}';
+      debugPrint('[LevelPlay] Banner native channel ready state=$nativeState');
+      if ((nativeState == 'loaded' || nativeState == 'visible') && !_loaded) {
+        setState(() => _loaded = true);
+      }
+    } catch (error) {
+      debugPrint('[LevelPlay] Banner channel ready failed: $error');
+    }
+  }
+
+  @override
+  void dispose() {
+    _bannerChannel?.setMethodCallHandler(null);
+    super.dispose();
+  }
+
+  Future<bool> _loadPurchased() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool('coreAlertPurchased') == true;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (kIsWeb || defaultTargetPlatform != TargetPlatform.android) {
+      return const SizedBox.shrink();
+    }
+    return ValueListenableBuilder<bool>(
+      valueListenable: appUserAdminNotifier,
+      builder: (context, isAdmin, _) {
+        if (isAdmin) {
+          debugPrint('[LevelPlay] Admin mode: banner request skipped');
+          return const SizedBox.shrink();
+        }
+        return FutureBuilder<bool>(
+          future: _purchased,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState != ConnectionState.done ||
+                snapshot.data == true) {
+              return const SizedBox.shrink();
+            }
+            return ColoredBox(
+              color: whiteModeNotifier.value ? Colors.white : _appBg,
+              child: SizedBox(
+                height: _loaded ? 50 : 1,
+                width: double.infinity,
+                child: Center(
+                  child: AndroidView(
+                    viewType: 'qld_alert/levelplay_banner',
+                    creationParamsCodec: StandardMessageCodec(),
+                    onPlatformViewCreated: _onPlatformViewCreated,
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
 }

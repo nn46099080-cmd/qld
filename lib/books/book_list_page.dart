@@ -93,8 +93,11 @@ class _BookListPageState extends State<BookListPage> {
           separatorBuilder: (_, __) => const SizedBox(height: 10),
           itemBuilder: (context, index) {
             final book = _books[index];
-            final mainTitle = _showEnglish ? book.title : book.subtitle;
-            final subTitle = _showEnglish ? book.subtitle : book.title;
+            final localizedSub = index == 0
+                ? l10n.intelligentInvestorBookTitle
+                : l10n.longFormBookTitle;
+            final mainTitle = _showEnglish ? book.title : localizedSub;
+            final subTitle = _showEnglish ? localizedSub : book.title;
             return Material(
               color: cardBg,
               borderRadius: BorderRadius.circular(16),

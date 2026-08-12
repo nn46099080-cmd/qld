@@ -1455,7 +1455,7 @@ function localizedAlertPayload(type) {
     body: fallbackBody,
     detail: fallbackBody,
   };
-  const languageCodes = type === 'marketOpen' ? ALERT_LANGUAGES : ['en'];
+  const languageCodes = ALERT_LANGUAGES;
 
   for (const code of languageCodes) {
     if (title[code]) data[`title_${code}`] = title[code];
@@ -2080,12 +2080,12 @@ function adminStatusResponse(env, uid) {
   );
 }
 
-function normalizeMajorUsScheduleItem(item) {
+function normalizeMajorUsScheduleItem(item, { normalize = true } = {}) {
   const rawTitle = String(item?.title || '')
     .trim()
     .replace(/\s+/g, ' ')
     .slice(0, 80);
-  const title = normalizeMajorUsScheduleTitle(rawTitle);
+  const title = normalize ? normalizeMajorUsScheduleTitle(rawTitle) : rawTitle;
   const date = String(item?.date || '').trim();
   if (!title || !/^\d{4}-\d{2}-\d{2}$/.test(date)) return null;
 
@@ -2103,6 +2103,7 @@ function normalizeMajorUsScheduleItem(item) {
 function normalizeMajorUsScheduleTitle(title) {
   const upper = String(title || '').trim().toUpperCase();
   if (!upper) return '';
+  if (upper.includes('FOMC MINUTES') || upper === 'MINUTES') return 'FOMC Minutes';
   if (upper.includes('FOMC')) return 'FOMC';
   if (upper.includes('CPI')) return 'CPI';
   if (
@@ -2130,7 +2131,7 @@ async function loadMajorUsSchedules(env) {
     : DEFAULT_MAJOR_US_SCHEDULES;
   return sortMajorUsSchedules(
     source
-      .map(normalizeMajorUsScheduleItem)
+      .map((item) => normalizeMajorUsScheduleItem(item, { normalize: false }))
       .filter(Boolean)
       .slice(0, MAJOR_US_SCHEDULE_MAX_ENTRIES),
   );
@@ -2492,6 +2493,7 @@ function publicInquiry(inquiry) {
     .find((message) => message.role === 'admin');
   return {
     inquiryId: String(inquiry?.inquiryId || createdAt),
+    uid,
     id: normalizeInquiryNickname(inquiry?.nickname || inquiry?.id, uid),
     nickname: normalizeInquiryNickname(inquiry?.nickname || inquiry?.id, uid),
     content: normalizeInquiryContent(inquiry?.content),
@@ -2676,6 +2678,58 @@ async function handlePostInquiryMessage(request, env) {
       notificationInquiry,
     );
   }
+
+  return apiJsonResponse({ items: sortInquiries(nextItems).map(publicInquiry) }, 200);
+}
+
+async function handleEditInquiryMessage(request, env) {
+  if (!env.ALERT_STATE) {
+    return apiJsonResponse({ error: 'Inquiry storage is unavailable' }, 503);
+  }
+
+  const contentLength = Number(request.headers.get('content-length') || 0);
+  if (contentLength > 8192) {
+    return apiJsonResponse({ error: 'Request too large' }, 413);
+  }
+
+  const body = await request.json();
+  const inquiryId = String(body?.inquiryId || '').trim();
+  const uid = normalizeUserUid(body?.uid);
+  const messageCreatedAt = String(body?.messageCreatedAt || '').trim();
+  const content = normalizeInquiryContent(body?.content);
+
+  if (!inquiryId || !uid || !messageCreatedAt || !content) {
+    return apiJsonResponse({ error: 'Invalid request' }, 400);
+  }
+
+  const items = await loadInquiries(env);
+  let updated = false;
+  const now = new Date().toISOString();
+  const nextItems = items.map((item) => {
+    const itemId = String(item.inquiryId || item.createdAt || '');
+    if (itemId !== inquiryId) return item;
+
+    const msgs = inquiryMessages(item);
+    const nextMsgs = msgs.map((msg) => {
+      if (msg.createdAt !== messageCreatedAt) return msg;
+      if (normalizeUserUid(msg.uid) !== uid) return msg;
+      if (msg.role !== 'user') return msg;
+      updated = true;
+      return { ...msg, content, editedAt: now };
+    });
+
+    if (!updated) return item;
+    return { ...item, messages: nextMsgs };
+  });
+
+  if (!updated) {
+    return apiJsonResponse({ error: 'Message not found or not authorized' }, 404);
+  }
+
+  await env.ALERT_STATE.put(
+    INQUIRIES_KEY,
+    JSON.stringify({ items: nextItems, updatedAt: now }),
+  );
 
   return apiJsonResponse({ items: sortInquiries(nextItems).map(publicInquiry) }, 200);
 }
@@ -3470,6 +3524,32 @@ async function sendFcmTopicAlert(env, type, extraData = {}, options = {}) {
   if (alertTag) {
     data.alertTag = alertTag;
   }
+  // dataOnly: true → notification 페이로드 없이 data만 전송.
+  // 백그라운드에서 시스템이 자동 표시하지 않고 onBackgroundMessage 핸들러를 통해
+  // 앱 설정(alertTypeEnabledFromPrefs)을 확인한 후 표시할 수 있게 함.
+  const dataOnly = options.dataOnly === true;
+  const messageBody = {
+    topic,
+    data,
+    android: {
+      collapse_key: alertTag || type,
+      priority: 'HIGH',
+      ttl: '3600s',
+    },
+  };
+  if (dataOnly) {
+    // iOS에서 앱이 백그라운드/종료 상태여도 onBackgroundMessage가 실행되도록
+    messageBody.apns = {
+      headers: { 'apns-push-type': 'background', 'apns-priority': '5' },
+      payload: { aps: { 'content-available': 1 } },
+    };
+  } else {
+    messageBody.notification = {
+      title: data[`title_${language}`] || data['title_en'] || 'QLD',
+      body: data[`body_${language}`] || data['body_en'] || '',
+    };
+    messageBody.android.notification = { channel_id: 'qld_alerts' };
+  }
   const response = await fetch(
     `https://fcm.googleapis.com/v1/projects/${env.FIREBASE_PROJECT_ID.replace(/^﻿/, '')}/messages:send`,
     {
@@ -3478,17 +3558,7 @@ async function sendFcmTopicAlert(env, type, extraData = {}, options = {}) {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        message: {
-          topic,
-          data,
-          android: {
-            collapse_key: alertTag || type,
-            priority: 'HIGH',
-            ttl: '3600s',
-          },
-        },
-      }),
+      body: JSON.stringify({ message: messageBody }),
     },
   );
 
@@ -3500,7 +3570,7 @@ async function sendFcmTopicAlert(env, type, extraData = {}, options = {}) {
   return response.json();
 }
 
-async function sendFcmDeviceAlert(env, fcmToken, type, extraData = {}, language = 'en') {
+async function sendFcmDeviceAlert(env, fcmToken, type, extraData = {}, language = 'en', { withNotification = false } = {}) {
   const token = await firebaseAccessToken(env);
   const data = {
     ...localizedAlertPayload(type),
@@ -3509,6 +3579,24 @@ async function sendFcmDeviceAlert(env, fcmToken, type, extraData = {}, language 
       Object.entries(extraData).map(([key, value]) => [key, String(value)]),
     ),
   };
+  const lang = language || 'en';
+  const titleKey = `title_${lang}`;
+  const bodyKey = `body_${lang}`;
+  const notificationTitle = data[titleKey] || data['title_en'] || 'QLD';
+  const notificationBody = data[bodyKey] || data['body_en'] || '';
+  const message = {
+    token: fcmToken,
+    data,
+    android: {
+      collapse_key: type,
+      priority: 'HIGH',
+      ttl: '3600s',
+    },
+  };
+  if (withNotification) {
+    message.notification = { title: notificationTitle, body: notificationBody };
+    message.android.notification = { channel_id: 'qld_alerts' };
+  }
   const response = await fetch(
     `https://fcm.googleapis.com/v1/projects/${env.FIREBASE_PROJECT_ID.replace(/^﻿/, '')}/messages:send`,
     {
@@ -3517,17 +3605,7 @@ async function sendFcmDeviceAlert(env, fcmToken, type, extraData = {}, language 
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        message: {
-          token: fcmToken,
-          data,
-          android: {
-            collapse_key: type,
-            priority: 'HIGH',
-            ttl: '3600s',
-          },
-        },
-      }),
+      body: JSON.stringify({ message }),
     },
   );
 
@@ -3581,7 +3659,7 @@ async function sendPaidDeviceAlerts(env, type, extraData = {}) {
   return { sent, failed };
 }
 
-async function sendUserDeviceAlerts(env, uid, type, extraData = {}) {
+async function sendUserDeviceAlerts(env, uid, type, extraData = {}, { withNotification = false } = {}) {
   const normalizedUid = normalizeUserUid(uid);
   if (!normalizedUid || !env.ALERT_STATE) return { sent: 0, failed: 0 };
 
@@ -3607,6 +3685,7 @@ async function sendUserDeviceAlerts(env, uid, type, extraData = {}) {
           type,
           extraData,
           device.language,
+          { withNotification },
         );
         sent += 1;
       } catch (error) {
@@ -3627,7 +3706,7 @@ async function sendUserDeviceAlerts(env, uid, type, extraData = {}) {
   return { sent, failed };
 }
 
-function sendInquiryNotification(env, uid, kind, inquiry) {
+async function sendInquiryNotification(env, uid, kind, inquiry) {
   const isReply = kind === 'reply';
   const type = isReply ? 'inquiryReply' : 'inquiryNew';
   const inquiryId = String(inquiry?.inquiryId || inquiry?.createdAt || '');
@@ -3647,17 +3726,24 @@ function sendInquiryNotification(env, uid, kind, inquiry) {
         body_en: 'A user has submitted a new inquiry.',
       };
 
-  return sendUserDeviceAlerts(env, uid, type, extraData);
+  const result = await sendUserDeviceAlerts(env, uid, type, extraData, { withNotification: true });
+  console.log(JSON.stringify({ event: 'inquiry_notification', uid, kind, sent: result.sent, failed: result.failed }));
+  return result;
 }
 
-async function sendLocalizedFcmTopicAlert(env, type, extraData = {}) {
+async function sendLocalizedFcmTopicAlert(env, type, extraData = {}, options = {}) {
   const results = [];
+  const topicPrefix = options.topicPrefix;
 
   for (const language of ALERT_LANGUAGES) {
+    const topic = topicPrefix
+      ? `${topicPrefix}_${language}`
+      : alertTopicForLanguage(language);
     results.push(
       await sendFcmTopicAlert(env, type, extraData, {
         language,
-        topic: alertTopicForLanguage(language),
+        topic,
+        dataOnly: options.dataOnly,
       }),
     );
   }
@@ -3716,8 +3802,8 @@ function isAfterCloseAlertWindow(parts) {
   const closeMinute = marketCloseMinute(parts);
   return (
     closeMinute > 0 &&
-    parts.minutes >= closeMinute + 10 &&
-    parts.minutes < 24 * 60
+    parts.minutes >= closeMinute + 30 &&
+    parts.minutes < closeMinute + 45
   );
 }
 
@@ -3741,7 +3827,7 @@ async function evaluateMarketOpenAlert(env, parts) {
 
   await sendLocalizedFcmTopicAlert(env, 'marketOpen', {
     nyDate: parts.date,
-  });
+  }, { topicPrefix: 'marketOpen' });
   await putState(env, 'marketOpenAlertDate', parts.date);
 }
 
@@ -3850,7 +3936,7 @@ async function evaluateHighAndStrategyAlerts(env, parts, qldDailyResult) {
     await sendLocalizedFcmTopicAlert(env, 'high', {
       price: close.toFixed(2),
       nyDate: parts.date,
-    });
+    }, { topicPrefix: 'highAlert' });
     await putState(env, 'highAlertDate', parts.date);
     return;
   }
@@ -3873,7 +3959,7 @@ async function evaluateHighAndStrategyAlerts(env, parts, qldDailyResult) {
       high: referenceHigh.toFixed(2),
       dropPercent: dropPercent.toFixed(2),
       nyDate: parts.date,
-    });
+    }, { topicPrefix: 'strategyAlert' });
     return;
   }
 
@@ -3884,7 +3970,7 @@ async function evaluateHighAndStrategyAlerts(env, parts, qldDailyResult) {
       high: referenceHigh.toFixed(2),
       dropPercent: dropPercent.toFixed(2),
       nyDate: parts.date,
-    });
+    }, { topicPrefix: 'strategyAlert' });
   }
 }
 
@@ -3975,10 +4061,26 @@ async function evaluateFearGreedAlert(env, parts, scheduledTime = Date.now()) {
   const lastCheckedDate = await getState(env, 'fearGreedCheckedDate', '');
   if (lastCheckedDate === parts.date) return;
 
-  const data = await fetchFearGreedData(scheduledTime);
-  const nextState = fearGreedAlertStateForScore(data.score);
+  let data;
+  try {
+    data = await fetchFearGreedData(scheduledTime);
+  } catch (e) {
+    const cached = await getState(env, 'cachedFearGreed', null);
+    if (!cached || !cached.score) {
+      console.error('Fear & Greed fetch failed and no cache available:', e?.message);
+      return;
+    }
+    console.log('Fear & Greed fetch failed, using cached value:', cached.score);
+    data = cached;
+  }
   const initialized = await getState(env, 'fearGreedAlertInitialized', false);
   const savedState = Number(await getState(env, 'fearGreedState', 0));
+  // 극단적 공포 해제는 40 초과, 극단적 탐욕 해제는 60 미만 시 (완충 구간)
+  const nextState = savedState === -1 && data.score <= 40
+    ? -1
+    : savedState === 1 && data.score >= 60
+      ? 1
+      : fearGreedAlertStateForScore(data.score);
 
   await putState(env, 'fearGreedState', nextState);
   await putState(env, 'lastFearGreed', {
@@ -4003,7 +4105,7 @@ async function evaluateFearGreedAlert(env, parts, scheduledTime = Date.now()) {
     score: data.score.toFixed(0),
     rating: data.rating,
     nyDate: parts.date,
-  });
+  }, { topicPrefix: type });
   await putState(env, 'fearGreedCheckedDate', parts.date);
 }
 
@@ -4226,6 +4328,7 @@ export default {
       path === '/close-guess-winner-message' ||
       path === '/inquiries/reply' ||
       path === '/inquiries/message' ||
+      path === '/inquiries/message/edit' ||
       path === '/inquiries/pin' ||
       path === '/inquiries/delete' ||
       path === '/inquiries' ||
@@ -4262,6 +4365,9 @@ export default {
         }
         if (path === '/inquiries/message' && request.method === 'POST') {
           return handlePostInquiryMessage(request, env);
+        }
+        if (path === '/inquiries/message/edit' && request.method === 'POST') {
+          return handleEditInquiryMessage(request, env);
         }
         if (path === '/inquiries/pin' && request.method === 'POST') {
           return handlePinInquiry(request, env);
@@ -4587,7 +4693,7 @@ export default {
 
     if (path === '/app-config') {
       const defaultConfig = {
-        latestVersionCode: 52,
+        latestVersionCode: 79,
         forceUpdate: false,
         updateUrl:
           'https://play.google.com/store/apps/details?id=com.qldalert.app',
@@ -4607,13 +4713,10 @@ export default {
         storedConfig && typeof storedConfig === 'object'
           ? { ...defaultConfig, ...storedConfig }
           : defaultConfig;
-      const storedVersionCode = Number(
-        config.latestVersionCode ?? config.androidVersionCode ?? 0,
-      );
-      config.latestVersionCode = Math.max(
-        defaultConfig.latestVersionCode,
-        Number.isFinite(storedVersionCode) ? storedVersionCode : 0,
-      );
+      // The currently released app compares against versionCode 79. Keep the server's
+      // comparison value aligned with that release even if an old KV value
+      // contains a stale/higher version code.
+      config.latestVersionCode = defaultConfig.latestVersionCode;
 
       return jsonResponse(config, 'BYPASS', 200);
     }
@@ -4621,6 +4724,9 @@ export default {
     if (path === '/fear-greed') {
       try {
         const { body, cacheStatus } = await getFearGreedData();
+        if (env.ALERT_STATE && body?.score) {
+          env.ALERT_STATE.put('alert:cachedFearGreed', JSON.stringify(body)).catch(() => {});
+        }
         return jsonResponse(body, cacheStatus, 200);
       } catch (error) {
         if (fearGreedCache?.body) {

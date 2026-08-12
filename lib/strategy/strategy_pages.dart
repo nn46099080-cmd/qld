@@ -70,7 +70,6 @@ class _StrategyPageState extends State<StrategyPage> {
         valueListenable: rebalanceCardTriggeredAt,
         builder: (context, triggeredAt, _) {
           _checkExpiry(triggeredAt);
-          final showCard = _isCardVisible(triggeredAt);
           return ListView(
             padding: const EdgeInsets.fromLTRB(18, 10, 18, 144),
             children: [
@@ -127,7 +126,8 @@ class _StrategyPageState extends State<StrategyPage> {
     final whiteMode = isWhiteModeEnabled(ctx);
     const goldColor = Color(0xFFD4A017);
     const goldLight = Color(0xFFFFD700);
-    final surface = whiteMode ? const Color(0xFFFFFBEA) : const Color(0xFF1A1500);
+    final surface =
+        whiteMode ? const Color(0xFFFFFBEA) : const Color(0xFF1A1500);
     final faintText = whiteMode ? const Color(0xFF94A3B8) : Colors.white38;
 
     return Padding(
@@ -557,6 +557,7 @@ Widget strategyActionPage({
   required BuildContext context,
   required String appBarTitle,
   required String zone,
+  String? zoneLabel,
   required String headline,
   required Color accent,
   required IconData icon,
@@ -635,7 +636,7 @@ Widget strategyActionPage({
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      zone,
+                      zoneLabel ?? zone,
                       style: TextStyle(
                         color: accent,
                         fontSize: 26,
@@ -721,6 +722,7 @@ class RebalancePage extends StatelessWidget {
       context: context,
       appBarTitle: l10n.rebalanceTitle,
       zone: '리밸런싱',
+      zoneLabel: l10n.rebalanceTitle,
       headline: l10n.rebalanceHeadline,
       accent: const Color(0xFFD4A017),
       icon: Icons.balance_rounded,
@@ -929,7 +931,7 @@ class HoldPositionPage extends StatelessWidget {
     return strategyActionPage(
       context: context,
       appBarTitle: l10n.holdPageTitle,
-      zone: '$lastZone ${l10n.hold}',
+      zone: l10n.hold,
       headline: l10n.holdHeadline,
       accent: accent,
       icon: Icons.check_circle_outline_rounded,
@@ -951,188 +953,6 @@ class HoldPositionPage extends StatelessWidget {
           text: l10n.holdResetText,
         ),
       ],
-    );
-  }
-}
-
-class BottomBannerAdCache extends ChangeNotifier {
-  BottomBannerAdCache._();
-
-  static final BottomBannerAdCache instance = BottomBannerAdCache._();
-
-  final List<BannerAd> _readyAds = <BannerAd>[];
-  bool _loading = false;
-  Timer? _retryTimer;
-
-  BannerAd? takeReadyAd() {
-    if (_readyAds.isEmpty) {
-      preload();
-      return null;
-    }
-    final bannerAd = _readyAds.removeAt(0);
-    preload();
-    return bannerAd;
-  }
-
-  void preload() {
-    if (!canRequestAds || _loading || _readyAds.isNotEmpty) return;
-
-    _retryTimer?.cancel();
-    _retryTimer = null;
-    _loading = true;
-    final bannerAd = BannerAd(
-      adUnitId: _adMobBottomBannerUnitId,
-      size: AdSize.banner,
-      request: const AdRequest(),
-      listener: BannerAdListener(
-        onAdLoaded: (ad) {
-          _loading = false;
-          _readyAds.add(ad as BannerAd);
-          notifyListeners();
-        },
-        onAdFailedToLoad: (ad, error) {
-          debugPrint('Bottom AdMob failed to load: $error');
-          _loading = false;
-          ad.dispose();
-          _retryTimer?.cancel();
-          _retryTimer = Timer(const Duration(seconds: 12), preload);
-          notifyListeners();
-        },
-      ),
-    );
-    unawaited(bannerAd.load());
-  }
-}
-
-class StrategyBannerAd extends StatefulWidget {
-  const StrategyBannerAd({super.key});
-
-  @override
-  State<StrategyBannerAd> createState() => _StrategyBannerAdState();
-}
-
-class _StrategyBannerAdState extends State<StrategyBannerAd> {
-  BannerAd? _bannerAd;
-  bool _loading = false;
-  Timer? _retryTimer;
-
-  @override
-  void initState() {
-    super.initState();
-    if (canRequestAdsense) {
-      registerAdsenseBannerViewFactory(
-        viewType: _adsenseBottomBannerViewType,
-        clientId: _adsenseClientId,
-        slotId: _adsenseBottomBannerSlotId,
-        width: _bottomBannerAdWidth,
-        height: _bottomBannerAdHeight,
-      );
-      return;
-    }
-
-    if (!canRequestAds) return;
-
-    BottomBannerAdCache.instance.preload();
-    _loadBannerAd();
-  }
-
-  @override
-  void dispose() {
-    _retryTimer?.cancel();
-    _bannerAd?.dispose();
-    super.dispose();
-  }
-
-  void _loadBannerAd() {
-    if (!canRequestAds || _loading || _bannerAd != null) return;
-
-    _retryTimer?.cancel();
-    _retryTimer = null;
-    _loading = true;
-
-    final bannerAd = BannerAd(
-      adUnitId: _adMobBottomBannerUnitId,
-      size: AdSize.banner,
-      request: const AdRequest(),
-      listener: BannerAdListener(
-        onAdLoaded: (ad) {
-          if (!mounted) {
-            ad.dispose();
-            return;
-          }
-
-          setState(() {
-            _loading = false;
-            _bannerAd = ad as BannerAd;
-          });
-        },
-        onAdFailedToLoad: (ad, error) {
-          debugPrint('Bottom AdMob failed to load: $error');
-          ad.dispose();
-          if (!mounted) return;
-
-          setState(() {
-            _loading = false;
-            _bannerAd = null;
-          });
-          _retryTimer = Timer(const Duration(seconds: 12), _loadBannerAd);
-        },
-      ),
-    );
-    unawaited(bannerAd.load());
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    if (canRequestAdsense) {
-      return const SizedBox(
-        height: _bottomBannerAdHeight,
-        width: double.infinity,
-        child: HtmlElementView(viewType: _adsenseBottomBannerViewType),
-      );
-    }
-
-    if (!canRequestAds || _bannerAd == null) {
-      return Container(
-        height: bottomBannerAdHeight,
-        width: double.infinity,
-        alignment: Alignment.center,
-        color: Colors.transparent,
-      );
-    }
-
-    return Center(
-      child: SizedBox(
-        height: _bannerAd!.size.height.toDouble(),
-        width: _bannerAd!.size.width.toDouble(),
-        child: AdWidget(ad: _bannerAd!),
-      ),
-    );
-  }
-}
-
-class ExitDialogBannerAd extends StatelessWidget {
-  const ExitDialogBannerAd({
-    super.key,
-    this.ad,
-  });
-
-  final BannerAd? ad;
-
-  @override
-  Widget build(BuildContext context) {
-    final bannerAd = ad;
-    if (!canRequestAds || bannerAd == null) {
-      return SizedBox(
-        height: AdSize.mediumRectangle.height.toDouble(),
-        width: AdSize.mediumRectangle.width.toDouble(),
-      );
-    }
-
-    return SizedBox(
-      height: bannerAd.size.height.toDouble(),
-      width: bannerAd.size.width.toDouble(),
-      child: AdWidget(ad: bannerAd),
     );
   }
 }

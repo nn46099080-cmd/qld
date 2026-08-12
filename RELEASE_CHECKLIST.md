@@ -13,7 +13,7 @@
 - [ ] Add the financial disclaimer URL to the store listing or in-app disclosure:
   `https://billowing-band-06cd.nn46099080.workers.dev/financial-disclaimer`
 - [ ] Complete Google Play Data safety and Financial features declarations.
-- [ ] Publish the required AdMob Privacy & messaging consent messages.
+- [ ] Confirm the required Unity Ads privacy and consent settings.
 - [ ] Confirm Cloudflare Workers billing, usage alerts, and error monitoring.
 - [ ] Back up the upload keystore and credentials in a secure password manager.
 
